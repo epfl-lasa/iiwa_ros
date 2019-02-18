@@ -54,6 +54,7 @@ namespace iiwa_ros {
         void write(ros::Duration elapsed_time);
 
     protected:
+        void _load_params();
         bool _init_fri();
         bool _connect_fri();
         void _disconnect_fri();

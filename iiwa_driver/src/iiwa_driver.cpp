@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 
     iiwa_ros::Iiwa iiwa(nh);
 
-    ros::spin();
+    spinner.stop();
 
     return 0;
 }

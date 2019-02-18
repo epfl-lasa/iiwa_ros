@@ -10,17 +10,16 @@
 namespace iiwa_ros {
     Iiwa::Iiwa(ros::NodeHandle& nh) : _nh(nh)
     {
+        _load_params(); // load parameters
         init(); // initialize
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
-        _nh.param("/iiwa/hardware_interface/control_freq", _control_freq, 50.);
-        ros::Duration update_freq = ros::Duration(1.0 / _control_freq);
-        _update_timer = _nh.createTimer(update_freq, &Iiwa::update, this);
-
-        _nh.param("/iiwa/fri/port", _port, 30200); // Default port is 30200
-        _nh.param<std::string>("iiwa/fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-
-        _init_fri();
+        // if successfully connected to robot
+        if (_init_fri()) {
+            ros::Duration update_freq = ros::Duration(1.0 / _control_freq);
+            _update_timer = _nh.createTimer(update_freq, &Iiwa::update, this);
+        }
+        // else ERROR
     }
 
     Iiwa::~Iiwa()
@@ -36,7 +35,6 @@ namespace iiwa_ros {
     void Iiwa::init()
     {
         // Get joint names
-        _nh.getParam("/iiwa/hardware_interface/joints", _joint_names);
         _num_joints = _joint_names.size();
 
         // Resize vectors
@@ -115,13 +113,26 @@ namespace iiwa_ros {
         if (_idle) // if idle, do nothing
             return;
 
-        if (_robotState.getClientCommandMode() == kuka::fri::TORQUE)
+        if (_robotState.getClientCommandMode() == kuka::fri::TORQUE) {
             _robotCommand.setTorque(_joint_effort_command.data());
+            _robotCommand.setJointPosition(_joint_position.data());
+        }
         else if (_robotState.getClientCommandMode() == kuka::fri::POSITION)
             _robotCommand.setJointPosition(_joint_position_command.data());
         // else ERROR
 
         _write_fri();
+    }
+
+    void Iiwa::_load_params()
+    {
+        ros::NodeHandle n_p("~");
+
+        n_p.param("fri/port", _port, 30200); // Default port is 30200
+        n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
+
+        n_p.param("hardware_interface/control_freq", _control_freq, 50.);
+        n_p.getParam("hardware_interface/joints", _joint_names);
     }
 
     bool Iiwa::_init_fri()

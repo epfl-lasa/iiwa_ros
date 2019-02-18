@@ -1,0 +1,14 @@
+fri:
+  port: 30200
+  robot_ip: 192.170.10.2
+
+hardware_interface:
+  control_freq: 50 # in Hz
+  joints:
+    - joint_0
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
