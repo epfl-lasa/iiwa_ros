@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package>
+  <name>iiwa_control</name>
+  <version>0.0.1</version>
+  <description>Control for KUKA's IIWA robot</description>
+
+  <maintainer email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</maintainer>
+
+  <license>BSD</license>
+
+  <url type="repository">https://github.com/costashatz/iiwa_ros</url>
+  <url type="bugtracker">https://github.com/costashatz/iiwa_ros/issues</url>
+
+  <author email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <run_depend>robot_state_publisher</run_depend>
+  <run_depend>ros_control</run_depend>
+  <run_depend>ros_controllers</run_depend>
+
+
+  <export>
+  </export>
+</package>
