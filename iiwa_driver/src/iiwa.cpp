@@ -113,6 +113,8 @@ namespace iiwa_ros {
     {
         if (_idle) // if idle, do nothing
             return;
+        // reset commmand message
+        _fri_message_data->resetCommandMessage();
 
         if (_robotState.getClientCommandMode() == kuka::fri::TORQUE) {
             _robotCommand.setTorque(_joint_effort_command.data());
@@ -205,9 +207,6 @@ namespace iiwa_ros {
             //     (int)_fri_message_data->expectedMonitorMsgID);
             return false;
         }
-
-        // reset commmand message
-        _fri_message_data->resetCommandMessage();
 
         current_state = (kuka::fri::ESessionState)_fri_message_data->monitoringMsg.connectionInfo.sessionState;
 
