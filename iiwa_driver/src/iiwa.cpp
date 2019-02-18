@@ -27,6 +27,10 @@ namespace iiwa_ros {
     {
         // Disconnect from robot
         _disconnect_fri();
+
+        // Delete FRI message data
+        if (_fri_message_data)
+            delete _fri_message_data;
     }
 
     void Iiwa::init()

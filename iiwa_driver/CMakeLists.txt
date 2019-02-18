@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(FRI REQUIRED COMPONENTS
     kuka_fri
+    kuka_pb # TO-DO: Check why is this needed
 )
 
 ##Needed for ros packages

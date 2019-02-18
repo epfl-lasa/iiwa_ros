@@ -11,7 +11,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 
 #These are FRI's known components (ie. libraries)
-set(FRI_COMPONENTS kuka_fri)
+set(FRI_COMPONENTS kuka_fri kuka_pb)
 
 
 #Set INCLUDE hints
