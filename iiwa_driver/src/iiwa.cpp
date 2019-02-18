@@ -47,6 +47,7 @@ namespace iiwa_ros {
 
         // Initialize Controller
         for (int i = 0; i < _num_joints; ++i) {
+            _joint_position[i] = _joint_velocity[i] = _joint_effort[i] = 0.;
             // Create joint state interface
             hardware_interface::JointStateHandle jointStateHandle(_joint_names[i], &_joint_position[i], &_joint_velocity[i], &_joint_effort[i]);
             _joint_state_interface.registerHandle(jointStateHandle);
@@ -67,7 +68,7 @@ namespace iiwa_ros {
 
         registerInterface(&_joint_state_interface);
         registerInterface(&_position_joint_interface);
-        registerInterface(&_position_joint_interface);
+        registerInterface(&_effort_joint_interface);
         // registerInterface(&_position_joint_limits_interface);
     }
 

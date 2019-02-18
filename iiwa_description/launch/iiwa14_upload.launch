@@ -2,7 +2,7 @@
 <launch>
 
    <!-- This lauch file just loads the URDF with the given hardware interface and robot name into the ROS Parameter Server -->
-  <arg name="hardware_interface" default="PositionJointInterface"/>
+  <arg name="hardware_interface" default="EffortJointInterface"/>
   <arg name="robot_name" default="iiwa"/>
 
   <param name="robot_description"

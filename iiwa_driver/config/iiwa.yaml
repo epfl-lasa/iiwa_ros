@@ -3,7 +3,7 @@ fri:
   robot_ip: 192.170.10.2
 
 hardware_interface:
-  control_freq: 50 # in Hz
+  control_freq: 500 # in Hz
   joints:
     - joint_0
     - joint_1
