@@ -7,6 +7,8 @@
 // FRI Headers
 #include <kuka/fri/ClientData.h>
 
+#include <thread>
+
 namespace iiwa_ros {
     Iiwa::Iiwa(ros::NodeHandle& nh) : _nh(nh)
     {
@@ -16,8 +18,8 @@ namespace iiwa_ros {
 
         // if successfully connected to robot
         if (_init_fri()) {
-            ros::Duration update_freq = ros::Duration(1.0 / _control_freq);
-            _update_timer = _nh.createTimer(update_freq, &Iiwa::update, this);
+            // ros::Duration update_freq = ros::Duration(1.0 / _control_freq);
+            // _update_timer = _nh.createTimer(update_freq, &Iiwa::update, this);
         }
         // else ERROR
     }
@@ -30,6 +32,29 @@ namespace iiwa_ros {
         // Delete FRI message data
         if (_fri_message_data)
             delete _fri_message_data;
+    }
+
+    void Iiwa::run()
+    {
+        std::thread t1(&Iiwa::controllerLoop,this);
+        t1.join();
+    }
+
+    void Iiwa::controllerLoop()
+    {
+        static ros::Rate rate(_control_freq);
+        while(ros::ok())
+        {
+            ros::Time time = ros::Time::now();
+
+            auto elapsed_time = ros::Duration(1./_control_freq);
+
+            read(elapsed_time);
+            _controller_manager->update(ros::Time::now(), elapsed_time);
+            write(elapsed_time);
+
+            rate.sleep();
+        }
     }
 
     void Iiwa::init()

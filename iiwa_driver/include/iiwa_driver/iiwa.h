@@ -52,6 +52,8 @@ namespace iiwa_ros {
         void update(const ros::TimerEvent& e);
         void read(ros::Duration elapsed_time);
         void write(ros::Duration elapsed_time);
+        void run();
+        void controllerLoop();
 
     protected:
         void _load_params();

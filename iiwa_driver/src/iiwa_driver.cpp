@@ -5,14 +5,15 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "iiwa_hardware_interface");
 
     ros::NodeHandle nh;
-    // ros::AsyncSpinner spinner(1);
-    // spinner.start();
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
 
     iiwa_ros::Iiwa iiwa(nh);
 
-    ros::spin();
+    // ros::spin();
+    iiwa.run();
 
-    // spinner.stop();
+    spinner.stop();
 
     return 0;
 }
