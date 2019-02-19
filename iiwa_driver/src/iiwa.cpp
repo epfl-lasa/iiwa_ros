@@ -10,18 +10,9 @@
 #include <thread>
 
 namespace iiwa_ros {
-    Iiwa::Iiwa(ros::NodeHandle& nh) : _nh(nh)
+    Iiwa::Iiwa(ros::NodeHandle& nh)
     {
-        _load_params(); // load parameters
-        init(); // initialize
-        _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
-
-        // if successfully connected to robot
-        if (_init_fri()) {
-            // ros::Duration update_freq = ros::Duration(1.0 / _control_freq);
-            // _update_timer = _nh.createTimer(update_freq, &Iiwa::update, this);
-        }
-        // else ERROR
+        init(nh);
     }
 
     Iiwa::~Iiwa()
@@ -34,30 +25,36 @@ namespace iiwa_ros {
             delete _fri_message_data;
     }
 
+    void Iiwa::init(ros::NodeHandle& nh)
+    {
+        _nh = nh;
+        _load_params(); // load parameters
+        _init(); // initialize
+        _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
+
+        if (_init_fri())
+            _initialized = true;
+        else
+            _initialized = false;
+    }
+
     void Iiwa::run()
     {
-        std::thread t1(&Iiwa::controllerLoop,this);
+        if (!_initialized) {
+            ROS_ERROR_STREAM("Not connected to the robot. Cannot run!");
+            return;
+        }
+
+        std::thread t1(&Iiwa::_ctrl_loop, this);
         t1.join();
     }
 
-    void Iiwa::controllerLoop()
+    bool Iiwa::initialized()
     {
-        static ros::Rate rate(_control_freq);
-        while(ros::ok())
-        {
-            ros::Time time = ros::Time::now();
-
-            auto elapsed_time = ros::Duration(1./_control_freq);
-
-            read(elapsed_time);
-            _controller_manager->update(ros::Time::now(), elapsed_time);
-            write(elapsed_time);
-
-            rate.sleep();
-        }
+        return _initialized;
     }
 
-    void Iiwa::init()
+    void Iiwa::_init()
     {
         // Get joint names
         _num_joints = _joint_names.size();
@@ -97,16 +94,35 @@ namespace iiwa_ros {
         // registerInterface(&_position_joint_limits_interface);
     }
 
-    void Iiwa::update(const ros::TimerEvent& e)
+    void Iiwa::_ctrl_loop()
     {
-        auto elapsed_time = ros::Duration(e.current_real - e.last_real);
+        static ros::Rate rate(_control_freq);
+        while (ros::ok()) {
+            ros::Time time = ros::Time::now();
 
-        read(elapsed_time);
-        _controller_manager->update(ros::Time::now(), elapsed_time);
-        write(elapsed_time);
+            // TO-DO: Get real elapsed time?
+            auto elapsed_time = ros::Duration(1. / _control_freq);
+
+            _read(elapsed_time);
+            _controller_manager->update(ros::Time::now(), elapsed_time);
+            _write(elapsed_time);
+
+            rate.sleep();
+        }
     }
 
-    void Iiwa::read(ros::Duration elapsed_time)
+    void Iiwa::_load_params()
+    {
+        ros::NodeHandle n_p("~");
+
+        n_p.param("fri/port", _port, 30200); // Default port is 30200
+        n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
+
+        n_p.param("hardware_interface/control_freq", _control_freq, 50.);
+        n_p.getParam("hardware_interface/joints", _joint_names);
+    }
+
+    void Iiwa::_read(ros::Duration elapsed_time)
     {
         // Read data from robot (via FRI)
         kuka::fri::ESessionState fri_state;
@@ -134,7 +150,7 @@ namespace iiwa_ros {
         }
     }
 
-    void Iiwa::write(ros::Duration elapsed_time)
+    void Iiwa::_write(ros::Duration elapsed_time)
     {
         if (_idle) // if idle, do nothing
             return;
@@ -150,17 +166,6 @@ namespace iiwa_ros {
         // else ERROR
 
         _write_fri();
-    }
-
-    void Iiwa::_load_params()
-    {
-        ros::NodeHandle n_p("~");
-
-        n_p.param("fri/port", _port, 30200); // Default port is 30200
-        n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-
-        n_p.param("hardware_interface/control_freq", _control_freq, 50.);
-        n_p.getParam("hardware_interface/joints", _joint_names);
     }
 
     bool Iiwa::_init_fri()

@@ -48,15 +48,16 @@ namespace iiwa_ros {
         Iiwa(ros::NodeHandle& nh);
         ~Iiwa();
 
-        void init();
-        void update(const ros::TimerEvent& e);
-        void read(ros::Duration elapsed_time);
-        void write(ros::Duration elapsed_time);
+        void init(ros::NodeHandle& nh);
         void run();
-        void controllerLoop();
+        bool initialized();
 
     protected:
+        void _init();
+        void _ctrl_loop();
         void _load_params();
+        void _read(ros::Duration elapsed_time);
+        void _write(ros::Duration elapsed_time);
         bool _init_fri();
         bool _connect_fri();
         void _disconnect_fri();
@@ -111,6 +112,7 @@ namespace iiwa_ros {
         ros::Timer _update_timer;
         ros::Duration _control_period;
         double _control_freq;
+        bool _initialized;
     };
 } // namespace iiwa_ros
 
