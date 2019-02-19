@@ -99,8 +99,8 @@ namespace iiwa_ros {
         // FRI Connection
         kuka::fri::UdpConnection _fri_connection;
         kuka::fri::ClientData* _fri_message_data;
-        kuka::fri::DummyState _robotState; //!< wrapper class for the FRI monitoring message
-        kuka::fri::DummyCommand _robotCommand; //!< wrapper class for the FRI command message
+        kuka::fri::DummyState _robot_state; //!< wrapper class for the FRI monitoring message
+        kuka::fri::DummyCommand _robot_command; //!< wrapper class for the FRI command message
         int _message_size;
         bool _idle;
 

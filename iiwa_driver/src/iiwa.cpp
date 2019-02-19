@@ -145,8 +145,9 @@ namespace iiwa_ros {
         _joint_position_prev = _joint_position;
 
         for (int i = 0; i < _num_joints; i++) {
-            _joint_position[i] = _robotState.getMeasuredJointPosition()[i];
+            _joint_position[i] = _robot_state.getMeasuredJointPosition()[i];
             _joint_velocity[i] = filters::exponentialSmoothing((_joint_position[i] - _joint_position_prev[i]) / elapsed_time.toSec(), _joint_velocity[i], 0.2);
+            _joint_effort[i] = _robot_state.getMeasuredTorque()[i];
         }
     }
 
@@ -157,12 +158,12 @@ namespace iiwa_ros {
         // reset commmand message
         _fri_message_data->resetCommandMessage();
 
-        if (_robotState.getClientCommandMode() == kuka::fri::TORQUE) {
-            _robotCommand.setTorque(_joint_effort_command.data());
-            _robotCommand.setJointPosition(_joint_position.data());
+        if (_robot_state.getClientCommandMode() == kuka::fri::TORQUE) {
+            _robot_command.setTorque(_joint_effort_command.data());
+            _robot_command.setJointPosition(_joint_position.data());
         }
-        else if (_robotState.getClientCommandMode() == kuka::fri::POSITION)
-            _robotCommand.setJointPosition(_joint_position_command.data());
+        else if (_robot_state.getClientCommandMode() == kuka::fri::POSITION)
+            _robot_command.setJointPosition(_joint_position_command.data());
         // else ERROR
 
         _write_fri();
@@ -173,15 +174,15 @@ namespace iiwa_ros {
         _idle = true;
 
         // Create message/client data
-        _fri_message_data = new kuka::fri::ClientData(_robotState.NUMBER_OF_JOINTS);
+        _fri_message_data = new kuka::fri::ClientData(_robot_state.NUMBER_OF_JOINTS);
 
         // link monitoring and command message to wrappers
-        _robotState.set_message(&_fri_message_data->monitoringMsg);
-        _robotCommand.set_message(&_fri_message_data->commandMsg);
+        _robot_state.set_message(&_fri_message_data->monitoringMsg);
+        _robot_command.set_message(&_fri_message_data->commandMsg);
 
         // set specific message IDs
-        _fri_message_data->expectedMonitorMsgID = _robotState.monitoring_message_id();
-        _fri_message_data->commandMsg.header.messageIdentifier = _robotCommand.command_message_id();
+        _fri_message_data->expectedMonitorMsgID = _robot_state.monitoring_message_id();
+        _fri_message_data->commandMsg.header.messageIdentifier = _robot_command.command_message_id();
 
         if (!_connect_fri())
             return false;
