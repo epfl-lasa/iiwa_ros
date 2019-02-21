@@ -1,0 +1,10 @@
+<library path="lib/libiiwa_gazebo_gravity_compensation_hw_sim">
+  <class
+    name="iiwa_gazebo/GravityCompensationHWSim"
+    type="iiwa_gazebo::GravityCompensationHWSim"
+    base_class_type="gazebo_ros_control::RobotHWSim">
+    <description>
+      A robot simulation interface which inherits the default gazebo interface and includes a gravity compensation term.
+    </description>
+  </class>
+</library>

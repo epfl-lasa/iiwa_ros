@@ -8,12 +8,13 @@
     <gazebo>
       <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
         <robotNamespace>/${robot_name}</robotNamespace>
+        <robotSimType>iiwa_gazebo/GravityCompensationHWSim</robotSimType>
       </plugin>
     </gazebo>
 
-    <gazebo>
+    <!-- <gazebo>
       <plugin name="gravity_compensation" filename="libiiwa_gazebo_gravity_compensation_plugin.so"/>
-    </gazebo>
+    </gazebo> -->
 
     <!-- Link0 -->
     <gazebo reference="${robot_name}_link_0">

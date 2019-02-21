@@ -11,7 +11,6 @@
 #include <gazebo/physics/physics.hh>
 
 // RBDyn headers
-#include <RBDyn/Coriolis.h>
 #include <RBDyn/FD.h>
 #include <mc_rbdyn_urdf/urdf.h>
 
@@ -35,7 +34,6 @@ namespace gazebo {
         // RBDyn related
         mc_rbdyn_urdf::URDFParserResult _rbdyn_urdf;
         rbd::ForwardDynamics _fd;
-        std::unique_ptr<rbd::Coriolis> _coriolis;
 
         // ROS related
         ros::NodeHandle _model_nh;
