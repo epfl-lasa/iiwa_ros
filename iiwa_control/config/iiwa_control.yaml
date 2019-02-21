@@ -8,22 +8,22 @@ iiwa:
   TorqueController:
     type: effort_controllers/JointGroupEffortController
     joints:
-      - joint_0
-      - joint_1
-      - joint_2
-      - joint_3
-      - joint_4
-      - joint_5
-      - joint_6
+      - iiwa_joint_1
+      - iiwa_joint_2
+      - iiwa_joint_3
+      - iiwa_joint_4
+      - iiwa_joint_5
+      - iiwa_joint_6
+      - iiwa_joint_7
 
   # Controllers ------------------------------------------------
   PositionController:
     type: position_controllers/JointGroupPositionController
     joints:
-      - joint_0
-      - joint_1
-      - joint_2
-      - joint_3
-      - joint_4
-      - joint_5
-      - joint_6
+      - iiwa_joint_1
+      - iiwa_joint_2
+      - iiwa_joint_3
+      - iiwa_joint_4
+      - iiwa_joint_5
+      - iiwa_joint_6
+      - iiwa_joint_7

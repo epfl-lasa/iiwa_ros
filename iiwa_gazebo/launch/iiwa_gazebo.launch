@@ -13,7 +13,7 @@
 
     <!-- Upload iiwa URDF -->
     <include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch"/>
-    
+
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find iiwa_gazebo)/worlds/iiwa.world"/>
@@ -30,6 +30,6 @@
 
     <!-- Spawn torque controller -->
     <include file="$(find iiwa_control)/launch/iiwa_torque_control.launch"/>
-    
+
 </launch>
 
