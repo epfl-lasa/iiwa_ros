@@ -32,7 +32,7 @@
         args="-urdf -model iiwa -param robot_description"/>
 
     <!-- Spawn torque controller -->
-    <include file="$(find iiwa_control)/launch/iiwa_torque_control.launch"/>
+    <include file="$(find iiwa_control)/launch/iiwa_position_control.launch"/>
 
 </launch>
 
