@@ -11,6 +11,10 @@
       </plugin>
     </gazebo>
 
+    <gazebo>
+      <plugin name="gravity_compensation" filename="libiiwa_gazebo_gravity_compensation_plugin.so"/>
+    </gazebo>
+
     <!-- Link0 -->
     <gazebo reference="${robot_name}_link_0">
       <material>Gazebo/Grey</material>
