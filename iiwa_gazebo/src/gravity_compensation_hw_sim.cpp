@@ -174,29 +174,6 @@ namespace iiwa_gazebo {
         }
     }
 
-    // Get the URDF XML from the parameter server
-    std::string GravityCompensationHWSim::_get_urdf(ros::NodeHandle model_nh, const std::string& param_name) const
-    {
-        std::string urdf_string;
-
-        // search and wait for robot_description on param server
-        while (urdf_string.empty()) {
-            std::string search_param_name;
-            if (model_nh.searchParam(param_name, search_param_name)) {
-                ROS_INFO_ONCE_NAMED("iiwa_gazebo", "iiwa_gazebo_gravity_compensation plugin is waiting for model"
-                                                   " URDF in parameter [%s] on the ROS param server.",
-                    search_param_name.c_str());
-
-                model_nh.getParam(search_param_name, urdf_string);
-            }
-
-            usleep(100000);
-        }
-        ROS_DEBUG_STREAM_NAMED("iiwa_gazebo", "Recieved urdf from param server, parsing...");
-
-        return urdf_string;
-    }
-
     size_t GravityCompensationHWSim::_rbd_index(const std::string& joint_name) const
     {
         // if (_rbdyn_urdf.mb.joint(i++).type() != rbd::Joint::Fixed)

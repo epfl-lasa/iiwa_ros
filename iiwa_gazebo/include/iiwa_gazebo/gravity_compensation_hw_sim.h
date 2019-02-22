@@ -21,7 +21,6 @@ namespace iiwa_gazebo {
         virtual void writeSim(ros::Time time, ros::Duration period) override;
 
     protected:
-        std::string _get_urdf(ros::NodeHandle model_nh, const std::string& param_name) const;
         size_t _rbd_index(const std::string& joint_name) const;
 
         // RBDyn related
