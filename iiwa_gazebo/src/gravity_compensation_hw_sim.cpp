@@ -1,5 +1,7 @@
 #include <iiwa_gazebo/gravity_compensation_hw_sim.h>
 
+#include <iiwa_gazebo/mc_rbdyn_urdf.h>
+
 // RBDyn headers
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
@@ -30,12 +32,8 @@ namespace iiwa_gazebo {
             return false;
 
         // Initialize RBDyn related things
-        // Read urdf from ros parameter server
-        // This call will block if ROS is not properly initialized.
-        const std::string urdf_string = _get_urdf(model_nh, "robot_description"); // TO-DO: Check how to do this generically
-
         // Convert URDF to RBDyn
-        _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_string);
+        _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_model);
         math::Vector3d gravity = parent_model->GetWorld()->Gravity();
         _rbdyn_urdf.mbc.gravity = {gravity[0], gravity[1], gravity[2]};
         _fd = rbd::ForwardDynamics(_rbdyn_urdf.mb);
