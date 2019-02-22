@@ -82,7 +82,7 @@ catkin_make
 Basic Usage
 --------------
 
-### Bringup nao_dcm driver
+### Bringup iiwa_driver
 ```sh
 roslaunch iiwa_driver iiwa_bringup.launch
 ```
