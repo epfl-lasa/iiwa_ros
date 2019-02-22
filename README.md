@@ -24,6 +24,17 @@ iiwa_ros requires several packages to be installed in order to work properly:
 Compilation
 ------------
 
+### KUKA FRI
+
+```sh
+cd /source/directory
+git clone https://github.com/costashatz/kuka_fri.git
+cd kuka_fri
+./waf configure
+./waf
+sudo ./waf install
+```
+
 ### SpaceVecAlg
 
 ```sh
