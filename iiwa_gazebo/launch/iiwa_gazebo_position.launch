@@ -31,7 +31,7 @@
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model iiwa -param robot_description"/>
 
-    <!-- Spawn torque controller -->
+    <!-- Spawn position controller -->
     <include file="$(find iiwa_control)/launch/iiwa_position_control.launch"/>
 
 </launch>
