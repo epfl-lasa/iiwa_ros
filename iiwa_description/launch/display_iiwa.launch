@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+	<arg name="hardware_interface" default="EffortJointInterface"/>
+	<arg name="robot_name" default="iiwa"/>
+	<arg name="type" default="14" />
+
+	<!-- Upload iiwa URDF -->
+	<include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">
+	<arg name="hardware_interface" value="$(arg hardware_interface)"/>
+	<arg name="robot_name" value="$(arg robot_name)"/>
+	</include>
+
+	<!-- Start state publishers -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+	<!-- Start RVIZ -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find iiwa_description)/config/config.rviz" /> -->
+</launch>

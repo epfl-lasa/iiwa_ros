@@ -18,7 +18,7 @@
   <xacro:property name="max_effort" value="300"/>
   <xacro:property name="max_velocity" value="10"/>
 
-  <xacro:macro name="iiwa14" params="parent hardware_interface robot_name *origin">
+  <xacro:macro name="iiwa14" params="parent hardware_interface robot_name collision_postfix *origin">
 
     <!--joint between {parent} and link_0-->
     <joint name="${parent}_${robot_name}_joint" type="fixed">
@@ -45,7 +45,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_0.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_0${collision_postfix}.stl"/>
         </geometry>
         <material name="Grey"/>
       </collision>
@@ -93,7 +93,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_1.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_1${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -133,7 +133,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_2.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_2${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -173,7 +173,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_3.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_3${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -213,7 +213,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_4.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_4${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -253,7 +253,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_5.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_5${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -293,7 +293,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_6.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_6${collision_postfix}.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
@@ -333,7 +333,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_7.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_7${collision_postfix}.stl"/>
         </geometry>
         <material name="Grey"/>
       </collision>
