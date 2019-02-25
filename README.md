@@ -39,7 +39,7 @@ sudo ./waf install
 
 ```sh
 cd /source/directory
-git clone https://github.com/costashatz/SpaceVecAlg.git
+git clone --recursive https://github.com/costashatz/SpaceVecAlg.git
 cd SpaceVecAlg
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
@@ -51,7 +51,7 @@ sudo make install
 
 ```sh
 cd /source/directory
-git clone https://github.com/costashatz/RBDyn.git
+git clone --recursive https://github.com/costashatz/RBDyn.git
 cd RBDyn
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
@@ -63,7 +63,7 @@ sudo make install
 
 ```sh
 cd /source/directory
-git clone https://github.com/costashatz/mc_rbdyn_urdf.git
+git clone --recursive https://github.com/costashatz/mc_rbdyn_urdf.git
 cd mc_rbdyn_urdf
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
