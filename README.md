@@ -83,11 +83,22 @@ Basic Usage
 --------------
 
 ### Bringup iiwa_driver
+
+**Control IIWA in torque-control**
+
 ```sh
 roslaunch iiwa_driver iiwa_bringup.launch
 ```
 
 This will connect to IIWA robot and provide torque-based controllers.
+
+**Control IIWA in position-control**
+
+```sh
+roslaunch iiwa_driver iiwa_bringup_position.launch
+```
+
+This will connect to IIWA robot and provide position-based controllers.
 
 ### Gazebo Simulation
 
