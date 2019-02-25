@@ -6,7 +6,7 @@
 
   <!-- load the controllers -->
   <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/iiwa" args="/iiwa/PositionController /iiwa/joint_state_controller"/>
+    output="screen" ns="/iiwa" args="/iiwa/PositionTorqueController /iiwa/joint_state_controller"/>
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
