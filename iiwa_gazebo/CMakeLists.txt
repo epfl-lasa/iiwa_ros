@@ -6,7 +6,10 @@ option(ENABLE_SIMD "Build with all SIMD instructions on the current local machin
 find_package(PkgConfig)
 
 # Find RBDyn library and dependencies
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(Eigen3 REQUIRED NO_MODULE)
+if(NOT Eigen_FOUND)
+  include(../cmake/FindEigen3.cmake)
+endif() 
 find_package(Boost 1.49 REQUIRED)
 
 pkg_check_modules(tinyxml2 REQUIRED tinyxml2)
@@ -50,7 +53,7 @@ if(ENABLE_SIMD)
 endif()
 target_compile_options(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC -std=c++11)
 target_include_directories(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} Eigen3::Eigen ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
 
 
 # Install

@@ -83,8 +83,8 @@ namespace mc_rbdyn_urdf {
                     case urdf::Geometry::MESH: {
                         v.geometry.type = Geometry::Type::MESH;
                         auto& mesh = boost::get<Geometry::Mesh>(v.geometry.data);
-                        mesh.filename = std::static_pointer_cast<urdf::Mesh>(visual->geometry)->filename;
-                        mesh.scale = std::static_pointer_cast<urdf::Mesh>(visual->geometry)->scale.x; // TO-DO: This is not correct; scale is 3D vector
+                        mesh.filename = boost::static_pointer_cast<urdf::Mesh>(visual->geometry)->filename;
+                        mesh.scale = boost::static_pointer_cast<urdf::Mesh>(visual->geometry)->scale.x; // TO-DO: This is not correct; scale is 3D vector
                         v.name = visual->name;
                         res.visual[link_name].push_back(v);
                         break;

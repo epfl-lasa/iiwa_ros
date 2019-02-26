@@ -26,6 +26,7 @@ catkin_package(CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs sensor_msgs hardw
 
 add_executable(iiwa_driver src/iiwa.cpp src/iiwa_driver.cpp)
 
+target_compile_options(iiwa_driver PUBLIC -std=c++11)
 target_include_directories(iiwa_driver PUBLIC include ${catkin_INCLUDE_DIRS} ${FRI_INCLUDE_DIRS})
 target_link_libraries(iiwa_driver ${catkin_LIBRARIES} ${FRI_LIBRARIES})
 add_dependencies(iiwa_driver ${catkin_EXPORTED_TARGETS})
