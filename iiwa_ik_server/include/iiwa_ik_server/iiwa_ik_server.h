@@ -9,6 +9,9 @@
 #include <RBDyn/IK.h>
 #include <mc_rbdyn_urdf/urdf.h>
 
+// TRAC IK headers
+#include <trac_ik/trac_ik.hpp>
+
 // Iiwa IK server headers
 #include <iiwa_ik_server/GetIK.h>
 
@@ -23,6 +26,7 @@ namespace iiwa_ik_server {
     protected:
         void _load_params();
         void _init_rbdyn();
+        void _init_trac_ik();
         size_t _rbd_index(const std::string& body_name) const;
 
         // ROS related
@@ -35,8 +39,12 @@ namespace iiwa_ik_server {
         std::unique_ptr<rbd::InverseKinematics> _ik;
 
         std::vector<size_t> _rbd_indices;
-        std::string _end_effector;
+        std::string _end_effector, _base_link;
         size_t _ef_index;
+
+        // TRAC IK
+        std::unique_ptr<TRAC_IK::TRAC_IK> _trac_ik_solver;
+        KDL::Chain _chain;
     };
 } // namespace iiwa_ik_server
 

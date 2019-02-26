@@ -21,6 +21,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   geometry_msgs
+  trac_ik_lib
 )
 
 add_service_files(
@@ -38,7 +39,7 @@ generate_messages(
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iiwa_gazebo
- CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
+ CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs trac_ik_lib
  DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
 )
 
