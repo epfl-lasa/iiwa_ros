@@ -6,7 +6,7 @@ geometry_msgs/PoseStamped[] pose_stamp
 sensor_msgs/JointState[] seed_angles
 
 float32 tolerance
-uint8 max_iterations
+int32 max_iterations
 ---
 # joints[i]      == joint angle solution for each pose_state[i]
 sensor_msgs/JointState[] joints

@@ -23,7 +23,7 @@ namespace iiwa_ik_server {
     protected:
         void _load_params();
         void _init_rbdyn();
-        size_t _rbd_index(const std::string& joint_name) const;
+        size_t _rbd_index(const std::string& body_name) const;
 
         // ROS related
         ros::NodeHandle _nh;

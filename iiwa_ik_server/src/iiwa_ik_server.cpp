@@ -84,7 +84,7 @@ namespace iiwa_ik_server {
 
             usleep(100000);
         }
-        ROS_DEBUG_STREAM_NAMED("IiwaIKServer", "Recieved urdf from param server, parsing...");
+        ROS_INFO_STREAM_NAMED("IiwaIKServer", "Received urdf from param server, parsing...");
 
         // Convert URDF to RBDyn
         _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_string);
@@ -104,11 +104,10 @@ namespace iiwa_ik_server {
         _ik.reset(new rbd::InverseKinematics(_rbdyn_urdf.mb, _ef_index));
     }
 
-    size_t IiwaIKServer::_rbd_index(const std::string& joint_name) const
+    size_t IiwaIKServer::_rbd_index(const std::string& body_name) const
     {
-        // if (_rbdyn_urdf.mb.joint(i++).type() != rbd::Joint::Fixed)
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrJoints(); i++) {
-            if (_rbdyn_urdf.mb.joint(i).name() == joint_name) {
+        for (size_t i = 0; i < _rbdyn_urdf.mb.nrBodies(); i++) {
+            if (_rbdyn_urdf.mb.body(i).name() == body_name) {
                 return i;
             }
         }
