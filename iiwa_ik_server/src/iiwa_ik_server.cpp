@@ -131,10 +131,11 @@ namespace iiwa_ik_server {
 
                 iiwa_ik_cvxgen::set_defaults();
                 iiwa_ik_cvxgen::setup_indexing();
+                iiwa_ik_cvxgen::settings.verbose = 0;
 
                 // set params
                 for (int j = 0; j < 6; j++) {
-                    memcpy(iiwa_ik_cvxgen::params.J[j], jacMat.row(j).data(), _rbd_indices.size() * sizeof(double));
+                    memcpy(iiwa_ik_cvxgen::params.J[j+1], jacMat.row(j).data(), _rbd_indices.size() * sizeof(double));
                 }
                 memcpy(iiwa_ik_cvxgen::params.damping, damping.data(), _rbd_indices.size() * sizeof(double));
                 memcpy(iiwa_ik_cvxgen::params.slack, slack_vec.data(), 6 * sizeof(double));
