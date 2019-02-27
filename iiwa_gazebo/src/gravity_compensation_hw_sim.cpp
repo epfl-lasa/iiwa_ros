@@ -6,12 +6,6 @@
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 
-#if GAZEBO_MAJOR_VERSION >= 8
-namespace math = ignition::math;
-#else
-namespace math = gazebo::math;
-#endif
-
 namespace {
     double clamp(const double val, const double min_val, const double max_val)
     {
@@ -34,7 +28,7 @@ namespace iiwa_gazebo {
         // Initialize RBDyn related things
         // Convert URDF to RBDyn
         _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_model);
-        math::Vector3d gravity = parent_model->GetWorld()->Gravity();
+        auto gravity = parent_model->GetWorld()->Gravity();
         _rbdyn_urdf.mbc.gravity = {gravity[0], gravity[1], gravity[2]};
         _fd = rbd::ForwardDynamics(_rbdyn_urdf.mb);
 
