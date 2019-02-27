@@ -24,7 +24,8 @@ namespace iiwa_ik_server {
             sva::PTransformd target_tf(Eigen::Quaterniond(request.pose_stamp[point].pose.orientation.w,
                                            request.pose_stamp[point].pose.orientation.x,
                                            request.pose_stamp[point].pose.orientation.y,
-                                           request.pose_stamp[point].pose.orientation.z),
+                                           request.pose_stamp[point].pose.orientation.z)
+                                           .normalized(),
                 Eigen::Vector3d(request.pose_stamp[point].pose.position.x,
                     request.pose_stamp[point].pose.position.y,
                     request.pose_stamp[point].pose.position.z));
