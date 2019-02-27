@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_driver)
 
 # Tell CMake where to find "FindNAOqi.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-## Find catkin macros and libraries
+# Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -21,10 +21,14 @@ find_package(FRI REQUIRED COMPONENTS
     kuka_pb # TO-DO: Check why is this needed
 )
 
-##Needed for ros packages
+# Needed for ros packages
 catkin_package(CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager)
 
 add_executable(iiwa_driver src/iiwa.cpp src/iiwa_driver.cpp)
+
+# Require C++11
+set_property(TARGET iiwa_driver PROPERTY CXX_STANDARD 11)
+set_property(TARGET iiwa_driver PROPERTY CXX_STANDARD_REQUIRED ON)
 
 target_include_directories(iiwa_driver PUBLIC include ${catkin_INCLUDE_DIRS} ${FRI_INCLUDE_DIRS})
 target_link_libraries(iiwa_driver ${catkin_LIBRARIES} ${FRI_LIBRARIES})

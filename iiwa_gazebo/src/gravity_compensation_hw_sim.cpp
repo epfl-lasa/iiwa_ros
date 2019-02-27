@@ -76,6 +76,11 @@ namespace iiwa_gazebo {
 
     void GravityCompensationHWSim::writeSim(ros::Time time, ros::Duration period)
     {
+#if GAZEBO_MAJOR_VERSION >= 8
+        gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->Physics();
+#else
+        gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->GetPhysicsEngine();
+#endif
         // Compute gravity compensation
         rbd::forwardKinematics(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
         rbd::forwardVelocity(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
@@ -148,7 +153,7 @@ namespace iiwa_gazebo {
 
             case VELOCITY:
 #if GAZEBO_MAJOR_VERSION > 2
-                if (physics_type_.compare("ode") == 0) {
+                if (physics->GetType().compare("ode") == 0) {
                     sim_joints_[j]->SetParam("vel", 0, e_stop_active_ ? 0 : joint_velocity_command_[j]);
                 }
                 else {

@@ -1,5 +1,8 @@
 #include <iiwa_gazebo/mc_rbdyn_urdf.h>
 
+// std headers
+#include <memory>
+
 // RBDyn headers
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
