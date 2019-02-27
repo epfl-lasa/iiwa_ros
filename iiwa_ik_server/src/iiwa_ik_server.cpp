@@ -58,6 +58,8 @@ namespace iiwa_ik_server {
             response.joints.push_back(joint_state);
             response.isValid.push_back(valid);
         }
+
+        return true;
     }
 
     void IiwaIKServer::_load_params()
