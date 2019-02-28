@@ -2,7 +2,7 @@
 geometry_msgs/Pose[] poses
 
 # (optional) initial joint position seeds for IK solver
-# specify a JointState seed for each pose_stamp, using name[] and position[]
+# one for each pose
 std_msgs/Float64MultiArray seed_angles
 
 # (optional) optimization parameters
