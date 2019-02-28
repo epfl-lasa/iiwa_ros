@@ -14,6 +14,22 @@ namespace iiwa_ik_cvxgen {
 } // namespace iiwa_ik_cvxgen
 
 namespace iiwa_ik_server {
+    double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
+    {
+        assert(array.layout.dim.size() == 2);
+        size_t offset = array.layout.data_offset;
+
+        return array.data[offset + i * array.layout.dim[0].stride + j];
+    }
+
+    void set_multi_array(std_msgs::Float64MultiArray& array, size_t i, size_t j, double val)
+    {
+        assert(array.layout.dim.size() == 2);
+        size_t offset = array.layout.data_offset;
+
+        array.data[offset + i * array.layout.dim[0].stride + j] = val;
+    }
+
     IiwaIKServer::IiwaIKServer(ros::NodeHandle nh) : _nh(nh)
     {
         ROS_INFO_STREAM("Starting Iiwa IK server..");
@@ -27,15 +43,29 @@ namespace iiwa_ik_server {
     bool IiwaIKServer::perform_ik(iiwa_ik_server::GetIK::Request& request,
         iiwa_ik_server::GetIK::Response& response)
     {
-        sensor_msgs::JointState joint_state;
-
-        bool seeds_provided = request.seed_angles.size() == request.pose_stamp.size();
+        bool seeds_provided = request.seed_angles.layout.dim.size() == 2 && (request.seed_angles.layout.dim[0].size == request.poses.size());
 
         double damp = 1e-3;
         Eigen::VectorXd damping = Eigen::VectorXd::Ones(_rbd_indices.size()).array() * damp;
+        if (request.damping.size() != _rbd_indices.size()) {
+            ROS_WARN_STREAM("No damping parameters given. Using " << damping.transpose() << ".");
+        }
+        else {
+            for (size_t i = 0; i < _rbd_indices.size(); i++) {
+                damping(i) = request.damping[i];
+            }
+        }
 
         double slack = 10000.;
         Eigen::VectorXd slack_vec = Eigen::VectorXd::Ones(6).array() * slack;
+        if (request.slack.size() != 6) {
+            ROS_WARN_STREAM("No slack parameters given. Using " << slack_vec.transpose() << ".");
+        }
+        else {
+            for (size_t i = 0; i < 6; i++) {
+                slack_vec(i) = request.slack[i];
+            }
+        }
 
         int max_iterations = request.max_iterations;
         if (max_iterations <= 0) {
@@ -57,16 +87,22 @@ namespace iiwa_ik_server {
             q_high(i) = _rbdyn_urdf.limits.upper[_rbdyn_urdf.mb.joint(index).name()][0];
         }
 
-        for (size_t point = 0; point < request.pose_stamp.size(); ++point) {
-            joint_state.position.clear();
+        response.joints.layout.dim.resize(2);
+        response.joints.layout.data_offset = 0;
+        response.joints.layout.dim[0].size = request.poses.size();
+        response.joints.layout.dim[0].stride = _rbd_indices.size();
+        response.joints.layout.dim[1].size = _rbd_indices.size();
+        response.joints.layout.dim[1].stride = 0;
+        response.joints.data.resize(request.poses.size() * _rbd_indices.size());
 
+        for (size_t point = 0; point < request.poses.size(); ++point) {
             Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
-            tf.col(3).head(3) << request.pose_stamp[point].pose.position.x, request.pose_stamp[point].pose.position.y, request.pose_stamp[point].pose.position.z;
+            tf.col(3).head(3) << request.poses[point].position.x, request.poses[point].position.y, request.poses[point].position.z;
 
-            tf.block(0, 0, 3, 3) = Eigen::Quaterniond(request.pose_stamp[point].pose.orientation.w,
-                request.pose_stamp[point].pose.orientation.x,
-                request.pose_stamp[point].pose.orientation.y,
-                request.pose_stamp[point].pose.orientation.z)
+            tf.block(0, 0, 3, 3) = Eigen::Quaterniond(request.poses[point].orientation.w,
+                request.poses[point].orientation.x,
+                request.poses[point].orientation.y,
+                request.poses[point].orientation.z)
                                        .normalized()
                                        .matrix();
             sva::PTransformd target_tf = sva::conversions::fromHomogeneous(tf);
@@ -75,12 +111,12 @@ namespace iiwa_ik_server {
 
             _rbdyn_urdf.mbc.zero(_rbdyn_urdf.mb);
             if (seeds_provided) {
-                sensor_msgs::JointState& js = request.seed_angles[point];
-                for (size_t i = 0; i < js.position.size(); i++) {
+                for (size_t i = 0; i < _rbd_indices.size(); i++) {
                     size_t rbd_index = _rbd_indices[i];
+                    double seed = get_multi_array(request.seed_angles, point, i);
 
-                    _rbdyn_urdf.mbc.q[rbd_index][0] = js.position[i];
-                    qref(i) = js.position[i];
+                    _rbdyn_urdf.mbc.q[rbd_index][0] = seed;
+                    qref(i) = seed;
                 }
             }
 
@@ -153,11 +189,9 @@ namespace iiwa_ik_server {
 
             for (size_t joint = 0; joint < _rbd_indices.size(); ++joint) {
                 size_t rbd_index = _rbd_indices[joint];
-
-                joint_state.position.push_back(_rbdyn_urdf.mbc.q[rbd_index][0]);
+                set_multi_array(response.joints, point, joint, _rbdyn_urdf.mbc.q[rbd_index][0]);
             }
 
-            response.joints.push_back(joint_state);
             response.is_valid.push_back(iter < max_iterations);
             response.accepted_tolerance.push_back(best);
         }
