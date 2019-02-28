@@ -4,6 +4,7 @@
 // RBDyn headers
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
+#include <SpaceVecAlg/Conversions.h>
 
 namespace iiwa_ik_cvxgen {
     Vars vars;
@@ -26,52 +27,6 @@ namespace iiwa_ik_server {
     bool IiwaIKServer::perform_ik(iiwa_ik_server::GetIK::Request& request,
         iiwa_ik_server::GetIK::Response& response)
     {
-        // sensor_msgs::JointState joint_state;
-
-        // bool seeds_provided = request.seed_angles.size() == request.pose_stamp.size();
-
-        // for (size_t point = 0; point < request.pose_stamp.size(); ++point) {
-        //     joint_state.position.clear();
-
-        //     sva::PTransformd target_tf(Eigen::Quaterniond(request.pose_stamp[point].pose.orientation.w,
-        //                                    request.pose_stamp[point].pose.orientation.x,
-        //                                    request.pose_stamp[point].pose.orientation.y,
-        //                                    request.pose_stamp[point].pose.orientation.z)
-        //                                    .normalized(),
-        //         Eigen::Vector3d(request.pose_stamp[point].pose.position.x,
-        //             request.pose_stamp[point].pose.position.y,
-        //             request.pose_stamp[point].pose.position.z));
-
-        //     _rbdyn_urdf.mbc.zero(_rbdyn_urdf.mb);
-        //     if (seeds_provided) {
-        //         sensor_msgs::JointState& js = request.seed_angles[point];
-        //         for (size_t i = 0; i < js.position.size(); i++) {
-        //             size_t rbd_index = _rbd_indices[i];
-
-        //             _rbdyn_urdf.mbc.q[rbd_index][0] = js.position[i];
-        //         }
-        //     }
-
-        //     int max_iterations = request.max_iterations;
-        //     double threshold = request.tolerance;
-
-        //     if (max_iterations > 0)
-        //         _ik->max_iterations_ = max_iterations;
-        //     if (threshold > 0.)
-        //         _ik->threshold_ = threshold;
-
-        //     bool valid = _ik->inverseKinematics(_rbdyn_urdf.mb, _rbdyn_urdf.mbc, target_tf);
-
-        //     for (size_t joint = 0; joint < _rbd_indices.size(); ++joint) {
-        //         size_t rbd_index = _rbd_indices[joint];
-
-        //         joint_state.position.push_back(_rbdyn_urdf.mbc.q[rbd_index][0]);
-        //     }
-
-        //     response.joints.push_back(joint_state);
-        //     response.isValid.push_back(valid);
-        // }
-
         sensor_msgs::JointState joint_state;
 
         bool seeds_provided = request.seed_angles.size() == request.pose_stamp.size();
@@ -79,10 +34,19 @@ namespace iiwa_ik_server {
         double damp = 1e-3;
         Eigen::VectorXd damping = Eigen::VectorXd::Ones(_rbd_indices.size()).array() * damp;
 
-        double slack = 100.;
+        double slack = 10000.;
         Eigen::VectorXd slack_vec = Eigen::VectorXd::Ones(6).array() * slack;
 
-        int num_iters = 15;
+        int max_iterations = request.max_iterations;
+        if (max_iterations <= 0) {
+            max_iterations = 50;
+            ROS_WARN_STREAM("No max iterations given. Using " << max_iterations << " iterations.");
+        }
+        double tolerance = request.tolerance;
+        if (tolerance <= 0.) {
+            tolerance = 1e-5;
+            ROS_WARN_STREAM("No tolerance given. Using " << tolerance << ".");
+        }
 
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
         Eigen::VectorXd q_high = q_low;
@@ -95,14 +59,17 @@ namespace iiwa_ik_server {
 
         for (size_t point = 0; point < request.pose_stamp.size(); ++point) {
             joint_state.position.clear();
-            sva::PTransformd target_tf(Eigen::Quaterniond(request.pose_stamp[point].pose.orientation.w,
-                                           request.pose_stamp[point].pose.orientation.x,
-                                           request.pose_stamp[point].pose.orientation.y,
-                                           request.pose_stamp[point].pose.orientation.z)
-                                           .normalized(),
-                Eigen::Vector3d(request.pose_stamp[point].pose.position.x,
-                    request.pose_stamp[point].pose.position.y,
-                    request.pose_stamp[point].pose.position.z));
+
+            Eigen::Matrix4d tf = Eigen::Matrix4d::Identity();
+            tf.col(3).head(3) << request.pose_stamp[point].pose.position.x, request.pose_stamp[point].pose.position.y, request.pose_stamp[point].pose.position.z;
+
+            tf.block(0, 0, 3, 3) = Eigen::Quaterniond(request.pose_stamp[point].pose.orientation.w,
+                request.pose_stamp[point].pose.orientation.x,
+                request.pose_stamp[point].pose.orientation.y,
+                request.pose_stamp[point].pose.orientation.z)
+                                       .normalized()
+                                       .matrix();
+            sva::PTransformd target_tf = sva::conversions::fromHomogeneous(tf);
 
             Eigen::VectorXd qref = Eigen::VectorXd::Zero(_rbd_indices.size());
 
@@ -119,13 +86,28 @@ namespace iiwa_ik_server {
 
             rbd::Jacobian jac(_rbdyn_urdf.mb, _rbdyn_urdf.mb.body(_ef_index).name());
 
-            for (int i = 0; i < num_iters; i++) {
+            double best = std::numeric_limits<double>::max();
+            Eigen::VectorXd q_best = qref;
+
+            int iter = 0;
+            double error = 0.;
+            for (iter = 0; iter < max_iterations; iter++) {
                 rbd::forwardKinematics(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
                 rbd::forwardVelocity(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
 
                 Eigen::Vector3d rotErr = sva::rotationError(_rbdyn_urdf.mbc.bodyPosW[_ef_index].rotation(), target_tf.rotation());
                 Eigen::Vector6d v;
                 v << rotErr, target_tf.translation() - _rbdyn_urdf.mbc.bodyPosW[_ef_index].translation();
+
+                error = v.norm();
+
+                if (error < best) {
+                    best = error;
+                    q_best = qref;
+                }
+
+                if (error < tolerance)
+                    break;
 
                 Eigen::MatrixXd jacMat = jac.jacobian(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
 
@@ -134,9 +116,12 @@ namespace iiwa_ik_server {
                 iiwa_ik_cvxgen::settings.verbose = 0;
 
                 // set params
-                for (int j = 0; j < 6; j++) {
-                    memcpy(iiwa_ik_cvxgen::params.J[j+1], jacMat.row(j).data(), _rbd_indices.size() * sizeof(double));
+                for (int r = 0; r < 6; r++) {
+                    for (int c = 0; c < _rbd_indices.size(); c++) {
+                        iiwa_ik_cvxgen::params.J[r + 1][c] = jacMat(r, c);
+                    }
                 }
+
                 memcpy(iiwa_ik_cvxgen::params.damping, damping.data(), _rbd_indices.size() * sizeof(double));
                 memcpy(iiwa_ik_cvxgen::params.slack, slack_vec.data(), 6 * sizeof(double));
                 memcpy(iiwa_ik_cvxgen::params.qref, qref.data(), _rbd_indices.size() * sizeof(double));
@@ -146,18 +131,24 @@ namespace iiwa_ik_server {
 
                 iiwa_ik_cvxgen::solve();
 
-                Eigen::VectorXd dq(_rbd_indices.size());
-                for (size_t j = 0; j < _rbd_indices.size(); j++) {
-                    dq(j) = iiwa_ik_cvxgen::vars.dq[j];
-                }
+                Eigen::VectorXd q_prev = qref;
 
-                qref += dq;
+                for (size_t j = 0; j < _rbd_indices.size(); j++) {
+                    qref(j) += iiwa_ik_cvxgen::vars.dq[j];
+                }
 
                 for (size_t j = 0; j < _rbd_indices.size(); j++) {
                     size_t rbd_index = _rbd_indices[j];
-
                     _rbdyn_urdf.mbc.q[rbd_index][0] = qref(j);
                 }
+
+                if ((q_prev - qref).norm() < 1e-8)
+                    break;
+            }
+
+            for (size_t j = 0; j < _rbd_indices.size(); j++) {
+                size_t rbd_index = _rbd_indices[j];
+                _rbdyn_urdf.mbc.q[rbd_index][0] = q_best(j);
             }
 
             for (size_t joint = 0; joint < _rbd_indices.size(); ++joint) {
@@ -167,7 +158,8 @@ namespace iiwa_ik_server {
             }
 
             response.joints.push_back(joint_state);
-            response.isValid.push_back(true);
+            response.is_valid.push_back(iter < max_iterations);
+            response.accepted_tolerance.push_back(best);
         }
 
         return true;

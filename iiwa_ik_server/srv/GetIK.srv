@@ -11,4 +11,4 @@ int32 max_iterations
 # joints[i]      == joint angle solution for each pose_state[i]
 sensor_msgs/JointState[] joints
 float32[] accepted_tolerance
-bool[] isValid
+bool[] is_valid
