@@ -1,12 +1,18 @@
 <?xml version="1.0"?>
 <launch>
+  <!-- Select the robot -->
+  <arg name="robot_name" default="iiwa" />
+  <arg name="model" default="14" />
+
+  <!-- Select the controller -->
+  <arg name="controller" default="TorqueController"/>
 
   <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load"/>
 
   <!-- load the controllers -->
   <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/iiwa" args="/iiwa/TorqueController /iiwa/joint_state_controller"/>
+    output="screen" ns="/iiwa" args="/iiwa/$(arg controller) /iiwa/joint_state_controller"/>
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"

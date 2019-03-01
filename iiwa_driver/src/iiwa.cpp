@@ -76,11 +76,11 @@ namespace iiwa_ros {
 
             // Create position joint interface
             hardware_interface::JointHandle jointPositionHandle(jointStateHandle, &_joint_position_command[i]);
-            // joint_limits_interface::JointLimits limits;
-            // joint_limits_interface::SoftJointLimits softLimits;
-            // // getJointLimits(joint.name, nh_, limits);
-            // joint_limits_interface::PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, softLimits);
-            // _position_joint_limits_interface.registerHandle(jointLimitsHandle);
+            joint_limits_interface::JointLimits limits;
+            joint_limits_interface::SoftJointLimits softLimits;
+            joint_limits_interface::getJointLimits(_joint_names[i], nh_, limits);
+            joint_limits_interface::PositionJointSoftLimitsHandle jointLimitsHandle(jointPositionHandle, limits, softLimits);
+            _position_joint_limits_interface.registerHandle(jointLimitsHandle);
             _position_joint_interface.registerHandle(jointPositionHandle);
 
             // Create effort joint interface
@@ -91,7 +91,7 @@ namespace iiwa_ros {
         registerInterface(&_joint_state_interface);
         registerInterface(&_position_joint_interface);
         registerInterface(&_effort_joint_interface);
-        // registerInterface(&_position_joint_limits_interface);
+        registerInterface(&_position_joint_limits_interface);
     }
 
     void Iiwa::_ctrl_loop()

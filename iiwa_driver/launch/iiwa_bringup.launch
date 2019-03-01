@@ -1,24 +1,37 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="hardware_interface" default="EffortJointInterface"/>
-  <arg name="robot_name" default="iiwa"/>
-  <arg name="type" default="14" />
+  <!-- Select the robot -->
+  <arg name="robot_name" default="iiwa" />
+  <arg name="model" default="14" />
+
+  <!-- Select the controller -->
+  <arg name="controller" default="TorqueController"/>
+
+  <!-- Select the hardware interface (probably used in the urdf) -->
+  <arg if="$(eval controller == 'TorqueController')" name="hardware_interface" value="hardware_interface/EffortJointInterface"/>
+  <arg if="$(eval controller == 'PositionTorqueController')" name="hardware_interface" value="hardware_interface/EffortJointInterface"/>
+  <arg if="$(eval controller == 'PositionController')" name="hardware_interface" value="hardware_interface/PositionJointInterface"/>
 
   <!-- Upload iiwa URDF -->
-  <include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">
+  <include file="$(find iiwa_description)/launch/$(arg robot_name)$(arg model)_upload.launch">
     <arg name="hardware_interface" value="$(arg hardware_interface)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
   </include>
 
-  <!-- call iiwa FRI driver -->
-  <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
+  <!-- Load iiwa hardware interface -->
+	<node pkg="iiwa_driver" type="iiwa_driver_node" name="iiwa_driver" respawn="false" output="screen" >
     <remap from="/joint_states" to="/iiwa/joint_states"/>
     <remap from="/controller_manager" to="/iiwa/controller_manager"/>
     <!-- Load configurations from YAML file to parameter server -->
-    <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load"/>
+    <rosparam file="$(find iiwa_driver)/config/hardware.yaml" command="load"/>
+    <rosparam file="$(find iiwa_driver)/config/joint_limits.yaml" command="load"/>
   </node>
 
-  <!-- Spawn torque controller -->
-  <include file="$(find iiwa_control)/launch/iiwa_torque_control.launch"/>
+  <!-- Load controller -->
+  <include file="$(find iiwa_control)/launch/iiwa_control.launch">
+    <arg name="robot_name" value="$(arg robot_name)" />
+    <arg name="model" value="$(arg model)" />
+    <arg name="controller" value="$(arg controller)"/>
+  </include>
 
 </launch>

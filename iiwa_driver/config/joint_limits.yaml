@@ -1,0 +1,71 @@
+joint_limits:
+  joint_1:
+    has_position_limits: true
+    min_postion: -2.9671 # [rad]
+    max_position: 2.9671 # [rad]
+    has_velocity_limits: true
+    max_velocity: 1.4835 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 320 # [Nm]
+  joint_2:
+    has_position_limits: true
+    min_postion: -2.0944 # [rad]
+    max_position: 2.0944 # [rad]
+    has_velocity_limits: true
+    max_velocity: 1.4835 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 320 # [Nm]  
+  joint_3:
+    has_position_limits: true
+    min_postion: -2.9671 # [rad]
+    max_position: 2.9671 # [rad]
+    has_velocity_limits: true
+    max_velocity: 1.7453 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 176 # [Nm]
+  joint_4:
+    has_position_limits: true
+    min_postion: -2.0944 # [rad]
+    max_position: 2.0944 # [rad]
+    has_velocity_limits: true
+    max_velocity: 1.3090 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 176 # [Nm]
+  joint_5:
+    has_position_limits: true
+    min_postion: -2.9671 # [rad]
+    max_position: 2.9671 # [rad]
+    has_velocity_limits: true
+    max_velocity: 2.2689 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 110 # [Nm]
+  joint_6:
+    has_position_limits: true
+    min_postion: -2.0944 # [rad]
+    max_position: 2.0944 # [rad]
+    has_velocity_limits: true
+    max_velocity: 2.3562 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 40 # [Nm]
+  joint_7:
+    has_position_limits: true
+    min_postion: -3.0543 # [rad]
+    max_position: 3.0543 # [rad]
+    has_velocity_limits: true
+    max_velocity: 2.3562 # [rad/s]
+    has_acceleration_limits: false
+    has_jerk_limits: false
+    has_effort_limits: true
+    max_effort: 40 # [Nm]
