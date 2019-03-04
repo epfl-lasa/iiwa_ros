@@ -7,7 +7,7 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
 
-    <arg name="hardware_interface" default="PositionJointInterface"/>
+    <arg name="hardware_interface" default="EffortJointInterface"/>
     <arg name="robot_name" default="iiwa"/>
     <arg name="type" default="14" />
 
@@ -32,7 +32,7 @@
         args="-urdf -model iiwa -param robot_description"/>
 
     <!-- Spawn position controller -->
-    <include file="$(find iiwa_control)/launch/iiwa_position_control.launch"/>
+    <include file="$(find iiwa_control)/launch/iiwa_torque_position_control.launch"/>
 
 </launch>
 

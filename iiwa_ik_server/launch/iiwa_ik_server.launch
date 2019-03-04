@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- Load IK params from YAML file to parameter server -->
+  <rosparam file="$(find iiwa_ik_server)/config/iiwa_ik.yaml" command="load"/>
+
+  <!-- launch the IK server -->
+  <node name="iiwa_ik_server" pkg="iiwa_ik_server" type="iiwa_ik_server" respawn="false"
+    output="screen" ns="/iiwa"/>
+
+</launch>

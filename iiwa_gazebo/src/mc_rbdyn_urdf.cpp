@@ -1,5 +1,8 @@
 #include <iiwa_gazebo/mc_rbdyn_urdf.h>
 
+// std headers
+#include <memory>
+
 // RBDyn headers
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
@@ -83,8 +86,8 @@ namespace mc_rbdyn_urdf {
                     case urdf::Geometry::MESH: {
                         v.geometry.type = Geometry::Type::MESH;
                         auto& mesh = boost::get<Geometry::Mesh>(v.geometry.data);
-                        mesh.filename = std::static_pointer_cast<urdf::Mesh>(visual->geometry)->filename;
-                        mesh.scale = std::static_pointer_cast<urdf::Mesh>(visual->geometry)->scale.x; // TO-DO: This is not correct; scale is 3D vector
+                        mesh.filename = static_cast<urdf::Mesh*>(visual->geometry.get())->filename;
+                        mesh.scale = static_cast<urdf::Mesh*>(visual->geometry.get())->scale.x; // TO-DO: This is not correct; scale is 3D vector
                         v.name = visual->name;
                         res.visual[link_name].push_back(v);
                         break;

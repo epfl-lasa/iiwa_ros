@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_gazebo)
 
 option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
@@ -6,7 +6,7 @@ option(ENABLE_SIMD "Build with all SIMD instructions on the current local machin
 find_package(PkgConfig)
 
 # Find RBDyn library and dependencies
-find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+pkg_search_module(Eigen3 REQUIRED eigen3)
 find_package(Boost 1.49 REQUIRED)
 
 pkg_check_modules(tinyxml2 REQUIRED tinyxml2)
@@ -35,6 +35,10 @@ catkin_package(
 
 add_library(iiwa_gazebo_gravity_compensation_hw_sim src/gravity_compensation_hw_sim.cpp src/mc_rbdyn_urdf.cpp)
 
+# Require C++11
+set_property(TARGET iiwa_gazebo_gravity_compensation_hw_sim PROPERTY CXX_STANDARD 11)
+set_property(TARGET iiwa_gazebo_gravity_compensation_hw_sim PROPERTY CXX_STANDARD_REQUIRED ON)
+
 if(ENABLE_SIMD)
   if(CMAKE_COMPILER_IS_GNUCXX)
     execute_process(
@@ -48,9 +52,9 @@ if(ENABLE_SIMD)
     target_compile_options(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC -march=native -faligned-new)
   endif()
 endif()
-target_compile_options(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC -std=c++11)
-target_include_directories(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} Eigen3::Eigen ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+
+target_include_directories(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
+target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
 
 
 # Install
@@ -63,6 +67,9 @@ install(TARGETS iiwa_gazebo_gravity_compensation_hw_sim
 install(DIRECTORY include/${PROJECT_NAME}
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 )
+
+install(DIRECTORY launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
 install(FILES iiwa_robot_hw_sim_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
