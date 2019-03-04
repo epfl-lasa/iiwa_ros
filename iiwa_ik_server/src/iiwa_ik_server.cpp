@@ -130,6 +130,13 @@ namespace iiwa_ik_server {
                 for (size_t i = 0; i < _rbd_indices.size(); i++) {
                     size_t rbd_index = _rbd_indices[i];
                     double seed = get_multi_array(request.seed_angles, point, i);
+                    // wrap in [-pi,pi]
+                    seed = wrap_angle(seed);
+                    // enforce limits
+                    if (seed < q_low(i))
+                        seed = q_low(i);
+                    if (seed > q_high(i))
+                        seed = q_high(i);
 
                     _rbdyn_urdf.mbc.q[rbd_index][0] = seed;
                     qref(i) = seed;
@@ -141,7 +148,15 @@ namespace iiwa_ik_server {
             if (valid) {
                 for (size_t i = 0; i < _rbd_indices.size(); i++) {
                     size_t rbd_index = _rbd_indices[i];
+
+                    // wrap in [-pi,pi]
                     qref(i) = wrap_angle(_rbdyn_urdf.mbc.q[rbd_index][0]);
+
+                    // enforce limits
+                    if (qref(i) < q_low(i))
+                        qref(i) = q_low(i);
+                    if (qref(i) > q_high(i))
+                        qref(i) = q_high(i);
                 }
                 ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref.transpose());
             }
