@@ -30,6 +30,21 @@ namespace iiwa_ik_server {
         array.data[offset + i * array.layout.dim[0].stride + j] = val;
     }
 
+    double wrap_angle(const double& angle)
+    {
+        double wrapped;
+        if ((angle <= M_PI) && (angle >= -M_PI)) {
+            wrapped = angle;
+        }
+        else if (angle < 0.0) {
+            wrapped = std::fmod(angle - M_PI, 2.0 * M_PI) + M_PI;
+        }
+        else {
+            wrapped = std::fmod(angle + M_PI, 2.0 * M_PI) - M_PI;
+        }
+        return wrapped;
+    }
+
     IiwaIKServer::IiwaIKServer(ros::NodeHandle nh) : _nh(nh)
     {
         ROS_INFO_STREAM("Starting Iiwa IK server..");
@@ -78,6 +93,7 @@ namespace iiwa_ik_server {
             ROS_WARN_STREAM("No tolerance given. Using " << tolerance << ".");
         }
 
+        Eigen::VectorXd zero = Eigen::VectorXd::Zero(_rbd_indices.size());
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
         Eigen::VectorXd q_high = q_low;
 
@@ -125,9 +141,9 @@ namespace iiwa_ik_server {
             if (valid) {
                 for (size_t i = 0; i < _rbd_indices.size(); i++) {
                     size_t rbd_index = _rbd_indices[i];
-                    qref(i) = _rbdyn_urdf.mbc.q[rbd_index][0];
+                    qref(i) = wrap_angle(_rbdyn_urdf.mbc.q[rbd_index][0]);
                 }
-                ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref);
+                ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref.transpose());
             }
 
             rbd::Jacobian jac(_rbdyn_urdf.mb, _rbdyn_urdf.mb.body(_ef_index).name());
@@ -160,6 +176,9 @@ namespace iiwa_ik_server {
                 iiwa_ik_cvxgen::set_defaults();
                 iiwa_ik_cvxgen::setup_indexing();
                 iiwa_ik_cvxgen::settings.verbose = 0;
+                iiwa_ik_cvxgen::settings.resid_tol = 1e-10;
+                iiwa_ik_cvxgen::settings.eps = 1e-10;
+                iiwa_ik_cvxgen::settings.max_iters = 100;
 
                 // set params
                 for (int r = 0; r < 6; r++) {
@@ -168,11 +187,15 @@ namespace iiwa_ik_server {
                     }
                 }
 
+                // adapt the limits
+                Eigen::VectorXd qlow = q_low - qref;
+                Eigen::VectorXd qhigh = q_high - qref;
+
                 memcpy(iiwa_ik_cvxgen::params.damping, damping.data(), _rbd_indices.size() * sizeof(double));
                 memcpy(iiwa_ik_cvxgen::params.slack, slack_vec.data(), 6 * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.qref, qref.data(), _rbd_indices.size() * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.qlow, q_low.data(), _rbd_indices.size() * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.qup, q_high.data(), _rbd_indices.size() * sizeof(double));
+                memcpy(iiwa_ik_cvxgen::params.qref, zero.data(), _rbd_indices.size() * sizeof(double)); // we set qref to zero so that we minimize the dq
+                memcpy(iiwa_ik_cvxgen::params.qlow, qlow.data(), _rbd_indices.size() * sizeof(double));
+                memcpy(iiwa_ik_cvxgen::params.qup, qhigh.data(), _rbd_indices.size() * sizeof(double));
                 memcpy(iiwa_ik_cvxgen::params.dx, v.data(), 6 * sizeof(double));
 
                 iiwa_ik_cvxgen::solve();
