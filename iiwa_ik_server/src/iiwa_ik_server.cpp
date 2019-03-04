@@ -120,6 +120,16 @@ namespace iiwa_ik_server {
                 }
             }
 
+            // Solve IK with traditional approach and pass it as a seed if successful
+            bool valid = _ik->inverseKinematics(_rbdyn_urdf.mb, _rbdyn_urdf.mbc, target_tf);
+            if (valid) {
+                for (size_t i = 0; i < _rbd_indices.size(); i++) {
+                    size_t rbd_index = _rbd_indices[i];
+                    qref(i) = _rbdyn_urdf.mbc.q[rbd_index][0];
+                }
+                ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref);
+            }
+
             rbd::Jacobian jac(_rbdyn_urdf.mb, _rbdyn_urdf.mb.body(_ef_index).name());
 
             double best = std::numeric_limits<double>::max();
