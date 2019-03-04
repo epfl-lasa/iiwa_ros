@@ -75,8 +75,8 @@ namespace iiwa_ros {
         joint_limits_interface::EffortJointSoftLimitsInterface _effort_joint_limits_interface;
         joint_limits_interface::PositionJointSaturationInterface _position_joint_saturation_interface;
         joint_limits_interface::PositionJointSoftLimitsInterface _position_joint_limits_interface;
-        joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
-        joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
+        // joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
+        // joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
 
         // Shared memory
         int _num_joints;
@@ -87,11 +87,8 @@ namespace iiwa_ros {
         std::vector<double> _joint_velocity;
         std::vector<double> _joint_effort;
         std::vector<double> _joint_position_command;
-        std::vector<double> _joint_velocity_command;
+        // std::vector<double> _joint_velocity_command;
         std::vector<double> _joint_effort_command;
-        std::vector<double> _joint_lower_limits;
-        std::vector<double> _joint_upper_limits;
-        std::vector<double> _joint_effort_limits;
 
         // Controller manager
         std::shared_ptr<controller_manager::ControllerManager> _controller_manager;
@@ -109,7 +106,7 @@ namespace iiwa_ros {
 
         // ROS communication/timing related
         ros::NodeHandle _nh;
-        ros::Timer _update_timer;
+        std::string _robot_description;
         ros::Duration _control_period;
         double _control_freq;
         bool _initialized;

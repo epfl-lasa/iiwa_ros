@@ -9,11 +9,12 @@
   <xacro:include filename="$(find iiwa_description)/urdf/utilities.xacro" />
 
   <!-- some parameters -->
-  <xacro:property name="safety" value="false"/>
+  <xacro:property name="safety" value="true"/>
 
   <!-- some constants -->
   <xacro:property name="safety_controller_k_pos" value="100"/>
   <xacro:property name="safety_controller_k_vel" value="2"/>
+  <xacro:property name="safety_percentage" value="0.95"/>
   <xacro:property name="joint_damping" value="0.5"/>
   <xacro:property name="max_effort" value="300"/>
   <xacro:property name="max_velocity" value="10"/>
@@ -68,8 +69,8 @@
       <limit lower="${-170 * PI / 180}" upper="${170 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-168 * PI / 180}"
-                               upper="${168 * PI / 180}"
+                               lower="${-safety_percentage * 170 * PI / 180}"
+                               upper="${safety_percentage * 170 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -108,8 +109,8 @@
       <limit lower="${-120 * PI / 180}" upper="${120 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-118 * PI / 180}"
-                               upper="${118 * PI / 180}"
+                               lower="${-safety_percentage * 120 * PI / 180}"
+                               upper="${safety_percentage * 120 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -148,8 +149,8 @@
       <limit lower="${-170 * PI / 180}" upper="${170 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-168 * PI / 180}"
-                               upper="${168 * PI / 180}"
+                               lower="${-safety_percentage * 170 * PI / 180}"
+                               upper="${safety_percentage * 170 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -188,8 +189,8 @@
       <limit lower="${-120 * PI / 180}" upper="${120 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-118 * PI / 180}"
-                               upper="${118 * PI / 180}"
+                               lower="${-safety_percentage * 120 * PI / 180}"
+                               upper="${safety_percentage * 120 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -228,8 +229,8 @@
       <limit lower="${-170 * PI / 180}" upper="${170 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-168 * PI / 180}"
-                               upper="${168 * PI / 180}"
+                               lower="${-safety_percentage * 170 * PI / 180}"
+                               upper="${safety_percentage * 170 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -268,8 +269,8 @@
       <limit lower="${-120 * PI / 180}" upper="${120 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-118 * PI / 180}"
-                               upper="${118 * PI / 180}"
+                               lower="${-safety_percentage * 120 * PI / 180}"
+                               upper="${safety_percentage * 120 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
@@ -308,8 +309,8 @@
       <limit lower="${-175 * PI / 180}" upper="${175 * PI / 180}"
              effort="${max_effort}" velocity="${max_velocity}" />
       <xacro:safe_controller safety="${safety}"
-                               lower="${-173 * PI / 180}"
-                               upper="${173 * PI / 180}"
+                               lower="${-safety_percentage * 175 * PI / 180}"
+                               upper="${safety_percentage * 175 * PI / 180}"
                                k_p="${safety_controller_k_pos}"
                                k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
