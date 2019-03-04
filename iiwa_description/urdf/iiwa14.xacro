@@ -9,7 +9,7 @@
   <xacro:include filename="$(find iiwa_description)/urdf/utilities.xacro" />
 
   <!-- some parameters -->
-  <xacro:property name="safety" value="false"/>
+  <xacro:property name="safety" value="true"/>
 
   <!-- some constants -->
   <xacro:property name="safety_controller_k_pos" value="100"/>

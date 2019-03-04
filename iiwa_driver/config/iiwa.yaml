@@ -1,6 +1,7 @@
 fri:
   port: 30200
   robot_ip: 192.170.10.2
+  robot_description: /robot_description
 
 hardware_interface:
   control_freq: 200 # in Hz

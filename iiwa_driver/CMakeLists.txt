@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   hardware_interface
   controller_manager
   sensor_msgs
+  urdf
 )
 
 find_package(FRI REQUIRED COMPONENTS
@@ -22,7 +23,7 @@ find_package(FRI REQUIRED COMPONENTS
 )
 
 # Needed for ros packages
-catkin_package(CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager)
+catkin_package(CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager urdf)
 
 add_executable(iiwa_driver src/iiwa.cpp src/iiwa_driver.cpp)
 
