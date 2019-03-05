@@ -2,7 +2,9 @@
 <launch>
 	<arg name="hardware_interface" default="EffortJointInterface"/>
 	<arg name="robot_name" default="iiwa"/>
-	<arg name="type" default="14" />
+	<arg name="type" default="14"/>
+	<arg name="gui" default="true"/>
+	<param name="use_gui" value="$(arg gui)"/>
 
 	<!-- Upload iiwa URDF -->
 	<include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">

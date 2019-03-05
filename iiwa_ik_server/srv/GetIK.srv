@@ -1,14 +1,17 @@
 # end-effector poses to request IK for
-geometry_msgs/PoseStamped[] pose_stamp
+geometry_msgs/Pose[] poses
 
 # (optional) initial joint position seeds for IK solver
-# specify a JointState seed for each pose_stamp, using name[] and position[]
-sensor_msgs/JointState[] seed_angles
+# one for each pose
+std_msgs/Float64MultiArray seed_angles
 
+# (optional) optimization parameters
 float32 tolerance
 int32 max_iterations
+float64[] slack
+float64[] damping
 ---
 # joints[i]      == joint angle solution for each pose_state[i]
-sensor_msgs/JointState[] joints
-float32[] accepted_tolerance
-bool[] isValid
+std_msgs/Float64MultiArray joints
+float64[] accepted_tolerance
+bool[] is_valid

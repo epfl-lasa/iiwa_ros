@@ -42,6 +42,8 @@ catkin_package(
  DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
 )
 
+add_library(iiwa_ik_cvxgen STATIC include/iiwa_ik_server/cvxgen/ldl.cpp include/iiwa_ik_server/cvxgen/matrix_support.cpp include/iiwa_ik_server/cvxgen/solver.cpp include/iiwa_ik_server/cvxgen/util.cpp)
+
 add_executable(iiwa_ik_server src/iiwa_ik_server.cpp src/iiwa_ik_server_node.cpp)
 
 if(ENABLE_SIMD)
@@ -57,9 +59,10 @@ if(ENABLE_SIMD)
     target_compile_options(iiwa_ik_server PUBLIC -march=native -faligned-new)
   endif()
 endif()
+
 target_compile_options(iiwa_ik_server PUBLIC -std=c++11)
 target_include_directories(iiwa_ik_server PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_ik_server PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+target_link_libraries(iiwa_ik_server PUBLIC iiwa_ik_cvxgen ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
 
 
 # Install
