@@ -268,7 +268,8 @@ namespace iiwa_tools {
         // TO-DO: Check if it takes time
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 
-        // Get joitn positions and velocities
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+        // Get joint positions and velocities
         for (size_t i = 0; i < _rbd_indices.size(); i++) {
             size_t rbd_index = _rbd_indices[i];
             double pos = request.joint_angles[i];
@@ -315,11 +316,24 @@ namespace iiwa_tools {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
+
+        std::vector<double> gravity = {0., 0., -9.8};
+        if (request.gravity.size() != 3) {
+            ROS_WARN_STREAM("Gravity not given. Assuming default [0, 0, -9.8]!");
+        }
+        else {
+            for (size_t i = 0; i < 3; i++) {
+                gravity[i] = request.gravity[i];
+            }
+        }
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 
-        // Get joitn positions and velocities
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+        rbdyn_urdf.mbc.gravity = {gravity[0], gravity[1], gravity[2]};
+
+        // Get joint positions, velocities and torques
         for (size_t i = 0; i < _rbd_indices.size(); i++) {
             size_t rbd_index = _rbd_indices[i];
             double pos = request.joint_angles[i];
@@ -331,7 +345,7 @@ namespace iiwa_tools {
 
             rbdyn_urdf.mbc.q[rbd_index][0] = pos;
             rbdyn_urdf.mbc.alpha[rbd_index][0] = vel;
-            rbdyn_urdf.mbc.alphaD[rbd_index][0] = torque;
+            rbdyn_urdf.mbc.jointTorque[rbd_index][0] = torque;
         }
 
         // Forward Dynamics

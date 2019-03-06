@@ -1,6 +1,9 @@
 #ifndef IIWA_TOOLS_IIWA_TOOLS_H
 #define IIWA_TOOLS_IIWA_TOOLS_H
 
+// std headers
+#include <vector>
+
 // ROS headers
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
@@ -41,6 +44,7 @@ namespace iiwa_tools {
         // RBDyn related
         mc_rbdyn_urdf::URDFParserResult _rbdyn_urdf;
         std::unique_ptr<rbd::InverseKinematics> _ik;
+        std::vector<double> _gravity;
 
         std::vector<size_t> _rbd_indices;
         std::string _end_effector;
