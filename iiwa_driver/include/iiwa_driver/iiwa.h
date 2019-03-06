@@ -75,8 +75,8 @@ namespace iiwa_ros {
         joint_limits_interface::EffortJointSoftLimitsInterface _effort_joint_limits_interface;
         joint_limits_interface::PositionJointSaturationInterface _position_joint_saturation_interface;
         joint_limits_interface::PositionJointSoftLimitsInterface _position_joint_limits_interface;
-        // joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
-        // joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
+        joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
+        joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
 
         // Shared memory
         int _num_joints;
@@ -87,7 +87,7 @@ namespace iiwa_ros {
         std::vector<double> _joint_velocity;
         std::vector<double> _joint_effort;
         std::vector<double> _joint_position_command;
-        // std::vector<double> _joint_velocity_command;
+        std::vector<double> _joint_velocity_command;
         std::vector<double> _joint_effort_command;
 
         // Controller manager

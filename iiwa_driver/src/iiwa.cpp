@@ -66,7 +66,7 @@ namespace iiwa_ros {
         _joint_velocity.resize(_num_joints);
         _joint_effort.resize(_num_joints);
         _joint_position_command.resize(_num_joints);
-        // _joint_velocity_command.resize(_num_joints);
+        _joint_velocity_command.resize(_num_joints);
         _joint_effort_command.resize(_num_joints);
 
         // Get the URDF XML from the parameter server
@@ -76,7 +76,7 @@ namespace iiwa_ros {
         // search and wait for robot_description on param server
         while (urdf_string.empty()) {
             ROS_INFO_ONCE_NAMED("Iiwa", "Iiwa is waiting for model"
-                                                " URDF in parameter [%s] on the ROS param server.",
+                                        " URDF in parameter [%s] on the ROS param server.",
                 _robot_description.c_str());
 
             _nh.getParam(_robot_description, urdf_string);
@@ -85,7 +85,7 @@ namespace iiwa_ros {
         }
         ROS_INFO_STREAM_NAMED("Iiwa", "Received urdf from param server, parsing...");
 
-        const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : nullptr;
+        const urdf::Model* const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : nullptr;
         if (urdf_model_ptr == nullptr)
             ROS_WARN_STREAM_NAMED("Iiwa", "Could not read URDF from '" << _robot_description << "' parameters. Joint limits will not work.");
 
@@ -105,7 +105,7 @@ namespace iiwa_ros {
             if (has_limits) {
                 auto urdf_joint = urdf_model_ptr->getJoint(_joint_names[i]);
                 if (!urdf_joint) {
-                    ROS_WARN_STREAM_NAMED("Iiwa", "Could not find joint '"<<_joint_names[i]<<"' in URDF. No limits will be applied for this joint.");
+                    ROS_WARN_STREAM_NAMED("Iiwa", "Could not find joint '" << _joint_names[i] << "' in URDF. No limits will be applied for this joint.");
                     continue;
                 }
 
@@ -141,11 +141,26 @@ namespace iiwa_ros {
             }
 
             _effort_joint_interface.registerHandle(joint_effort_handle);
+
+            // Create velocity joint interface
+            hardware_interface::JointHandle joint_velocity_handle(joint_state_handle, &_joint_velocity_command[i]);
+
+            if (has_soft_limits) {
+                joint_limits_interface::VelocityJointSoftLimitsHandle joint_limits_handle(joint_velocity_handle, limits, soft_limits);
+                _velocity_joint_limits_interface.registerHandle(joint_limits_handle);
+            }
+            else {
+                joint_limits_interface::VelocityJointSaturationHandle joint_limits_handle(joint_velocity_handle, limits);
+                _velocity_joint_saturation_interface.registerHandle(joint_limits_handle);
+            }
+
+            _velocity_joint_interface.registerHandle(joint_velocity_handle);
         }
 
         registerInterface(&_joint_state_interface);
         registerInterface(&_position_joint_interface);
         registerInterface(&_effort_joint_interface);
+        registerInterface(&_velocity_joint_interface);
     }
 
     void Iiwa::_ctrl_loop()
@@ -216,6 +231,8 @@ namespace iiwa_ros {
         _position_joint_saturation_interface.enforceLimits(elapsed_time);
         _effort_joint_limits_interface.enforceLimits(elapsed_time);
         _effort_joint_saturation_interface.enforceLimits(elapsed_time);
+        _velocity_joint_limits_interface.enforceLimits(elapsed_time);
+        _velocity_joint_saturation_interface.enforceLimits(elapsed_time);
 
         // reset commmand message
         _fri_message_data->resetCommandMessage();
