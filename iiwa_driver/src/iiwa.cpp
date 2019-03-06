@@ -66,7 +66,7 @@ namespace iiwa_ros {
         _joint_velocity.resize(_num_joints);
         _joint_effort.resize(_num_joints);
         _joint_position_command.resize(_num_joints);
-        // _joint_velocity_command.resize(_num_joints);
+        _joint_velocity_command.resize(_num_joints);
         _joint_effort_command.resize(_num_joints);
 
         // Get the URDF XML from the parameter server
