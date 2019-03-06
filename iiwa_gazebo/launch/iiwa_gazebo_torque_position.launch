@@ -17,6 +17,9 @@
         <arg name="robot_name" value="$(arg robot_name)"/>
     </include>
 
+    <!-- Load iiwa tools -->
+    <include file="$(find iiwa_tools)/launch/iiwa_tools.launch"/>
+
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(find iiwa_gazebo)/worlds/iiwa.world"/>

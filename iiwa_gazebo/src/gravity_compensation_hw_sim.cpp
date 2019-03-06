@@ -1,11 +1,5 @@
 #include <iiwa_gazebo/gravity_compensation_hw_sim.h>
 
-#include <iiwa_gazebo/mc_rbdyn_urdf.h>
-
-// RBDyn headers
-#include <RBDyn/FK.h>
-#include <RBDyn/FV.h>
-
 namespace {
     double clamp(const double val, const double min_val, const double max_val)
     {
@@ -25,18 +19,15 @@ namespace iiwa_gazebo {
         if (!DefaultRobotHWSim::initSim(robot_namespace, model_nh, parent_model, urdf_model, transmissions))
             return false;
 
-        // Initialize RBDyn related things
-        // Convert URDF to RBDyn
-        _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_model);
+        _iiwa_gravity_client = model_nh.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
+
+        // Initialize service message
         auto gravity = parent_model->GetWorld()->Gravity();
-        _rbdyn_urdf.mbc.gravity = {gravity[0], gravity[1], gravity[2]};
-        _fd = rbd::ForwardDynamics(_rbdyn_urdf.mb);
+        _gravity_srv.request.joint_angles.resize(n_dof_);
+        _gravity_srv.request.joint_velocities.resize(n_dof_);
+        _gravity_srv.request.joint_torques.resize(n_dof_);
 
-        _rbd_indices.clear();
-
-        for (size_t i = 0; i < joint_names_.size(); i++) {
-            _rbd_indices.push_back(_rbd_index(joint_names_[i]));
-        }
+        _gravity_srv.request.gravity = {gravity[0], gravity[1], gravity[2]};
 
         return true;
     }
@@ -44,7 +35,6 @@ namespace iiwa_gazebo {
     void GravityCompensationHWSim::readSim(ros::Time time, ros::Duration period)
     {
         for (unsigned int j = 0; j < n_dof_; j++) {
-            size_t rbd_index = _rbd_indices[j];
             // Gazebo has an interesting API...
 #if GAZEBO_MAJOR_VERSION >= 8
             double position = sim_joints_[j]->Position(0);
@@ -61,10 +51,10 @@ namespace iiwa_gazebo {
             joint_velocity_[j] = sim_joints_[j]->GetVelocity(0);
             joint_effort_[j] = sim_joints_[j]->GetForce((unsigned int)(0));
 
-            // Pass values to RBDyn
-            _rbdyn_urdf.mbc.q[rbd_index][0] = joint_position_[j];
-            _rbdyn_urdf.mbc.alpha[rbd_index][0] = joint_velocity_[j];
-            _rbdyn_urdf.mbc.jointTorque[rbd_index][0] = joint_effort_[j];
+            // Pass values to gravity compensation service
+            _gravity_srv.request.joint_angles[j] = joint_position_[j];
+            _gravity_srv.request.joint_velocities[j] = joint_velocity_[j];
+            _gravity_srv.request.joint_torques[j] = joint_effort_[j];
         }
     }
 
@@ -75,12 +65,14 @@ namespace iiwa_gazebo {
 #else
         gazebo::physics::PhysicsEnginePtr physics = gazebo::physics::get_world()->GetPhysicsEngine();
 #endif
-        // Compute gravity compensation
-        rbd::forwardKinematics(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
-        rbd::forwardVelocity(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
-        _fd.computeC(_rbdyn_urdf.mb, _rbdyn_urdf.mbc);
         // Get gravity and Coriolis forces
-        Eigen::VectorXd C = -_fd.C();
+        std::vector<double> C(n_dof_, 0.);
+        // Call iiwa tools service for gravity compensation
+        if (_iiwa_gravity_client.call(_gravity_srv)) {
+            for (size_t i = 0; i < n_dof_; i++) {
+                C[i] = _gravity_srv.response.compensation_torques[i];
+            }
+        }
 
         // If the E-stop is active, joints controlled by position commands will maintain their positions.
         if (e_stop_active_) {
@@ -105,7 +97,7 @@ namespace iiwa_gazebo {
             switch (joint_control_methods_[j]) {
             case EFFORT: {
                 const double effort_limit = joint_effort_limits_[j];
-                const double effort = e_stop_active_ ? 0 : clamp(joint_effort_command_[j] + C(j), -effort_limit, effort_limit);
+                const double effort = e_stop_active_ ? 0 : clamp(joint_effort_command_[j] + C[j], -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
             } break;
 
@@ -140,7 +132,7 @@ namespace iiwa_gazebo {
                 }
 
                 const double effort_limit = joint_effort_limits_[j];
-                const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C(j),
+                const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C[j],
                     -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
             } break;
@@ -165,25 +157,12 @@ namespace iiwa_gazebo {
                 else
                     error = joint_velocity_command_[j] - joint_velocity_[j];
                 const double effort_limit = joint_effort_limits_[j];
-                const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C(j),
+                const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C[j],
                     -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
                 break;
             }
         }
-    }
-
-    size_t GravityCompensationHWSim::_rbd_index(const std::string& joint_name) const
-    {
-        // if (_rbdyn_urdf.mb.joint(i++).type() != rbd::Joint::Fixed)
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrJoints(); i++) {
-            if (_rbdyn_urdf.mb.joint(i).name() == joint_name) {
-                return i;
-            }
-        }
-
-        // TO-DO: Should never reach here
-        return 0;
     }
 } // namespace iiwa_gazebo
 
