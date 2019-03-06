@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>iiwa_ik_server</name>
+  <name>iiwa_tools</name>
   <version>0.0.1</version>
-  <description>This package creates an IK server for the IIWA robot</description>
+  <description>This package creates a few tools as services (e.g., IK, Jacobian etc.) for the IIWA robot</description>
   <maintainer email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</maintainer>
 
   <license>BSD</license>

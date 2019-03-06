@@ -1,0 +1,6 @@
+tools:
+  robot_description: '/robot_description'
+  end_effector: 'iiwa_link_ee'
+  ik_service_name: 'iiwa_ik_server'
+  jacobian_service_name: 'iiwa_jacobian_server'
+  gravity_service_name: 'iiwa_gravity_server'

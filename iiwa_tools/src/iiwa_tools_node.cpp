@@ -1,14 +1,14 @@
 #include <ros/ros.h>
 
 // Iiwa IK server headers
-#include <iiwa_ik_server/iiwa_ik_server.h>
+#include <iiwa_tools/iiwa_tools.h>
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "iiwa_ik_server");
+    ros::init(argc, argv, "iiwa_tools");
     ros::NodeHandle nh;
 
-    iiwa_ik_server::IiwaIKServer ik_server(nh);
+    iiwa_tools::IiwaTools tools_server(nh);
 
     ros::spin();
 
