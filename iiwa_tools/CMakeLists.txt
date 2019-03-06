@@ -25,6 +25,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 add_service_files(
   FILES
+  GetFK.srv
   GetIK.srv
   GetJacobian.srv
   GetGravity.srv

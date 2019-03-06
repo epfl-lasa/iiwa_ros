@@ -52,6 +52,9 @@ namespace iiwa_tools {
         _load_params();
         _init_rbdyn();
 
+        _fk_server = _nh.advertiseService(_fk_service_name, &IiwaTools::perform_fk, this);
+        ROS_INFO_STREAM("Started Iiwa FK server..");
+
         _ik_server = _nh.advertiseService(_ik_service_name, &IiwaTools::perform_ik, this);
         ROS_INFO_STREAM("Started Iiwa IK server..");
 
@@ -60,6 +63,67 @@ namespace iiwa_tools {
 
         _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaTools::get_gravity, this);
         ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
+    }
+
+    bool IiwaTools::perform_fk(iiwa_tools::GetFK::Request& request,
+        iiwa_tools::GetFK::Response& response)
+    {
+        if (request.joints.layout.dim.size() != 2 || request.joints.layout.dim[1].size != _rbd_indices.size()) {
+            ROS_ERROR("Request joint angles not properly defined.");
+            return false;
+        }
+        // copy RBDyn for thread-safety
+        // TO-DO: Check if it takes time
+        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
+
+        response.poses.resize(request.joints.layout.dim[0].size);
+
+        Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
+        Eigen::VectorXd q_high = q_low;
+
+        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+            size_t index = _rbd_indices[i];
+            q_low(i) = rbdyn_urdf.limits.lower[rbdyn_urdf.mb.joint(index).name()][0];
+            q_high(i) = rbdyn_urdf.limits.upper[rbdyn_urdf.mb.joint(index).name()][0];
+        }
+
+        for (size_t point = 0; point < request.joints.layout.dim[0].size; ++point) {
+            rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+
+            for (size_t i = 0; i < _rbd_indices.size(); i++) {
+                size_t rbd_index = _rbd_indices[i];
+                double jt = get_multi_array(request.joints, point, i);
+                // wrap in [-pi,pi]
+                jt = wrap_angle(jt);
+                // enforce limits
+                if (jt < q_low(i))
+                    jt = q_low(i);
+                if (jt > q_high(i))
+                    jt = q_high(i);
+
+                rbdyn_urdf.mbc.q[rbd_index][0] = jt;
+            }
+
+            rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+
+            sva::PTransformd tf = rbdyn_urdf.mbc.bodyPosW[_ef_index];
+
+            Eigen::Matrix4d eig_tf = sva::conversions::toHomogeneous(tf);
+            Eigen::Vector3d trans = eig_tf.col(3).head(3);
+            Eigen::Matrix3d rot_mat = eig_tf.block(0, 0, 3, 3);
+            Eigen::Quaterniond quat = Eigen::Quaterniond(rot_mat).normalized();
+
+            response.poses[point].position.x = trans(0);
+            response.poses[point].position.y = trans(1);
+            response.poses[point].position.z = trans(2);
+
+            response.poses[point].orientation.w = quat.w();
+            response.poses[point].orientation.x = quat.x();
+            response.poses[point].orientation.y = quat.y();
+            response.poses[point].orientation.z = quat.z();
+        }
+
+        return true;
     }
 
     bool IiwaTools::perform_ik(iiwa_tools::GetIK::Request& request,
@@ -374,6 +438,7 @@ namespace iiwa_tools {
 
         n_p.param<std::string>("tools/robot_description", _robot_description, "/robot_description");
         n_p.param<std::string>("tools/end_effector", _end_effector, "iiwa_link_ee");
+        n_p.param<std::string>("tools/fk_service_name", _fk_service_name, "iiwa_fk_server");
         n_p.param<std::string>("tools/ik_service_name", _ik_service_name, "iiwa_ik_server");
         n_p.param<std::string>("tools/jacobian_service_name", _jacobian_service_name, "iiwa_jacobian_server");
         n_p.param<std::string>("tools/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
