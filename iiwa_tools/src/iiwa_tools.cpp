@@ -1,4 +1,4 @@
-#include <iiwa_tools/cvxgen/solver.h>
+#include <iiwa_tools/cvxgen/iiwa_ik_cvxgen.hpp>
 #include <iiwa_tools/iiwa_tools.h>
 
 // RBDyn headers
@@ -6,13 +6,6 @@
 #include <RBDyn/FK.h>
 #include <RBDyn/FV.h>
 #include <SpaceVecAlg/Conversions.h>
-
-namespace iiwa_ik_cvxgen {
-    Vars vars;
-    Params params;
-    Workspace work;
-    Settings settings;
-} // namespace iiwa_ik_cvxgen
 
 namespace iiwa_tools {
     double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
@@ -262,17 +255,19 @@ namespace iiwa_tools {
 
                 Eigen::MatrixXd jac_mat = jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc);
 
-                iiwa_ik_cvxgen::set_defaults();
-                iiwa_ik_cvxgen::setup_indexing();
-                iiwa_ik_cvxgen::settings.verbose = 0;
-                iiwa_ik_cvxgen::settings.resid_tol = 1e-10;
-                iiwa_ik_cvxgen::settings.eps = 1e-10;
-                iiwa_ik_cvxgen::settings.max_iters = 100;
+                iiwa_ik_cvxgen::Solver ik_solver;
+
+                ik_solver.set_defaults();
+                ik_solver.setup_indexing();
+                ik_solver.settings.verbose = 0;
+                ik_solver.settings.resid_tol = 1e-10;
+                ik_solver.settings.eps = 1e-10;
+                ik_solver.settings.max_iters = 100;
 
                 // set params
                 for (int r = 0; r < 6; r++) {
                     for (int c = 0; c < _rbd_indices.size(); c++) {
-                        iiwa_ik_cvxgen::params.J[r + 1][c] = jac_mat(r, c);
+                        ik_solver.params.J[r + 1][c] = jac_mat(r, c);
                     }
                 }
 
@@ -280,19 +275,19 @@ namespace iiwa_tools {
                 Eigen::VectorXd qlow = q_low - qref;
                 Eigen::VectorXd qhigh = q_high - qref;
 
-                memcpy(iiwa_ik_cvxgen::params.damping, damping.data(), _rbd_indices.size() * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.slack, slack_vec.data(), 6 * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.qref, zero.data(), _rbd_indices.size() * sizeof(double)); // we set qref to zero so that we minimize the dq
-                memcpy(iiwa_ik_cvxgen::params.qlow, qlow.data(), _rbd_indices.size() * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.qup, qhigh.data(), _rbd_indices.size() * sizeof(double));
-                memcpy(iiwa_ik_cvxgen::params.dx, v.data(), 6 * sizeof(double));
+                memcpy(ik_solver.params.damping, damping.data(), _rbd_indices.size() * sizeof(double));
+                memcpy(ik_solver.params.slack, slack_vec.data(), 6 * sizeof(double));
+                memcpy(ik_solver.params.qref, zero.data(), _rbd_indices.size() * sizeof(double)); // we set qref to zero so that we minimize the dq
+                memcpy(ik_solver.params.qlow, qlow.data(), _rbd_indices.size() * sizeof(double));
+                memcpy(ik_solver.params.qup, qhigh.data(), _rbd_indices.size() * sizeof(double));
+                memcpy(ik_solver.params.dx, v.data(), 6 * sizeof(double));
 
-                iiwa_ik_cvxgen::solve();
+                ik_solver.solve();
 
                 Eigen::VectorXd q_prev = qref;
 
                 for (size_t j = 0; j < _rbd_indices.size(); j++) {
-                    qref(j) += iiwa_ik_cvxgen::vars.dq[j];
+                    qref(j) += ik_solver.vars.dq[j];
                 }
 
                 for (size_t j = 0; j < _rbd_indices.size(); j++) {
