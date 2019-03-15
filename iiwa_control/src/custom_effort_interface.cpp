@@ -32,10 +32,17 @@ namespace iiwa_control
         }
         
         // Read Configuration file and Init Controller
-        std::vector<double>& input = *commands_buffer_.readFromRT();
         std::vector<double> eigvals_vec;
-        n.getParam("eigvals", eigvals_vec);
-        passive_ds_.SetParams(input.size(), eigvals_vec);
+
+        n.getParam("params/eigvals", eigvals_vec);
+        n.getParam("params/space", operation_space_);
+        
+        if (operation_space_.compare("task"))
+            space_dim_ = 7;
+        else
+            space_dim_ = n_joints_;
+        
+        passive_ds_.SetParams(n_joints_, eigvals_vec);
 
         for(unsigned int i=0; i<n_joints_; i++)
         {
@@ -58,7 +65,7 @@ namespace iiwa_control
             joint_urdfs_.push_back(joint_urdf);
         }
 
-        commands_buffer_.writeFromNonRT(std::vector<double>(n_joints_, 0.0));
+        commands_buffer_.writeFromNonRT(std::vector<double>(space_dim_, 0.0));
 
         sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
         return true;
@@ -83,6 +90,9 @@ namespace iiwa_control
         auto Output = passive_ds_.GetOutput();
         
         std::vector<double> commanded_effort(Output.effort_.data(),Output.effort_.data() + Output.effort_.rows()*Output.effort_.cols());
+
+        if (operation_space_.compare("task"))
+            // Call the service for the Jacobian
 
         for(unsigned int i=0; i<n_joints_; i++)
             joints_[i].setCommand(commanded_effort[i]);

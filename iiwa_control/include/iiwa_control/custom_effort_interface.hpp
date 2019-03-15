@@ -26,20 +26,26 @@ namespace iiwa_control
 
         void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
-        std::vector< std::string > joint_names_;
-
-        std::vector< hardware_interface::JointHandle > joints_;
+        std::vector<hardware_interface::JointHandle> joints_;
 
         realtime_tools::RealtimeBuffer<std::vector<double> > commands_buffer_;
 
         unsigned int n_joints_;
+
+        std::vector<std::string> joint_names_;
 
     private:
         ros::Subscriber sub_command_;
         
         unsigned int loop_count_;
 
+        unsigned int space_dim_;
+
+        std::string operation_space_;
+
         control_stack::controllers::PassiveDS passive_ds_;
+
+        ros::ServiceClient jacobian_;
 
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_; // ?
 
