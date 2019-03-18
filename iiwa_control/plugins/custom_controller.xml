@@ -1,8 +1,8 @@
-<library path="lib/CustomEffortInterface">
+<library path="lib/libCustomEffortController">
     <class
-           name="iiwa_control/MyController"
-           type="iiwa_control::MyController"
+           name="iiwa_control/CustomEffortController"
+           type="iiwa_control::CustomEffortController"
            base_class_type="controller_interface::ControllerBase">
-        <description>This is an example ros_control plugin.</description>
+        <description>CustomEffortController</description>
     </class>
 </library>

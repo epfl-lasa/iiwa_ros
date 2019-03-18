@@ -60,7 +60,7 @@ iiwa:
   # The space variable can be either set to "task" or "joint"
   # The gravity compensation can be either set to "on" or "off"
   PassiveDS:
-    type: iiwa_control/PassiveDSController
+    type: iiwa_control/CustomEffortController
     joints:
       - iiwa_joint_1
       - iiwa_joint_2
@@ -69,7 +69,10 @@ iiwa:
       - iiwa_joint_5
       - iiwa_joint_6
       - iiwa_joint_7
-    params: {eigvals: [1.0, 2.0], space: "task", gravity: "on"}
+    params:
+      eigvals: [1.5, 1.5]
+      space: "task"
+      gravity: "off"
 
 
   
