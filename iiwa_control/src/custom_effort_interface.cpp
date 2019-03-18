@@ -33,22 +33,24 @@ namespace iiwa_control
 
         // Get controller's parameters
         std::vector<double> eigvals_vec;
-        n.getParam("params/eigvals", eigvals_vec);
-        n.getParam("params/space", operation_space_);
-        n.getParam("params/gravity", gravity_comp_);
-        
+
+        ros::NodeHandle n_p("~/params");
+        n_p.param<std::string>("space", operation_space_, "task"); // Default operation space is task-space
+        n_p.param<std::string>("gravity", gravity_comp_, "off"); // We do not use gravity compensation by default
+        n_p.getParam("eigvals", eigvals_vec);
+
         // Check the operational space
         if (operation_space_.compare("task")){
             space_dim_ = 7;
-            iiwa_client_jacobian_ = model_nh.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
+            iiwa_client_jacobian_ = n.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
         }
         else
             space_dim_ = n_joints_;
 
         // Check if gravity compensation is requested
         if (operation_space_.compare("task"))
-            iiwa_client_gravity_ = model_nh.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
-        
+            iiwa_client_gravity_ = n.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
+
         // Init Controller
         passive_ds_.SetParams(n_joints_, eigvals_vec);
 
@@ -56,7 +58,7 @@ namespace iiwa_control
         {
             try
             {
-                joints_.push_back(hw->getHandle(joint_names_[i]));  
+                joints_.push_back(hw->getHandle(joint_names_[i]));
             }
             catch (const hardware_interface::HardwareInterfaceException& e)
             {
@@ -92,12 +94,12 @@ namespace iiwa_control
             desired_velocity.push_back(commands[i]);
             current_velocity.push_back(joints_[i].getVelocity());
         }
-    
+
         passive_ds_.SetInput(Eigen::Map<Eigen::VectorXd>(current_velocity.data(),current_velocity.size()),
                              Eigen::Map<Eigen::VectorXd>(desired_velocity.data(), desired_velocity.size()));
 
         auto Output = passive_ds_.GetOutput();
-        
+
         std::vector<double> commanded_effort(Output.effort_.data(),Output.effort_.data() + Output.effort_.rows()*Output.effort_.cols());
 
         if (operation_space_.compare("task"))
@@ -110,9 +112,9 @@ namespace iiwa_control
     void CustomEffortController::commandCB(const std_msgs::Float64MultiArrayConstPtr& msg)
     {
         if(msg->data.size()!=n_joints_)
-        { 
+        {
         ROS_ERROR_STREAM("Dimension of command (" << msg->data.size() << ") does not match number of joints (" << n_joints_ << ")! Not executing!");
-        return; 
+        return;
         }
         commands_buffer_.writeFromNonRT(msg->data);
     }

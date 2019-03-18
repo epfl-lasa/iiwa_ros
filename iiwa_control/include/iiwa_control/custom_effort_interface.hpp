@@ -45,10 +45,9 @@ namespace iiwa_control
         
         // Controller's settings
         unsigned int loop_count_,
-                     space_dim_,
-                     gravity_comp_;
+                     space_dim_;
 
-        std::string operation_space_;
+        std::string operation_space_, gravity_comp_;
 
         // Controller's service
         ros::ServiceClient iiwa_client_gravity_,

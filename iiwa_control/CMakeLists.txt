@@ -14,7 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   hardware_interface
   controller_manager
   sensor_msgs
-  urdf)
+  urdf
+  iiwa_tools)
 
 ## Find control_stack
 find_package(ControlStack REQUIRED COMPONENTS
@@ -26,7 +27,7 @@ find_package (Eigen3 3.3 REQUIRED)
 
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp
+  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs tf hardware_interface controller_manager sensor_msgs urdf iiwa_tools
   DEPENDS ControlStack
 )
 
@@ -40,14 +41,14 @@ set(iiwa_control_SOURCES
 
 add_library(CustomEffortInterface ${iiwa_control_SOURCES})
 
-target_include_directories(CustomEffortInterface PUBLIC 
-  include 
-  ${catkin_INCLUDE_DIRS} 
-  ${ControlStack_INCLUDE_DIRS} 
+target_include_directories(CustomEffortInterface PUBLIC
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${ControlStack_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS})
 
-target_link_libraries(CustomEffortInterface PUBLIC 
-  ${catkin_LIBRARIES} 
+target_link_libraries(CustomEffortInterface PUBLIC
+  ${catkin_LIBRARIES}
   ${ControlStack_LIBRARIES}
   ${EIGEN3_LIBRARIES})
 
@@ -61,11 +62,11 @@ install(TARGETS CustomEffortInterface
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch 
+install(DIRECTORY launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(DIRECTORY config 
+install(DIRECTORY config
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 
-install(DIRECTORY plugins 
+install(DIRECTORY plugins
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
