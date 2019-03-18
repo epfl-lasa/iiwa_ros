@@ -72,7 +72,7 @@ iiwa:
     params:
       eigvals: [1.5, 1.5]
       space: "task"
-      gravity: "off"
+      # gravity: "off"
 
 
   

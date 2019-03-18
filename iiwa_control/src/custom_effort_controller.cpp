@@ -58,10 +58,6 @@ namespace iiwa_control
         else
             space_dim_ = n_joints_;
 
-        // // Check if gravity compensation is requested
-        // if (gravity_comp_ == "on")
-        //     iiwa_client_gravity_ = n.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
-
         // Init Controller
         passive_ds_.SetParams(space_dim_, eigvals_vec);
 

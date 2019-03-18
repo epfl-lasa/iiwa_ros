@@ -14,7 +14,7 @@
 
 #include <control_stack/controllers/passive_ds.hpp>
 
-#include <iiwa_tools/GetGravity.h>
+// #include <iiwa_tools/GetGravity.h>
 #include <iiwa_tools/GetJacobian.h>
 
 namespace iiwa_control
@@ -53,7 +53,7 @@ namespace iiwa_control
         ros::ServiceClient iiwa_client_gravity_,
                            iiwa_client_jacobian_;
         
-        iiwa_tools::GetGravity gravity_srv_;
+        // iiwa_tools::GetGravity gravity_srv_;
 
         iiwa_tools::GetJacobian jacobian_srv_;
 
