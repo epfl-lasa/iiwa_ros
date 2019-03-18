@@ -1,5 +1,5 @@
 #include <pluginlib/class_list_macros.hpp>
-#include <iiwa_control/custom_effort_interface.hpp>
+#include <iiwa_control/custom_effort_controller.hpp>
 
 namespace iiwa_control
 {
@@ -98,9 +98,9 @@ namespace iiwa_control
         passive_ds_.SetInput(Eigen::Map<Eigen::VectorXd>(current_velocity.data(),current_velocity.size()),
                              Eigen::Map<Eigen::VectorXd>(desired_velocity.data(), desired_velocity.size()));
 
-        auto Output = passive_ds_.GetOutput();
+        auto output = passive_ds_.GetOutput();
 
-        std::vector<double> commanded_effort(Output.effort_.data(),Output.effort_.data() + Output.effort_.rows()*Output.effort_.cols());
+        std::vector<double> commanded_effort(output.effort_.data(),output.effort_.data() + output.effort_.size());
 
         if (operation_space_.compare("task"))
             // Call the service for the Jacobian

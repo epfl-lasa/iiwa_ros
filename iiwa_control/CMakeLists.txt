@@ -31,32 +31,28 @@ catkin_package(
   DEPENDS ControlStack
 )
 
-# set(iiwa_control_HEADERS
-#   include/iiwa_control/custom_effort_interface.hpp
-# )
-
 set(iiwa_control_SOURCES
-  src/custom_effort_interface.cpp
+  src/custom_effort_controller.cpp
 )
 
-add_library(CustomEffortInterface ${iiwa_control_SOURCES})
+add_library(CustomEffortController ${iiwa_control_SOURCES})
 
-target_include_directories(CustomEffortInterface PUBLIC
+target_include_directories(CustomEffortController PUBLIC
   include
   ${catkin_INCLUDE_DIRS}
   ${ControlStack_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS})
 
-target_link_libraries(CustomEffortInterface PUBLIC
+target_link_libraries(CustomEffortController PUBLIC
   ${catkin_LIBRARIES}
   ${ControlStack_LIBRARIES}
   ${EIGEN3_LIBRARIES})
 
 # Require C++11
-set_property(TARGET CustomEffortInterface PROPERTY CXX_STANDARD 11)
-set_property(TARGET CustomEffortInterface PROPERTY CXX_STANDARD_REQUIRED ON)
+set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 11)
+set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD_REQUIRED ON)
 
-install(TARGETS CustomEffortInterface
+install(TARGETS CustomEffortController
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
