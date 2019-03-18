@@ -58,6 +58,7 @@ iiwa:
   # The the number of eigenvalues to use can be dynamical set but it must
   # not exceed the dimension of the controlled space.
   # The space variable can be either set to "task" or "joint"
+  # The gravity compensation can be either set to "on" or "off"
   PassiveDS:
     type: iiwa_control/PassiveDSController
     joints:
@@ -68,7 +69,7 @@ iiwa:
       - iiwa_joint_5
       - iiwa_joint_6
       - iiwa_joint_7
-    params: {eigvals: [1.0, 2.0], space: "task"}
+    params: {eigvals: [1.0, 2.0], space: "task", gravity: "on"}
 
 
   

@@ -14,6 +14,9 @@
 
 #include <control_stack/controllers/passive_ds.hpp>
 
+#include <iiwa_tools/GetGravity.h>
+#include <iiwa_tools/GetJacobian.h>
+
 namespace iiwa_control
 {
     class CustomEffortController : public  controller_interface::Controller<hardware_interface::EffortJointInterface>
@@ -36,21 +39,31 @@ namespace iiwa_control
 
     private:
         ros::Subscriber sub_command_;
-        
-        unsigned int loop_count_;
 
-        unsigned int space_dim_;
+        // Controller
+        control_stack::controllers::PassiveDS passive_ds_;
+        
+        // Controller's settings
+        unsigned int loop_count_,
+                     space_dim_,
+                     gravity_comp_;
 
         std::string operation_space_;
 
-        control_stack::controllers::PassiveDS passive_ds_;
+        // Controller's service
+        ros::ServiceClient iiwa_client_gravity_,
+                           iiwa_client_jacobian_;
+        
+        iiwa_tools::GetGravity gravity_srv_;
 
-        ros::ServiceClient jacobian_;
+        iiwa_tools::GetJacobian jacobian_srv_;
 
-        std::vector<urdf::JointConstSharedPtr> joint_urdfs_; // ?
+        // Others
+        std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
 
-        void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg); // ?
+        void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
 
+        // Enforce limits.. seems to make sense only if command is position (check it)
         void enforceJointLimits(double &command, unsigned int index);
 
     };  

@@ -30,18 +30,26 @@ namespace iiwa_control
             ROS_ERROR("Failed to parse urdf file");
             return false;
         }
-        
-        // Read Configuration file and Init Controller
-        std::vector<double> eigvals_vec;
 
+        // Get controller's parameters
+        std::vector<double> eigvals_vec;
         n.getParam("params/eigvals", eigvals_vec);
         n.getParam("params/space", operation_space_);
+        n.getParam("params/gravity", gravity_comp_);
         
-        if (operation_space_.compare("task"))
+        // Check the operational space
+        if (operation_space_.compare("task")){
             space_dim_ = 7;
+            iiwa_client_jacobian_ = model_nh.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
+        }
         else
             space_dim_ = n_joints_;
+
+        // Check if gravity compensation is requested
+        if (operation_space_.compare("task"))
+            iiwa_client_gravity_ = model_nh.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
         
+        // Init Controller
         passive_ds_.SetParams(n_joints_, eigvals_vec);
 
         for(unsigned int i=0; i<n_joints_; i++)
@@ -68,6 +76,7 @@ namespace iiwa_control
         commands_buffer_.writeFromNonRT(std::vector<double>(space_dim_, 0.0));
 
         sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
+
         return true;
     }
 
@@ -125,4 +134,4 @@ namespace iiwa_control
     }
 } // namespace
 
-PLUGINLIB_EXPORT_CLASS( iiwa_control::CustomEffortController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(iiwa_control::CustomEffortController, controller_interface::ControllerBase)
