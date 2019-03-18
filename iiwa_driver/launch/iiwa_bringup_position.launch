@@ -10,6 +10,9 @@
     <arg name="robot_name" value="$(arg robot_name)"/>
   </include>
 
+  <!-- Load iiwa tools -->
+  <include file="$(find iiwa_tools)/launch/iiwa_tools.launch"/>
+
   <!-- call iiwa FRI driver -->
   <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
     <remap from="/joint_states" to="/iiwa/joint_states"/>

@@ -4,7 +4,7 @@ fri:
   robot_description: /robot_description
 
 hardware_interface:
-  control_freq: 200 # in Hz
+  control_freq: 500 # in Hz
   joints:
     - iiwa_joint_1
     - iiwa_joint_2
