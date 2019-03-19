@@ -15,8 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   iiwa_tools)
 
 ## Find control_stack
-find_package(ControlStack REQUIRED COMPONENTS
-  ControlStack
+find_package(RobotControllers REQUIRED COMPONENTS
+  RobotControllers
 )
 
 ## Find Eigen
@@ -25,7 +25,7 @@ find_package (Eigen3 3.3 REQUIRED)
 ##Needed for ros packages
 catkin_package(
   CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
-  DEPENDS ControlStack
+  DEPENDS RobotControllers
   LIBRARIES CustomEffortController
 )
 
@@ -38,12 +38,12 @@ add_library(CustomEffortController ${iiwa_control_SOURCES})
 target_include_directories(CustomEffortController PUBLIC
   include
   ${catkin_INCLUDE_DIRS}
-  ${ControlStack_INCLUDE_DIRS}
+  ${RobotControllers_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS})
 
 target_link_libraries(CustomEffortController PUBLIC
   ${catkin_LIBRARIES}
-  ${ControlStack_LIBRARIES}
+  ${RobotControllers_LIBRARIES}
   ${EIGEN3_LIBRARIES})
 
 # Require C++11

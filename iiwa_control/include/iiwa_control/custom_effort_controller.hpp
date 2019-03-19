@@ -22,7 +22,7 @@
 #include <iiwa_tools/GetJacobian.h>
 
 // Control stack headers
-#include <control_stack/controllers/passive_ds.hpp>
+#include <robot_controllers/low/PassiveDS.hpp>
 
 namespace iiwa_control {
     class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
@@ -46,7 +46,7 @@ namespace iiwa_control {
         ros::Subscriber sub_command_;
 
         // Controller
-        control_stack::controllers::PassiveDS passive_ds_;
+        robot_controllers::low::PassiveDS passive_ds_;
 
         // Controller's settings
         unsigned int space_dim_;
