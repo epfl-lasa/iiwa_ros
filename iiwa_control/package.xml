@@ -16,27 +16,19 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>roscpp</build_depend>
-  <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
   <build_depend>controller_manager</build_depend>
   <build_depend>controller_interface</build_depend>
   <build_depend>hardware_interface</build_depend>
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>tf</build_depend>
-  <build_depend>sensor_msgs</build_depend>
   <build_depend>urdf</build_depend>
   <build_depend>iiwa_tools</build_depend>
   
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>roscpp</run_depend>
-  <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
-  <run_depend>geometry_msgs</run_depend>
   <run_depend>controller_manager</run_depend>
   <run_depend>controller_interface</run_depend>
   <run_depend>hardware_interface</run_depend>
-  <run_depend>tf</run_depend>
-  <run_depend>sensor_msgs</run_depend>
   <run_depend>urdf</run_depend>
   <run_depend>iiwa_tools</run_depend>
 

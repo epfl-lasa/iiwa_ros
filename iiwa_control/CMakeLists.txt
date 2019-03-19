@@ -7,14 +7,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 ## Find catkin
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  rospy
   std_msgs
-  geometry_msgs
-  tf
   hardware_interface
   controller_manager
   controller_interface
-  sensor_msgs
   urdf
   iiwa_tools)
 
@@ -28,7 +24,7 @@ find_package (Eigen3 3.3 REQUIRED)
 
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs tf hardware_interface controller_interface controller_manager sensor_msgs urdf iiwa_tools
+  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
   DEPENDS ControlStack
   LIBRARIES CustomEffortController
 )
