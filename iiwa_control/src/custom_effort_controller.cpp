@@ -128,9 +128,16 @@ namespace iiwa_control {
             curr_vel = jac * curr_vel;
         }
 
-        passive_ds_.SetInput(curr_vel, desired_vel);
+        // Update desired velocity in passive DS
+        robot_controllers::RobotState state;
+        state.velocity_ = desired_vel;
+        passive_ds_.SetInput(state);
 
-        Eigen::VectorXd output = passive_ds_.GetOutput().effort_;
+        // Update control torques given current velocity
+        state.velocity_ = curr_vel;
+        passive_ds_.Update(state);
+
+        Eigen::VectorXd output = passive_ds_.GetOutput().desired_.force_;
         // Eigen::VectorXd output = 10. * (desired_vel - curr_vel).transpose().array();
 
         if (operation_space_ == "task" && jac_valid) {
