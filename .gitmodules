@@ -1,6 +1,3 @@
-[submodule "iiwa_dependencies/control_stack"]
-	path = iiwa_dependencies/control_stack
-	url = https://github.com/nash169/control_stack.git
 [submodule "iiwa_dependencies/kuka_fri"]
 	path = iiwa_dependencies/kuka_fri
 	url = https://github.com/costashatz/kuka_fri.git
@@ -13,3 +10,6 @@
 [submodule "iiwa_dependencies/mc_rbdyn_urdf"]
 	path = iiwa_dependencies/mc_rbdyn_urdf
 	url = https://github.com/costashatz/mc_rbdyn_urdf.git
+[submodule "iiwa_dependencies/robot_controllers"]
+	path = iiwa_dependencies/robot_controllers
+	url = https://github.com/nash169/robot_controllers.git
