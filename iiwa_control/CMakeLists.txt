@@ -25,10 +25,13 @@ find_package(PkgConfig)
 ## Find Eigen
 pkg_search_module(Eigen3 REQUIRED eigen3)
 
+# Find Corrade
+find_package(Corrade REQUIRED Utility PluginManager)
+
 ##Needed for ros packages
 catkin_package(
   CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
-  DEPENDS RobotControllers
+  DEPENDS RobotControllers CorradeUtility CorradePluginManager
   LIBRARIES CustomEffortController
 )
 
@@ -56,12 +59,14 @@ target_include_directories(CustomEffortController PUBLIC
   include
   ${catkin_INCLUDE_DIRS}
   ${RobotControllers_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS})
+  ${Eigen3_INCLUDE_DIRS}
+  $<TARGET_PROPERTY:Corrade::PluginManager,INTERFACE_INCLUDE_DIRECTORIES>)
 
 target_link_libraries(CustomEffortController PUBLIC
   ${catkin_LIBRARIES}
   ${RobotControllers_LIBRARIES}
-  ${EIGEN3_LIBRARIES})
+  ${Eigen3_LIBRARIES}
+  Corrade::PluginManager)
 
 add_dependencies(CustomEffortController iiwa_tools)
 

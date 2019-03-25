@@ -53,13 +53,9 @@ iiwa:
       - iiwa_joint_7
 
   # Custom Controllers ------------------------------------------------
-  
-  # Passive Interaction Contro
-  # The the number of eigenvalues to use can be dynamical set but it must
-  # not exceed the dimension of the controlled space.
   # The space variable can be either set to "task" or "joint"
   # The gravity compensation can be either set to "on" or "off"
-  PassiveDS:
+  CustomControllers:
     type: iiwa_control/CustomEffortController
     joints:
       - iiwa_joint_1
@@ -69,10 +65,25 @@ iiwa:
       - iiwa_joint_5
       - iiwa_joint_6
       - iiwa_joint_7
+    controller_names:
+      - PassiveDS
+      # - Cascade
+      # - PID
+    controller_types:
+      - PassiveDSController
+      # - CascadeController
+      # - PidController
+    # subcontrollers:
+    #   Cascade:
+    #     - LinearDSController
+    #     - PassiveDSController
     params:
-      eigvals: [1.5, 1.5]
       space: "task"
-      # gravity: "off"
+      # orientation only: P-matrix, D-matrix, I-matrix
+      # PID: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0]
+      # CascadePassiveDSController: [1.5, 1.5]
+      # CascadeLinearDSController: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1]
+      PassiveDS: [1.5, 1.5]
 
 
   

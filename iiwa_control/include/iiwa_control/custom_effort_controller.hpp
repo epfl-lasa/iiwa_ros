@@ -21,8 +21,8 @@
 // #include <iiwa_tools/GetGravity.h>
 #include <iiwa_tools/GetJacobian.h>
 
-// Control stack headers
-#include <robot_controllers/low/PassiveDS.hpp>
+// RobotControllers
+#include <robot_controllers/AbstractController.hpp>
 
 namespace iiwa_control {
     class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
@@ -43,10 +43,12 @@ namespace iiwa_control {
         std::vector<std::string> joint_names_;
 
     protected:
+        using ControllerPtr = std::unique_ptr<robot_controllers::AbstractController>;
+
         ros::Subscriber sub_command_;
 
         // Controller
-        robot_controllers::low::PassiveDS passive_ds_;
+        ControllerPtr controller_;
 
         // Controller's settings
         unsigned int space_dim_;

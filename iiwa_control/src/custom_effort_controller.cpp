@@ -4,6 +4,9 @@
 
 #include <iiwa_control/custom_effort_controller.hpp>
 
+#include <robot_controllers/CascadeController.hpp>
+#include <robot_controllers/SumController.hpp>
+
 namespace iiwa_control {
     double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
     {
@@ -40,11 +43,13 @@ namespace iiwa_control {
         }
 
         // Get controller's parameters
-        std::vector<double> eigvals_vec;
+        // std::vector<double> values;
+        std::vector<std::string> controller_names, controller_types;
 
         n.param<std::string>("params/space", operation_space_, "joint"); // Default operation space is task-space
         n.param<std::string>("params/gravity", gravity_comp_, "off"); // We do not use gravity compensation by default
-        n.getParam("params/eigvals", eigvals_vec);
+        n.getParam("controller_names", controller_names);
+        n.getParam("controller_types", controller_types);
 
         // Check the operational space
         if (operation_space_ == "task") {
@@ -54,8 +59,127 @@ namespace iiwa_control {
         else
             space_dim_ = n_joints_;
 
-        // Init Controller
-        passive_ds_.SetParams(space_dim_, eigvals_vec);
+        // Init Controllers
+        unsigned int ctrl_size = controller_names.size();
+
+        if (ctrl_size == 0) {
+            ROS_ERROR_STREAM("No controllers specified! Exiting..!");
+            return false;
+        }
+        if (ctrl_size != controller_types.size()) {
+            ROS_ERROR_STREAM("Sizes of controller names and controller types do match! Exiting..!");
+            return false;
+        }
+
+        std::vector<ControllerPtr> controllers;
+        Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager;
+
+        for (unsigned int i = 0; i < ctrl_size; i++) {
+            std::string name = controller_names[i];
+            std::string type = controller_types[i];
+
+            // ROS_WARN_STREAM(name << " ---> " << type);
+
+            if (type == "SumController" || type == "CascadeController") {
+                std::vector<std::string> subcontrollers;
+                n.getParam("subcontrollers/" + name, subcontrollers);
+
+                unsigned int sub_ctrl_size = subcontrollers.size();
+
+                if (sub_ctrl_size == 0) {
+                    ROS_ERROR_STREAM("No subcontrollers specified (at least one needed)! Exiting..!");
+                    return false;
+                }
+
+                ControllerPtr big_ctrl;
+
+                if (type == "SumController")
+                    big_ctrl.reset(new robot_controllers::SumController);
+                else
+                    big_ctrl.reset(new robot_controllers::CascadeController);
+
+                unsigned int num_ctrls = 0;
+                for (unsigned int j = 0; j < sub_ctrl_size; j++) {
+                    std::string sub_name = subcontrollers[j];
+                    ControllerPtr ctrl((manager.loadAndInstantiate(sub_name)).get());
+                    if (ctrl) {
+                        robot_controllers::RobotParams params;
+                        params.input_dim_ = space_dim_;
+                        params.output_dim_ = space_dim_;
+
+                        params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
+
+                        n.getParam("params/" + name + sub_name, params.values_);
+
+                        ctrl->SetParams(params);
+
+                        if (type == "SumController")
+                            static_cast<robot_controllers::SumController*>(big_ctrl.get())->AddController(std::move(ctrl));
+                        else
+                            static_cast<robot_controllers::CascadeController*>(big_ctrl.get())->AddController(std::move(ctrl));
+                        num_ctrls++;
+                    }
+                }
+
+                if (num_ctrls == 0) {
+                    ROS_ERROR_STREAM("Could not load specified subcontrollers for " << name << "! Exiting..!");
+                    return false;
+                }
+
+                robot_controllers::RobotParams params;
+                params.input_dim_ = space_dim_;
+                params.output_dim_ = space_dim_;
+
+                params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
+                big_ctrl->SetParams(params);
+
+                controllers.emplace_back(std::move(big_ctrl));
+            }
+            else {
+                ControllerPtr ctrl((manager.loadAndInstantiate(type)).get());
+
+                if (ctrl) {
+                    robot_controllers::RobotParams params;
+                    params.input_dim_ = space_dim_;
+                    params.output_dim_ = space_dim_;
+
+                    params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
+
+                    n.getParam("params/" + name, params.values_);
+
+                    ROS_WARN_STREAM("GOT PARAMS: " << params.values_.size());
+
+                    ctrl->SetParams(params);
+
+                    controllers.emplace_back(std::move(ctrl));
+                }
+            }
+        }
+
+        ROS_WARN_STREAM("TESTING #1");
+
+        ctrl_size = controllers.size();
+
+        if (ctrl_size == 0) {
+            ROS_ERROR_STREAM("Could not load specified controllers! Exiting..!");
+            return false;
+        }
+
+        if (ctrl_size == 1) {
+            controller_ = std::move(controllers[0]);
+        }
+        else {
+            controller_.reset(new robot_controllers::SumController);
+            for (unsigned int i = 0; i < ctrl_size; i++) {
+                static_cast<robot_controllers::SumController*>(controller_.get())->AddController(std::move(controllers[i]));
+            }
+        }
+
+        ROS_WARN_STREAM("TESTING");
+
+        controller_->Init();
+
+        ROS_WARN_STREAM("INITED");
 
         for (unsigned int i = 0; i < n_joints_; i++) {
             try {
@@ -117,27 +241,57 @@ namespace iiwa_control {
             }
         }
 
-        Eigen::VectorXd desired_vel(n_joints_), curr_vel(n_joints_);
+        Eigen::VectorXd cmd(n_joints_);
 
-        desired_vel = Eigen::VectorXd::Map(commands.data(), commands.size());
+        cmd = Eigen::VectorXd::Map(commands.data(), commands.size());
+
+        robot_controllers::RobotState curr_state;
+        curr_state.position_ = Eigen::VectorXd::Zero(n_joints_);
+        curr_state.velocity_ = Eigen::VectorXd::Zero(n_joints_);
+        curr_state.acceleration_ = Eigen::VectorXd::Zero(n_joints_);
+        curr_state.force_ = Eigen::VectorXd::Zero(n_joints_);
+
         for (unsigned int i = 0; i < n_joints_; i++) {
-            curr_vel(i) = joints_[i].getVelocity();
+            curr_state.position_(i) = joints_[i].getPosition();
+            curr_state.velocity_(i) = joints_[i].getVelocity();
+            // curr_state.acceleration_(i) = joints_[i].getAcceleration();
+            // TO-DO: Fill acceleration
+            curr_state.force_(i) = joints_[i].getEffort();
         }
 
         if (operation_space_ == "task" && jac_valid) {
-            curr_vel = jac * curr_vel;
+            curr_state.position_ = jac * curr_state.position_;
+            curr_state.velocity_ = jac * curr_state.velocity_;
+            curr_state.acceleration_ = jac * curr_state.acceleration_;
+            curr_state.force_ = jac * curr_state.force_;
         }
 
-        // Update desired velocity in passive DS
-        robot_controllers::RobotState state;
-        state.velocity_ = desired_vel;
-        passive_ds_.SetInput(state);
+        // Update desired state in controller
+        robot_controllers::RobotState desired_state;
+        unsigned int size = curr_state.position_.size();
+        unsigned int index = 0;
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
+            desired_state.position_ = cmd.segment(index, size);
+            index += size;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
+            desired_state.velocity_ = cmd.segment(index, size);
+            index += size;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
+            desired_state.acceleration_ = cmd.segment(index, size);
+            index += size;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
+            desired_state.force_ = cmd.segment(index, size);
+            // index += size;
+        }
+        controller_->SetInput(desired_state);
 
         // Update control torques given current velocity
-        state.velocity_ = curr_vel;
-        passive_ds_.Update(state);
+        controller_->Update(curr_state);
 
-        Eigen::VectorXd output = passive_ds_.GetOutput().desired_.force_;
+        Eigen::VectorXd output = controller_->GetOutput().desired_.force_;
         // Eigen::VectorXd output = 10. * (desired_vel - curr_vel).transpose().array();
 
         if (operation_space_ == "task" && jac_valid) {
