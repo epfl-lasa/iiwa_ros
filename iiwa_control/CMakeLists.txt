@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_control)
 
+option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
+
 # Tell CMake where to find "Find<LIB>.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
@@ -20,13 +22,13 @@ find_package(RobotControllers REQUIRED COMPONENTS
   RobotControllers
 )
 
-## Find Eigen
-find_package (Eigen3 REQUIRED)
+find_package(PkgConfig)
 
 generate_dynamic_reconfigure_options(
     cfg/ds_impedance_params.cfg
 )
 
+pkg_search_module(Eigen3 REQUIRED eigen3)
 
 ##Needed for ros packages
 catkin_package(
@@ -43,6 +45,20 @@ set(iiwa_control_SOURCES
 
 add_library(CustomEffortController ${iiwa_control_SOURCES})
 
+if(ENABLE_SIMD)
+  if(CMAKE_COMPILER_IS_GNUCXX)
+    execute_process(
+      COMMAND ${CMAKE_CXX_COMPILER} -dumpfullversion -dumpversion OUTPUT_VARIABLE GCC_VERSION)
+    set(CXX_COMPILER_VERSION ${GCC_VERSION})
+    target_compile_options(CustomEffortController PUBLIC -march=native)
+    if(GCC_VERSION VERSION_GREATER 7.0)
+      target_compile_options(CustomEffortController PUBLIC -faligned-new)
+    endif()
+  elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    target_compile_options(CustomEffortController PUBLIC -march=native -faligned-new)
+  endif()
+endif()
+
 target_include_directories(CustomEffortController PUBLIC
   include
   ${catkin_INCLUDE_DIRS}
@@ -53,6 +69,8 @@ target_link_libraries(CustomEffortController PUBLIC
   ${catkin_LIBRARIES}
   ${RobotControllers_LIBRARIES}
   ${EIGEN3_LIBRARIES})
+
+add_dependencies(CustomEffortController iiwa_tools)
 
 # Require C++11
 set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 11)
