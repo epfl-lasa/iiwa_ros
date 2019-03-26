@@ -12,7 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   controller_interface
   urdf
-  iiwa_tools)
+  iiwa_tools
+  dynamic_reconfigure)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS
@@ -20,7 +21,12 @@ find_package(RobotControllers REQUIRED COMPONENTS
 )
 
 ## Find Eigen
-find_package (Eigen3 3.3 REQUIRED)
+find_package (Eigen3 REQUIRED)
+
+generate_dynamic_reconfigure_options(
+    cfg/ds_impedance_params.cfg
+)
+
 
 ##Needed for ros packages
 catkin_package(
@@ -31,6 +37,8 @@ catkin_package(
 
 set(iiwa_control_SOURCES
   src/custom_effort_controller.cpp
+  src/custom_joint_state_controller.cpp
+  src/ds_impedance_controller.cpp
 )
 
 add_library(CustomEffortController ${iiwa_control_SOURCES})

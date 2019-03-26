@@ -1,5 +1,5 @@
-#ifndef IIWA_CONTROL_CUSTOM_EFFORT_CONTROLLER_H
-#define IIWA_CONTROL_CUSTOM_EFFORT_CONTROLLER_H
+#ifndef IIWA_CONTROL_DS_IMPEDANCE_CONTROLLER_H
+#define IIWA_CONTROL_DS_IMPEDANCE_CONTROLLER_H
 
 // ROS headers
 #include <ros/node_handle.h>
@@ -13,25 +13,37 @@
 
 // msgs
 #include <std_msgs/Float64MultiArray.h>
+#include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Twist.h>
 
 // URDF
 #include <urdf/model.h>
 
 // iiwa_tools
-// #include <iiwa_tools/GetGravity.h>
 #include <iiwa_tools/GetJacobian.h>
+#include <iiwa_tools/GetFK.h>
 
 // Control stack headers
 #include <robot_controllers/low/PassiveDS.hpp>
 
-namespace iiwa_control {
+// Boost
+#include <boost/scoped_ptr.hpp>
 
-    double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j);
-    
-    class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
+//Eigen
+#include <Eigen/Geometry>
+
+// Dynamic reconfigure
+#include <dynamic_reconfigure/server.h>
+#include <iiwa_control/DSImpedance_paramConfig.h>
+
+
+
+
+namespace iiwa_control {
+    class DSImpedanceController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
     public:
-        CustomEffortController();
-        ~CustomEffortController();
+        DSImpedanceController();
+        ~DSImpedanceController();
 
         bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
 
@@ -56,18 +68,41 @@ namespace iiwa_control {
         std::string operation_space_, gravity_comp_;
 
         // iiwa_tools services
-        ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_;
+        ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_, iiwa_client_fk_;
         // iiwa_tools::GetGravity gravity_srv_;
         iiwa_tools::GetJacobian jacobian_srv_;
+        iiwa_tools::GetFK fk_srv_;
 
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
+
+        Eigen::Vector3d vd_, omegad_, omega_, v_, x_;
+        Eigen::Vector4d q_, qd_;
+        bool firstCommand_ = false;
+
+        double rotationalStiffness_;
+        double rotationalDamping_;
+        double jointLimitsGain_;
+        double desiredJointsGain_;
+        double jointVelocitiesGain_;
+        bool useNullSpace_;
+
+        Eigen::VectorXd j0_;
+        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > pub_pose_;
+        boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Twist> > pub_twist_;
+
+
+
+
+        boost::scoped_ptr< dynamic_reconfigure::Server<iiwa_control::DSImpedance_paramConfig> > _dynamicServerParam;
 
         // Command callback
         void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
 
         // Enforce effort limits
         void enforceJointLimits(double& command, unsigned int index);
+
+        void dynamicReconfigureCallback(iiwa_control::DSImpedance_paramConfig& config,uint32_t level);
     };
 } // namespace iiwa_control
 

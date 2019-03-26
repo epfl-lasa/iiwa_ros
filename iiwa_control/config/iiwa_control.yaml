@@ -70,9 +70,13 @@ iiwa:
       - iiwa_joint_6
       - iiwa_joint_7
     params:
-      eigvals: [1.5, 1.5]
+      eigvals: [15, 15, 15, 150, 150, 150]
       space: "task"
       # gravity: "off"
 
+  DSImpedance:
+    type: iiwa_control/DSImpedanceController
 
-  
+  custom_joint_state_controller:
+    type: iiwa_control/CustomJointStateController
+    publish_rate: 500
