@@ -72,7 +72,6 @@ namespace iiwa_control {
         }
 
         std::vector<ControllerPtr> controllers;
-        Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager;
 
         for (unsigned int i = 0; i < ctrl_size; i++) {
             std::string name = controller_names[i];
@@ -101,7 +100,7 @@ namespace iiwa_control {
                 unsigned int num_ctrls = 0;
                 for (unsigned int j = 0; j < sub_ctrl_size; j++) {
                     std::string sub_name = subcontrollers[j];
-                    ControllerPtr ctrl((manager.loadAndInstantiate(sub_name)).get());
+                    auto ctrl = manager_.loadAndInstantiate(sub_name);
                     if (ctrl) {
                         robot_controllers::RobotParams params;
                         params.input_dim_ = space_dim_;
@@ -136,7 +135,7 @@ namespace iiwa_control {
                 controllers.emplace_back(std::move(big_ctrl));
             }
             else {
-                ControllerPtr ctrl((manager.loadAndInstantiate(type)).get());
+                auto ctrl = manager_.loadAndInstantiate(type);
 
                 if (ctrl) {
                     robot_controllers::RobotParams params;
@@ -147,16 +146,12 @@ namespace iiwa_control {
 
                     n.getParam("params/" + name, params.values_);
 
-                    ROS_WARN_STREAM("GOT PARAMS: " << params.values_.size());
-
                     ctrl->SetParams(params);
 
                     controllers.emplace_back(std::move(ctrl));
                 }
             }
         }
-
-        ROS_WARN_STREAM("TESTING #1");
 
         ctrl_size = controllers.size();
 
@@ -175,11 +170,8 @@ namespace iiwa_control {
             }
         }
 
-        ROS_WARN_STREAM("TESTING");
-
+        // Initialize the controller(s)
         controller_->Init();
-
-        ROS_WARN_STREAM("INITED");
 
         for (unsigned int i = 0; i < n_joints_; i++) {
             try {

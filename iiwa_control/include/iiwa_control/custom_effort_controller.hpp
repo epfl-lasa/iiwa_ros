@@ -43,12 +43,14 @@ namespace iiwa_control {
         std::vector<std::string> joint_names_;
 
     protected:
-        using ControllerPtr = std::unique_ptr<robot_controllers::AbstractController>;
+        using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
 
         ros::Subscriber sub_command_;
 
         // Controller
         ControllerPtr controller_;
+        // Controller manager
+        Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
 
         // Controller's settings
         unsigned int space_dim_;
