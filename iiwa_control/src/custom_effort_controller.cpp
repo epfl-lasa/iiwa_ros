@@ -205,21 +205,47 @@ namespace iiwa_control {
         fk_srv_.request.joints.data.resize(n_joints_);
 
         // Get controller command size!
-        unsigned int size = 0;
+        cmd_dim_ = 0;
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
-            size += space_dim_;
+            cmd_dim_ += space_dim_;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
-            size += space_dim_;
+            cmd_dim_ += space_dim_;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
-            size += space_dim_;
+            cmd_dim_ += space_dim_;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
-            size += space_dim_;
+            cmd_dim_ += space_dim_;
         }
 
-        commands_buffer_.writeFromNonRT(std::vector<double>(size, 0.0));
+        std::vector<double> init_cmd(cmd_dim_, 0.0);
+        if (operation_space_ == "task") {
+            // if task space, we need to alter the initial command
+            for (size_t i = 0; i < n_joints_; i++) {
+                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
+            }
+
+            if (iiwa_client_fk_.call(fk_srv_)) {
+                assert(fk_srv_.response.poses.size() == 1);
+
+                Eigen::Quaterniond quat(fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z);
+                Eigen::AngleAxisd aa(quat);
+
+                Eigen::VectorXd o = aa.axis() * aa.angle();
+                Eigen::VectorXd p(3);
+                p << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
+
+                for (size_t i = 0; i < 3; i++) {
+                    init_cmd[i] = o(i);
+                    init_cmd[i + 3] = p(i);
+                }
+            }
+        }
+
+        ROS_INFO_STREAM("Initial command: " << Eigen::VectorXd::Map(init_cmd.data(), init_cmd.size()).transpose());
+
+        commands_buffer_.writeFromNonRT(init_cmd);
 
         sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
 
@@ -359,7 +385,7 @@ namespace iiwa_control {
 
     void CustomEffortController::commandCB(const std_msgs::Float64MultiArrayConstPtr& msg)
     {
-        if (msg->data.size() != n_joints_ && msg->data.size() != 6) {
+        if (msg->data.size() != cmd_dim_) {
             ROS_ERROR_STREAM("Dimension of command (" << msg->data.size() << ") is not correct! Not executing!");
             return;
         }

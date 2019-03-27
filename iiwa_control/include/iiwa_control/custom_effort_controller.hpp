@@ -55,6 +55,7 @@ namespace iiwa_control {
 
         // Controller's settings
         unsigned int space_dim_;
+        unsigned int cmd_dim_;
         std::string operation_space_, gravity_comp_;
 
         // iiwa_tools services

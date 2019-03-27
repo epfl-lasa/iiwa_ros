@@ -68,11 +68,11 @@ iiwa:
     controller_names:
       # - PassiveDS
       - Cascade
-      - PID
+      # - PID
     controller_types:
       # - PassiveDSController
       - CascadeController
-      - PidController
+      # - PidController
     subcontrollers:
       Cascade:
         - LinearDSController
