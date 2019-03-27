@@ -19,6 +19,7 @@
 
 // iiwa_tools
 // #include <iiwa_tools/GetGravity.h>
+#include <iiwa_tools/GetFK.h>
 #include <iiwa_tools/GetJacobian.h>
 
 // RobotControllers
@@ -49,7 +50,7 @@ namespace iiwa_control {
 
         // Controller
         ControllerPtr controller_;
-        // Controller manager
+        // Plugin controller manager
         Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
 
         // Controller's settings
@@ -57,9 +58,10 @@ namespace iiwa_control {
         std::string operation_space_, gravity_comp_;
 
         // iiwa_tools services
-        ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_;
+        ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_, iiwa_client_fk_;
         // iiwa_tools::GetGravity gravity_srv_;
         iiwa_tools::GetJacobian jacobian_srv_;
+        iiwa_tools::GetFK fk_srv_;
 
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;

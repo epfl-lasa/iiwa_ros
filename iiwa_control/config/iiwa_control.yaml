@@ -66,24 +66,30 @@ iiwa:
       - iiwa_joint_6
       - iiwa_joint_7
     controller_names:
-      - PassiveDS
-      # - Cascade
-      # - PID
+      # - PassiveDS
+      - Cascade
+      - PID
     controller_types:
-      - PassiveDSController
-      # - CascadeController
-      # - PidController
-    # subcontrollers:
-    #   Cascade:
-    #     - LinearDSController
-    #     - PassiveDSController
+      # - PassiveDSController
+      - CascadeController
+      - PidController
+    subcontrollers:
+      Cascade:
+        - LinearDSController
+        - PassiveDSController
     params:
       space: "task"
       # orientation only: P-matrix, D-matrix, I-matrix
       # PID: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0]
-      # CascadePassiveDSController: [1.5, 1.5]
+      # P-values, D-values, I-values (optional)
+      PID: [10., 1.]
+      # eigen-values (<= DIM)
+      CascadePassiveDSController: [1.5, 1.5]
+      # only diagonal values of A matrix
+      # ignore orientation
+      CascadeLinearDSController: [0., 0., 0., 1., 1., 1.]
       # CascadeLinearDSController: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1]
-      PassiveDS: [1.5, 1.5]
+      # PassiveDS: [1.5, 1.5]
 
 
   

@@ -1,4 +1,4 @@
-#include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include <pluginlib/class_list_macros.hpp>
 
@@ -54,7 +54,9 @@ namespace iiwa_control {
         // Check the operational space
         if (operation_space_ == "task") {
             space_dim_ = 6;
+            // TO-DO: Get those from parameters
             iiwa_client_jacobian_ = n.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
+            iiwa_client_fk_ = n.serviceClient<iiwa_tools::GetFK>("/iiwa/iiwa_fk_server");
         }
         else
             space_dim_ = n_joints_;
@@ -194,7 +196,30 @@ namespace iiwa_control {
         jacobian_srv_.request.joint_angles.resize(n_joints_, 0.);
         jacobian_srv_.request.joint_velocities.resize(n_joints_, 0.);
 
-        commands_buffer_.writeFromNonRT(std::vector<double>(space_dim_, 0.0));
+        fk_srv_.request.joints.layout.dim.resize(2);
+        fk_srv_.request.joints.layout.dim[0].size = 1;
+        fk_srv_.request.joints.layout.dim[0].stride = n_joints_;
+        fk_srv_.request.joints.layout.dim[1].size = n_joints_;
+        fk_srv_.request.joints.layout.dim[1].stride = 0;
+        fk_srv_.request.joints.layout.data_offset = 0;
+        fk_srv_.request.joints.data.resize(n_joints_);
+
+        // Get controller command size!
+        unsigned int size = 0;
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
+            size += space_dim_;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
+            size += space_dim_;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
+            size += space_dim_;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
+            size += space_dim_;
+        }
+
+        commands_buffer_.writeFromNonRT(std::vector<double>(size, 0.0));
 
         sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
 
@@ -206,13 +231,17 @@ namespace iiwa_control {
         std::vector<double>& commands = *commands_buffer_.readFromRT();
 
         Eigen::MatrixXd jac(6, n_joints_);
+        Eigen::VectorXd eef(6);
         bool jac_valid = false;
+        bool fk_valid = false;
 
         if (operation_space_ == "task") {
             // Call iiwa tools service for jacobian
             for (size_t i = 0; i < n_joints_; i++) {
                 jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
                 jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();
+
+                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
             }
 
             if (iiwa_client_jacobian_.call(jacobian_srv_)) {
@@ -230,6 +259,21 @@ namespace iiwa_control {
             }
             else {
                 ROS_ERROR_STREAM("Could not get Jacobian!");
+            }
+
+            if (iiwa_client_fk_.call(fk_srv_)) {
+                assert(fk_srv_.response.poses.size() == 1);
+
+                Eigen::Quaterniond quat(fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z);
+                Eigen::AngleAxisd aa(quat);
+
+                eef.head(3) = aa.axis() * aa.angle();
+                eef.tail(3) << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
+
+                fk_valid = true;
+            }
+            else {
+                ROS_ERROR_STREAM("Could not get Forward Kinematics!");
             }
         }
 
@@ -251,8 +295,18 @@ namespace iiwa_control {
             curr_state.force_(i) = joints_[i].getEffort();
         }
 
-        if (operation_space_ == "task" && jac_valid) {
-            curr_state.position_ = jac * curr_state.position_;
+        if (operation_space_ == "task") {
+            if (!jac_valid) {
+                ROS_ERROR_STREAM("Jacobian not valid! Skipping this update!");
+                return;
+            }
+
+            if (!fk_valid) {
+                ROS_ERROR_STREAM("Forward Kinematics not valid! Skipping this update!");
+                return;
+            }
+
+            curr_state.position_ = eef;
             curr_state.velocity_ = jac * curr_state.velocity_;
             curr_state.acceleration_ = jac * curr_state.acceleration_;
             curr_state.force_ = jac * curr_state.force_;
