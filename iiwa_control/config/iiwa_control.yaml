@@ -68,11 +68,11 @@ iiwa:
     controller_names:
       # - PassiveDS
       - Cascade
-      # - PID
+      - PID
     controller_types:
       # - PassiveDSController
       - CascadeController
-      # - PidController
+      - PidController
     subcontrollers:
       Cascade:
         - LinearDSController
@@ -83,11 +83,14 @@ iiwa:
       # PID: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0]
       # P-values, D-values, I-values (optional)
       PID: [10., 1.]
+      PIDIO:
+        - "Orientation" # input, multiple example: "Orientation|Position"
+        - "Torque" # output
       # eigen-values (<= DIM)
       CascadePassiveDSController: [1.5, 1.5]
       # only diagonal values of A matrix
       # ignore orientation
-      CascadeLinearDSController: [0., 0., 0., 1., 1., 1.]
+      CascadeLinearDSController: [1., 1., 1.]
       # CascadeLinearDSController: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1]
       # PassiveDS: [1.5, 1.5]
 

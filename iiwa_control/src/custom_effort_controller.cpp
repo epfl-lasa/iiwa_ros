@@ -16,6 +16,90 @@ namespace iiwa_control {
         return array.data[offset + i * array.layout.dim[0].stride + j];
     }
 
+    std::vector<std::vector<std::string>> get_types(ros::NodeHandle& n, const std::string& name)
+    {
+        std::vector<std::string> io;
+        n.getParam(name + "IO", io);
+
+        if (io.size() != 2) {
+            if (io.size() != 0)
+                ROS_WARN_STREAM("Wrong number of input/output for controller '" << name << "'. Will not change the I/O of this controller.");
+            return std::vector<std::vector<std::string>>();
+        }
+
+        std::vector<std::vector<std::string>> result(2);
+
+        // Input
+        std::string s = io[0];
+        std::string delimiter = "|";
+
+        size_t pos = 0;
+        std::string token;
+        while ((pos = s.find(delimiter)) != std::string::npos) {
+            token = s.substr(0, pos);
+            result[0].push_back(token);
+            s.erase(0, pos + delimiter.length());
+        }
+
+        // Output
+        s = io[1];
+        delimiter = "|";
+
+        pos = 0;
+        token = "";
+        while ((pos = s.find(delimiter)) != std::string::npos) {
+            token = s.substr(0, pos);
+            result[1].push_back(token);
+            s.erase(0, pos + delimiter.length());
+        }
+
+        return result;
+    }
+
+    void set_types(CustomEffortController::ControllerPtr& ctrl, const std::vector<std::string>& input, const std::vector<std::string>& output)
+    {
+        robot_controllers::IOTypes input_type, output_type;
+        for (auto& s : input) {
+            if (s == "Position")
+                input_type = input_type | robot_controllers::IOType::Position;
+            else if (s == "Orientation")
+                input_type = input_type | robot_controllers::IOType::Orientation;
+            else if (s == "Velocity")
+                input_type = input_type | robot_controllers::IOType::Velocity;
+            else if (s == "AngularVelocity")
+                input_type = input_type | robot_controllers::IOType::AngularVelocity;
+            else if (s == "Acceleration")
+                input_type = input_type | robot_controllers::IOType::Acceleration;
+            else if (s == "AngularAcceleration")
+                input_type = input_type | robot_controllers::IOType::AngularAcceleration;
+            else if (s == "Force")
+                input_type = input_type | robot_controllers::IOType::Force;
+            else if (s == "Torque")
+                input_type = input_type | robot_controllers::IOType::Torque;
+        }
+
+        for (auto& s : output) {
+            if (s == "Position")
+                output_type = output_type | robot_controllers::IOType::Position;
+            else if (s == "Orientation")
+                output_type = output_type | robot_controllers::IOType::Orientation;
+            else if (s == "Velocity")
+                output_type = output_type | robot_controllers::IOType::Velocity;
+            else if (s == "AngularVelocity")
+                output_type = output_type | robot_controllers::IOType::AngularVelocity;
+            else if (s == "Acceleration")
+                output_type = output_type | robot_controllers::IOType::Acceleration;
+            else if (s == "AngularAcceleration")
+                output_type = output_type | robot_controllers::IOType::AngularAcceleration;
+            else if (s == "Force")
+                output_type = output_type | robot_controllers::IOType::Force;
+            else if (s == "Torque")
+                output_type = output_type | robot_controllers::IOType::Torque;
+        }
+
+        ctrl->SetIOTypes(input_type, output_type);
+    }
+
     CustomEffortController::CustomEffortController() {}
 
     CustomEffortController::~CustomEffortController() { sub_command_.shutdown(); }
@@ -53,7 +137,7 @@ namespace iiwa_control {
 
         // Check the operational space
         if (operation_space_ == "task") {
-            space_dim_ = 6;
+            space_dim_ = 3;
             // TO-DO: Get those from parameters
             iiwa_client_jacobian_ = n.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
             iiwa_client_fk_ = n.serviceClient<iiwa_tools::GetFK>("/iiwa/iiwa_fk_server");
@@ -114,6 +198,10 @@ namespace iiwa_control {
 
                         ctrl->SetParams(params);
 
+                        std::vector<std::vector<std::string>> tt = get_types(n, name + sub_name);
+                        if (tt.size() == 2)
+                            set_types(ctrl, tt[0], tt[1]);
+
                         if (type == "SumController")
                             static_cast<robot_controllers::SumController*>(big_ctrl.get())->AddController(std::move(ctrl));
                         else
@@ -134,6 +222,10 @@ namespace iiwa_control {
                 params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
                 big_ctrl->SetParams(params);
 
+                std::vector<std::vector<std::string>> tt = get_types(n, name);
+                if (tt.size() == 2)
+                    set_types(big_ctrl, tt[0], tt[1]);
+
                 controllers.emplace_back(std::move(big_ctrl));
             }
             else {
@@ -149,6 +241,10 @@ namespace iiwa_control {
                     n.getParam("params/" + name, params.values_);
 
                     ctrl->SetParams(params);
+
+                    std::vector<std::vector<std::string>> tt = get_types(n, name);
+                    if (tt.size() == 2)
+                        set_types(ctrl, tt[0], tt[1]);
 
                     controllers.emplace_back(std::move(ctrl));
                 }
@@ -204,23 +300,37 @@ namespace iiwa_control {
         fk_srv_.request.joints.layout.data_offset = 0;
         fk_srv_.request.joints.data.resize(n_joints_);
 
-        // Get controller command size!
+        // Get controller command size
         cmd_dim_ = 0;
+
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
             cmd_dim_ += space_dim_;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation) {
+            cmd_dim_ += 3; // This is fixed to 3D
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
             cmd_dim_ += space_dim_;
         }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity) {
+            cmd_dim_ += 3; // This is fixed to 3D
+        }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
             cmd_dim_ += space_dim_;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration) {
+            cmd_dim_ += 3; // This is fixed to 3D
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
             cmd_dim_ += space_dim_;
         }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Torque) {
+            cmd_dim_ += 3; // This is fixed to 3D
+        }
 
         std::vector<double> init_cmd(cmd_dim_, 0.0);
         if (operation_space_ == "task") {
+            has_orientation_ = ((controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)) ? true : false;
             // if task space, we need to alter the initial command
             for (size_t i = 0; i < n_joints_; i++) {
                 fk_srv_.request.joints.data[i] = joints_[i].getPosition();
@@ -236,9 +346,14 @@ namespace iiwa_control {
                 Eigen::VectorXd p(3);
                 p << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
 
+                size_t offset = 0;
+                if (has_orientation_)
+                    offset = 3;
+
                 for (size_t i = 0; i < 3; i++) {
-                    init_cmd[i] = o(i);
-                    init_cmd[i + 3] = p(i);
+                    if (has_orientation_)
+                        init_cmd[i] = o(i);
+                    init_cmd[i + offset] = p(i);
                 }
             }
         }
@@ -332,10 +447,22 @@ namespace iiwa_control {
                 return;
             }
 
-            curr_state.position_ = eef;
-            curr_state.velocity_ = jac * curr_state.velocity_;
-            curr_state.acceleration_ = jac * curr_state.acceleration_;
-            curr_state.force_ = jac * curr_state.force_;
+            Eigen::VectorXd pos = eef;
+            Eigen::VectorXd vel = jac * curr_state.velocity_;
+            Eigen::VectorXd acc = jac * curr_state.acceleration_;
+            Eigen::VectorXd f = jac * curr_state.force_;
+
+            curr_state.position_ = pos.tail(3);
+            curr_state.velocity_ = vel.tail(3);
+            curr_state.acceleration_ = acc.tail(3);
+            curr_state.force_ = f.tail(3);
+
+            if (has_orientation_) {
+                curr_state.orientation_ = pos.head(3);
+                curr_state.angular_velocity_ = vel.head(3);
+                curr_state.angular_acceleration_ = acc.head(3);
+                curr_state.torque_ = f.head(3);
+            }
         }
 
         // Update desired state in controller
@@ -346,25 +473,49 @@ namespace iiwa_control {
             desired_state.position_ = cmd.segment(index, size);
             index += size;
         }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation) {
+            desired_state.orientation_ = cmd.segment(index, 3);
+            index += 3;
+        }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
             desired_state.velocity_ = cmd.segment(index, size);
             index += size;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity) {
+            desired_state.angular_velocity_ = cmd.segment(index, 3);
+            index += 3;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
             desired_state.acceleration_ = cmd.segment(index, size);
             index += size;
         }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration) {
+            desired_state.angular_acceleration_ = cmd.segment(index, 3);
+            index += 3;
+        }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
             desired_state.force_ = cmd.segment(index, size);
             // index += size;
+        }
+        if (controller_->GetInput().GetType() & robot_controllers::IOType::Torque) {
+            desired_state.torque_ = cmd.segment(index, 3);
+            index += 3;
         }
         controller_->SetInput(desired_state);
 
         // Update control torques given current velocity
         controller_->Update(curr_state);
 
-        Eigen::VectorXd output = controller_->GetOutput().desired_.force_;
-        // Eigen::VectorXd output = 10. * (desired_vel - curr_vel).transpose().array();
+        Eigen::VectorXd output; // = Eigen::VectorXd::Zero(space_dim_);
+        if (operation_space_ == "task") {
+            output = Eigen::VectorXd::Zero(2 * space_dim_);
+            if (controller_->GetOutput().GetType() & robot_controllers::IOType::Force)
+                output.tail(3) = controller_->GetOutput().desired_.force_;
+            if (controller_->GetOutput().GetType() & robot_controllers::IOType::Torque)
+                output.head(3) = controller_->GetOutput().desired_.torque_;
+        }
+        else // regular controller
+            output = controller_->GetOutput().desired_.force_;
 
         if (operation_space_ == "task" && jac_valid) {
             // output.head(3) = Eigen::VectorXd::Zero(3);

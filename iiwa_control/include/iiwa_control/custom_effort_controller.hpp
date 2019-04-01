@@ -28,6 +28,8 @@
 namespace iiwa_control {
     class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
     public:
+        using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
+
         CustomEffortController();
         ~CustomEffortController();
 
@@ -44,8 +46,6 @@ namespace iiwa_control {
         std::vector<std::string> joint_names_;
 
     protected:
-        using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
-
         ros::Subscriber sub_command_;
 
         // Controller
@@ -56,6 +56,7 @@ namespace iiwa_control {
         // Controller's settings
         unsigned int space_dim_;
         unsigned int cmd_dim_;
+        bool has_orientation_;
         std::string operation_space_, gravity_comp_;
 
         // iiwa_tools services
