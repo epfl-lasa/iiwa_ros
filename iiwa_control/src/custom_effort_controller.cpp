@@ -19,7 +19,7 @@ namespace iiwa_control {
     std::vector<std::vector<std::string>> get_types(ros::NodeHandle& n, const std::string& name)
     {
         std::vector<std::string> io;
-        n.getParam(name + "IO", io);
+        n.getParam("params/" + name + "IO", io);
 
         if (io.size() != 2) {
             if (io.size() != 0)
@@ -40,6 +40,8 @@ namespace iiwa_control {
             result[0].push_back(token);
             s.erase(0, pos + delimiter.length());
         }
+        // add the last one to the list
+        result[0].push_back(s);
 
         // Output
         s = io[1];
@@ -52,6 +54,8 @@ namespace iiwa_control {
             result[1].push_back(token);
             s.erase(0, pos + delimiter.length());
         }
+        // add the last one to the list
+        result[1].push_back(s);
 
         return result;
     }
