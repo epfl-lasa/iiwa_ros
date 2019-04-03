@@ -29,6 +29,7 @@ namespace iiwa_service {
 
     protected:
         size_t _rbd_index(const std::string& body_name) const
+        void update_urdf_state(const RobotState& robot_state)
 
         // RBDyn related
         mc_rbdyn_urdf::URDFParserResult _rbdyn_urdf;
