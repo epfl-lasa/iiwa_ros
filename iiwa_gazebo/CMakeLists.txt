@@ -14,6 +14,9 @@ find_package(gazebo REQUIRED)
 # Gazebo cxx flags should have all the required C++ flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
+if (${Boost_VERSION} LESS 106500)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+endif()
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iiwa_gazebo
