@@ -180,8 +180,8 @@ namespace iiwa_control {
         if (operation_space_ == "task") {
             space_dim_ = 3;
             // TO-DO: Get those from parameters
-            iiwa_client_jacobian_ = n.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
-            iiwa_client_fk_ = n.serviceClient<iiwa_tools::GetFK>("/iiwa/iiwa_fk_server");
+            iiwa_client_jacobian_ = n.serviceClient<iiwa_service::GetJacobian>("/iiwa/iiwa_jacobian_server");
+            iiwa_client_fk_ = n.serviceClient<iiwa_service::GetFK>("/iiwa/iiwa_fk_server");
         }
         else
             space_dim_ = n_joints_;
@@ -427,7 +427,7 @@ namespace iiwa_control {
         bool fk_valid = false;
 
         if (operation_space_ == "task") {
-            // Call iiwa tools service for jacobian
+            // Call iiwa service service for jacobian
             for (size_t i = 0; i < n_joints_; i++) {
                 jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
                 jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();

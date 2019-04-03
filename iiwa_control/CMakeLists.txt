@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   controller_interface
   urdf
-  iiwa_tools)
+  iiwa_service)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS
@@ -30,7 +30,7 @@ find_package(Corrade REQUIRED Utility PluginManager)
 
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
+  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_service
   DEPENDS RobotControllers CorradeUtility CorradePluginManager
   LIBRARIES CustomEffortController
 )
@@ -68,7 +68,7 @@ target_link_libraries(CustomEffortController PUBLIC
   ${Eigen3_LIBRARIES}
   Corrade::PluginManager)
 
-add_dependencies(CustomEffortController iiwa_tools)
+add_dependencies(CustomEffortController iiwa_service)
 
 # Require C++11
 set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 11)

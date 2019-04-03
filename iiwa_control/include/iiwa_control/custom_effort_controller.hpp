@@ -17,10 +17,10 @@
 // URDF
 #include <urdf/model.h>
 
-// iiwa_tools
-// #include <iiwa_tools/GetGravity.h>
-#include <iiwa_tools/GetFK.h>
-#include <iiwa_tools/GetJacobian.h>
+// iiwa_service
+// #include <iiwa_service/GetGravity.h>
+#include <iiwa_service/GetFK.h>
+#include <iiwa_service/GetJacobian.h>
 
 // RobotControllers
 #include <robot_controllers/AbstractController.hpp>
@@ -59,11 +59,11 @@ namespace iiwa_control {
         bool has_orientation_;
         std::string operation_space_, gravity_comp_;
 
-        // iiwa_tools services
+        // iiwa_service services
         ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_, iiwa_client_fk_;
-        // iiwa_tools::GetGravity gravity_srv_;
-        iiwa_tools::GetJacobian jacobian_srv_;
-        iiwa_tools::GetFK fk_srv_;
+        // iiwa_service::GetGravity gravity_srv_;
+        iiwa_service::GetJacobian jacobian_srv_;
+        iiwa_service::GetFK fk_srv_;
 
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;

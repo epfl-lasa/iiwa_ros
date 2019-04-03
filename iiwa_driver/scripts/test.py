@@ -1,6 +1,6 @@
 import rospy
 from std_msgs.msg import Float64MultiArray
-# from iiwa_tools.srv import GetIK
+# from iiwa_service.srv import GetIK
 import tf
 
 rospy.init_node('test')

@@ -1,5 +1,5 @@
-#include <iiwa_tools/cvxgen/iiwa_ik_cvxgen.hpp>
-#include <iiwa_tools/iiwa_tools.h>
+#include <iiwa_service/cvxgen/iiwa_ik_cvxgen.hpp>
+#include <iiwa_service/iiwa_service.h>
 
 // RBDyn headers
 #include <RBDyn/FD.h>
@@ -7,7 +7,7 @@
 #include <RBDyn/FV.h>
 #include <SpaceVecAlg/Conversions.h>
 
-namespace iiwa_tools {
+namespace iiwa_service {
     double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
     {
         assert(array.layout.dim.size() == 2);
@@ -39,37 +39,38 @@ namespace iiwa_tools {
         return wrapped;
     }
 
-    IiwaTools::IiwaTools(ros::NodeHandle nh) : _nh(nh)
+    IiwaService::IiwaService(ros::NodeHandle nh) : _nh(nh)
     {
         ROS_INFO_STREAM("Starting Iiwa IK server..");
         _load_params();
-        _init_rbdyn();
+        init();
 
-        _fk_server = _nh.advertiseService(_fk_service_name, &IiwaTools::perform_fk, this);
+        _fk_server = _nh.advertiseService(_fk_service_name, &IiwaService::perform_fk, this);
         ROS_INFO_STREAM("Started Iiwa FK server..");
 
-        _ik_server = _nh.advertiseService(_ik_service_name, &IiwaTools::perform_ik, this);
+        _ik_server = _nh.advertiseService(_ik_service_name, &IiwaService::perform_ik, this);
         ROS_INFO_STREAM("Started Iiwa IK server..");
 
-        _jacobian_server = _nh.advertiseService(_jacobian_service_name, &IiwaTools::get_jacobian, this);
+        _jacobian_server = _nh.advertiseService(_jacobian_service_name, &IiwaService::get_jacobian, this);
         ROS_INFO_STREAM("Started Iiwa Jacobian server..");
 
-        _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaTools::get_gravity, this);
+        _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaService::get_gravity, this);
         ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
     }
 
-    bool IiwaTools::perform_fk(iiwa_tools::GetFK::Request& request,
-        iiwa_tools::GetFK::Response& response)
+    bool IiwaService::perform_fk(iiwa_service::GetFK::Request& request,
+        iiwa_service::GetFK::Response& response)
     {
         if (request.joints.layout.dim.size() != 2 || request.joints.layout.dim[1].size != _rbd_indices.size()) {
             ROS_ERROR("Request joint angles not properly defined.");
             return false;
         }
+
+        response.poses.resize(request.joints.layout.dim[0].size);
+        
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
-
-        response.poses.resize(request.joints.layout.dim[0].size);
 
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
         Eigen::VectorXd q_high = q_low;
@@ -119,8 +120,8 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaTools::perform_ik(iiwa_tools::GetIK::Request& request,
-        iiwa_tools::GetIK::Response& response)
+    bool IiwaService::perform_ik(iiwa_service::GetIK::Request& request,
+        iiwa_service::GetIK::Response& response)
     {
         bool seeds_provided = request.seed_angles.layout.dim.size() == 2 && (request.seed_angles.layout.dim[0].size == request.poses.size());
         // copy RBDyn for thread-safety
@@ -316,39 +317,20 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaTools::get_jacobian(iiwa_tools::GetJacobian::Request& request,
-        iiwa_tools::GetJacobian::Response& response)
+    bool IiwaService::get_jacobian(iiwa_service::GetJacobian::Request& request,
+        iiwa_service::GetJacobian::Response& response)
     {
         if (request.joint_angles.size() != _rbd_indices.size() || request.joint_angles.size() != request.joint_velocities.size()) {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
-        // copy RBDyn for thread-safety
-        // TO-DO: Check if it takes time
-        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 
-        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
-        // Get joint positions and velocities
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
-            size_t rbd_index = _rbd_indices[i];
-            double pos = request.joint_angles[i];
-            // wrap in [-pi,pi]
-            pos = wrap_angle(pos);
 
-            double vel = request.joint_velocities[i];
+        update_state();
 
-            rbdyn_urdf.mbc.q[rbd_index][0] = pos;
-            rbdyn_urdf.mbc.alpha[rbd_index][0] = vel;
-        }
+        tools.jacobian(robot_state_);
 
-        // Compute jacobian
-        rbd::Jacobian jac(rbdyn_urdf.mb, rbdyn_urdf.mb.body(_ef_index).name());
-
-        // TO-DO: Check if we need this
-        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-
-        Eigen::MatrixXd jac_mat = jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+        Eigen::MatrixXd jac_mat = tools.get_J_matrix();
 
         // Fill response
         response.jacobian.layout.dim.resize(2);
@@ -368,8 +350,8 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaTools::get_gravity(iiwa_tools::GetGravity::Request& request,
-        iiwa_tools::GetGravity::Response& response)
+    bool IiwaService::get_gravity(iiwa_service::GetGravity::Request& request,
+        iiwa_service::GetGravity::Response& response)
     {
         if (request.joint_angles.size() != _rbd_indices.size() || request.joint_angles.size() != request.joint_velocities.size() || request.joint_angles.size() != request.joint_torques.size()) {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
@@ -385,38 +367,13 @@ namespace iiwa_tools {
                 gravity[i] = request.gravity[i];
             }
         }
-        // copy RBDyn for thread-safety
-        // TO-DO: Check if it takes time
-        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 
-        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
-        rbdyn_urdf.mbc.gravity = {gravity[0], gravity[1], gravity[2]};
+        update_state();
 
-        // Get joint positions, velocities and torques
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
-            size_t rbd_index = _rbd_indices[i];
-            double pos = request.joint_angles[i];
-            // wrap in [-pi,pi]
-            pos = wrap_angle(pos);
+        tools.gravity(gravity, robot_state_);
 
-            double vel = request.joint_velocities[i];
-            double torque = request.joint_torques[i];
-
-            rbdyn_urdf.mbc.q[rbd_index][0] = pos;
-            rbdyn_urdf.mbc.alpha[rbd_index][0] = vel;
-            rbdyn_urdf.mbc.jointTorque[rbd_index][0] = torque;
-        }
-
-        // Forward Dynamics
-        rbd::ForwardDynamics fd(rbdyn_urdf.mb);
-
-        // Compute gravity compensation
-        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-        fd.computeC(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-        // Get gravity and Coriolis forces
-        Eigen::VectorXd C = -fd.C();
-
+        Eigen::VectorXd C = tool.get_C_matrix();
+        
         // Fill response
         response.compensation_torques.resize(_rbd_indices.size());
 
@@ -427,26 +384,26 @@ namespace iiwa_tools {
         return true;
     }
 
-    void IiwaTools::_load_params()
+    void IiwaService::_load_params()
     {
         ros::NodeHandle n_p("~");
 
-        n_p.param<std::string>("tools/robot_description", _robot_description, "/robot_description");
-        n_p.param<std::string>("tools/end_effector", _end_effector, "iiwa_link_ee");
-        n_p.param<std::string>("tools/fk_service_name", _fk_service_name, "iiwa_fk_server");
-        n_p.param<std::string>("tools/ik_service_name", _ik_service_name, "iiwa_ik_server");
-        n_p.param<std::string>("tools/jacobian_service_name", _jacobian_service_name, "iiwa_jacobian_server");
-        n_p.param<std::string>("tools/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
+        n_p.param<std::string>("service/robot_description", _robot_description, "/robot_description");
+        n_p.param<std::string>("service/end_effector", _end_effector, "iiwa_link_ee");
+        n_p.param<std::string>("service/fk_service_name", _fk_service_name, "iiwa_fk_server");
+        n_p.param<std::string>("service/ik_service_name", _ik_service_name, "iiwa_ik_server");
+        n_p.param<std::string>("service/jacobian_service_name", _jacobian_service_name, "iiwa_jacobian_server");
+        n_p.param<std::string>("service/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
     }
 
-    void IiwaTools::_init_rbdyn()
+    void IiwaService::init()
     {
         // Get the URDF XML from the parameter server
         std::string urdf_string;
 
         // search and wait for robot_description on param server
         while (urdf_string.empty()) {
-            ROS_INFO_ONCE_NAMED("IiwaTools", "IiwaTools is waiting for model"
+            ROS_INFO_ONCE_NAMED("IiwaService", "IiwaService is waiting for model"
                                              " URDF in parameter [%s] on the ROS param server.",
                 _robot_description.c_str());
 
@@ -454,35 +411,22 @@ namespace iiwa_tools {
 
             usleep(100000);
         }
-        ROS_INFO_STREAM_NAMED("IiwaTools", "Received urdf from param server, parsing...");
+        ROS_INFO_STREAM_NAMED("IiwaService", "Received urdf from param server, parsing...");
 
-        // Convert URDF to RBDyn
-        _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_string);
-        // _fd = rbd::InverseKinematics(_rbdyn_urdf.mb);
+        tools.InitRBDyn();
 
-        _rbd_indices.clear();
+        _rbd_indices = tools.get_indices();
 
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrJoints(); i++) {
-            if (_rbdyn_urdf.mb.joint(i).type() != rbd::Joint::Fixed)
-                _rbd_indices.push_back(i);
-        }
+        ROS_INFO_STREAM_NAMED("IiwaService", "Number of joints found: " << _rbd_indices.size());
 
-        ROS_INFO_STREAM_NAMED("IiwaTools", "Number of joints found: " << _rbd_indices.size());
-
-        _ef_index = _rbd_index(_end_effector);
-
-        _ik.reset(new rbd::InverseKinematics(_rbdyn_urdf.mb, _ef_index));
     }
 
-    size_t IiwaTools::_rbd_index(const std::string& body_name) const
+    void IiwaService::update_state()
     {
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrBodies(); i++) {
-            if (_rbdyn_urdf.mb.body(i).name() == body_name) {
-                return i;
-            }
+        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+            robot_state_.position[i] = wrap_angle(request.joint_angles[i]); // wrap in [-pi,pi]
+            robot_state_.velocity = request.joint_velocities[i];
+            robot_state_.torque = request.joint_torques[i];
         }
-
-        // TO-DO: Should never reach here
-        return 0;
     }
-} // namespace iiwa_tools
+} // namespace iiwa_service
