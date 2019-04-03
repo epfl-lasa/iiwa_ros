@@ -104,6 +104,43 @@ namespace iiwa_control {
         ctrl->SetIOTypes(input_type, output_type);
     }
 
+    void set_input_space(CustomEffortController::ControllerPtr& ctrl, size_t space_dim)
+    {
+        size_t input_dim = 0;
+
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Position) {
+            input_dim += space_dim;
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Orientation) {
+            input_dim += 3; // This is fixed to 3D
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Velocity) {
+            input_dim += space_dim;
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::AngularVelocity) {
+            input_dim += 3; // This is fixed to 3D
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
+            input_dim += space_dim;
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration) {
+            input_dim += 3; // This is fixed to 3D
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Force) {
+            input_dim += space_dim;
+        }
+        if (ctrl->GetInput().GetType() & robot_controllers::IOType::Torque) {
+            input_dim += 3; // This is fixed to 3D
+        }
+
+        robot_controllers::RobotParams params = ctrl->GetParams();
+        params.input_dim_ = input_dim;
+        // TO-DO: We assume same input/output
+        params.output_dim_ = input_dim;
+
+        ctrl->SetParams(params);
+    }
+
     CustomEffortController::CustomEffortController() {}
 
     CustomEffortController::~CustomEffortController() { sub_command_.shutdown(); }
@@ -206,6 +243,8 @@ namespace iiwa_control {
                         if (tt.size() == 2)
                             set_types(ctrl, tt[0], tt[1]);
 
+                        set_input_space(ctrl, space_dim_);
+
                         if (type == "SumController")
                             static_cast<robot_controllers::SumController*>(big_ctrl.get())->AddController(std::move(ctrl));
                         else
@@ -230,6 +269,8 @@ namespace iiwa_control {
                 if (tt.size() == 2)
                     set_types(big_ctrl, tt[0], tt[1]);
 
+                set_input_space(big_ctrl, space_dim_);
+
                 controllers.emplace_back(std::move(big_ctrl));
             }
             else {
@@ -249,6 +290,8 @@ namespace iiwa_control {
                     std::vector<std::vector<std::string>> tt = get_types(n, name);
                     if (tt.size() == 2)
                         set_types(ctrl, tt[0], tt[1]);
+
+                    set_input_space(ctrl, space_dim_);
 
                     controllers.emplace_back(std::move(ctrl));
                 }
