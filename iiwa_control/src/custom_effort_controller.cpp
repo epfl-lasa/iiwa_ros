@@ -273,7 +273,10 @@ namespace iiwa_control {
         }
 
         // Initialize the controller(s)
-        controller_->Init();
+        if (!controller_->Init()) {
+		ROS_ERROR("Controllers could not be initialized! Exiting!");
+		return false;
+	}
 
         for (unsigned int i = 0; i < n_joints_; i++) {
             try {
