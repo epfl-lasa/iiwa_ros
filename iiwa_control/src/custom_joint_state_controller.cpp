@@ -70,6 +70,7 @@ namespace iiwa_control {
         fk_srv_.request.joints.layout.dim[1].size = n_joints_;
 
         // Setup publishers
+        std::cerr << nh_root.getNamespace() << " "  << nh_controller.getNamespace() <<std::endl;
 
         pub_pose_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Pose>(nh_root,"ee_pose",1));
         pub_twist_.reset(new realtime_tools::RealtimePublisher<geometry_msgs::Twist>(nh_root,"ee_twist",1));

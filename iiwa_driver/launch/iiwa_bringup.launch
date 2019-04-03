@@ -14,12 +14,14 @@
   <include file="$(find iiwa_tools)/launch/iiwa_tools.launch"/>
 
   <!-- call iiwa FRI driver -->
-  <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
-    <remap from="/joint_states" to="/iiwa/joint_states"/>
-    <remap from="/controller_manager" to="/iiwa/controller_manager"/>
-    <!-- Load configurations from YAML file to parameter server -->
-    <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load"/>
-  </node>
+  <group ns="iiwa">
+    <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
+      <remap from="/joint_states" to="/iiwa/joint_states"/>
+      <remap from="/controller_manager" to="/iiwa/controller_manager"/>
+      <!-- Load configurations from YAML file to parameter server -->
+      <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load"/>
+    </node>
+  </group>
 
   <!-- Spawn torque controller -->
   <include file="$(find iiwa_control)/launch/iiwa_torque_control.launch"/>

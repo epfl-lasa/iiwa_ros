@@ -107,7 +107,6 @@ namespace iiwa_control {
 
     void DSImpedanceController::update(const ros::Time& time, const ros::Duration& period)
     {
-
         if(firstCommand_) {
 
             // Get current end effector pose
@@ -175,6 +174,13 @@ namespace iiwa_control {
             omegad_ << commands[3], commands[4], commands[5];
             qd_ << commands[6], commands[7], commands[8], commands[9];
 
+
+            if(qd_.dot(q)<0.0f)
+            {
+                std::cerr << "PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+                qd_*=-1.0f;
+            }
+
             // Update desired velocity in passive DS
             robot_controllers::RobotState state;
             state.velocity_ = vd_;
@@ -205,6 +211,8 @@ namespace iiwa_control {
             else {
                 axis = qe.segment(1,3)/(qe.segment(1,3)).norm();
             }
+
+
 
             angle = 2*std::acos(qe(0));
 
@@ -244,6 +252,11 @@ namespace iiwa_control {
             for (unsigned int i = 0; i < n_joints_; i++) {
                 enforceJointLimits(commanded_effort[i], i);
                 joints_[i].setCommand(commanded_effort[i]);
+            }
+        }
+        else {
+            for (unsigned int i = 0; i < n_joints_; i++) {
+                joints_[i].setCommand(0.);
             }
         }
     }
