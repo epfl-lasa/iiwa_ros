@@ -181,9 +181,15 @@ namespace iiwa_control {
             space_dim_ = 3;
 
             // Get the URDF XML from the parameter server
-            std::string urdf_string;
+            std::string urdf_string, full_param;
             std::string robot_description = "robot_description";
             std::string end_effector;
+
+            // gets the location of the robot description on the parameter server
+            if (!n.searchParam(robot_description, full_param)) {
+                ROS_ERROR("Could not find parameter %s on parameter server", robot_description.c_str());
+                return false;
+            }
 
             // search and wait for robot_description on param server
             while (urdf_string.empty()) {
@@ -191,7 +197,7 @@ namespace iiwa_control {
                                                               " URDF in parameter [%s] on the ROS param server.",
                     robot_description.c_str());
 
-                n.getParam(robot_description, urdf_string);
+                n.getParam(full_param, urdf_string);
 
                 usleep(100000);
             }
