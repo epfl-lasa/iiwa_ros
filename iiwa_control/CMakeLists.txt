@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   controller_interface
   urdf
-  iiwa_service)
+  iiwa_tools)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS
@@ -30,7 +30,7 @@ find_package(Corrade REQUIRED Utility PluginManager)
 
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_service
+  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
   DEPENDS RobotControllers CorradeUtility CorradePluginManager
   LIBRARIES CustomEffortController
 )

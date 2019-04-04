@@ -427,7 +427,7 @@ namespace iiwa_control {
         bool fk_valid = false;
 
         if (operation_space_ == "task") {
-            // Call iiwa service service for jacobian
+            // Call iiwa service for jacobian
             for (size_t i = 0; i < n_joints_; i++) {
                 jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
                 jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();

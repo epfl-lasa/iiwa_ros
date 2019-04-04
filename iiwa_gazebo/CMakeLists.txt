@@ -6,7 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   gazebo_ros
   gazebo_ros_control
-  iiwa_service
+  iiwa_tools
 )
 
 # Depend on system install of Gazebo
@@ -17,7 +17,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES iiwa_gazebo
- CATKIN_DEPENDS roscpp gazebo_ros gazebo_ros_control iiwa_service
+ CATKIN_DEPENDS roscpp gazebo_ros gazebo_ros_control iiwa_tools
 )
 
 add_library(iiwa_gazebo_gravity_compensation_hw_sim src/gravity_compensation_hw_sim.cpp)

@@ -19,8 +19,8 @@
 
 // iiwa_service
 // #include <iiwa_service/GetGravity.h>
-#include <iiwa_service/GetFK.h>
-#include <iiwa_service/GetJacobian.h>
+#include <iiwa_tools/GetFK.h>
+#include <iiwa_tools/GetJacobian.h>
 
 // RobotControllers
 #include <robot_controllers/AbstractController.hpp>
@@ -62,8 +62,8 @@ namespace iiwa_control {
         // iiwa_service services
         ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_, iiwa_client_fk_;
         // iiwa_service::GetGravity gravity_srv_;
-        iiwa_service::GetJacobian jacobian_srv_;
-        iiwa_service::GetFK fk_srv_;
+        iiwa_tools::GetJacobian jacobian_srv_;
+        iiwa_tools::GetFK fk_srv_;
 
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
