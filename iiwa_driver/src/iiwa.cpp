@@ -47,8 +47,9 @@ namespace iiwa_ros {
             return;
         }
 
-        std::thread t1(&Iiwa::_ctrl_loop, this);
-        t1.join();
+        // std::thread t1(&Iiwa::_ctrl_loop, this);
+        // t1.join();
+        _ctrl_loop();
     }
 
     bool Iiwa::initialized()
