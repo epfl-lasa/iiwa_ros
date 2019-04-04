@@ -45,7 +45,7 @@ catkin_package(
  DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
 )
 
-add_library(iiwa_tools STATIC src/iiwa_tools.cpp)
+add_library(iiwa_tools SHARED src/iiwa_tools.cpp)
 target_compile_options(iiwa_tools PUBLIC -std=c++11)
 target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
 target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})

@@ -266,7 +266,6 @@ namespace iiwa_tools {
     {
         // Convert URDF to RBDyn
         _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_string);
-        // _fd = rbd::InverseKinematics(_rbdyn_urdf.mb);
 
         _rbd_indices.clear();
 
