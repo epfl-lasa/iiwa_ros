@@ -84,12 +84,12 @@ iiwa:
       # orientation only: P-matrix, D-matrix, I-matrix
       # PID: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0]
       # P-values, D-values, I-values (optional)
-      PID: [10., 1.]
+      PID: [20., 2.]
       PIDIO:
         - "Orientation" # input, multiple example: "Orientation|Position"
         - "Torque" # output
       # eigen-values (<= DIM)
-      CascadePassiveDSController: [1.5, 1.5]
+      CascadePassiveDSController: [200, 200]
       # only diagonal values of A matrix
       # ignore orientation
       CascadeLinearDSController: [1., 1., 1.]
