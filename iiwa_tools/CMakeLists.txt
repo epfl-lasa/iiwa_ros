@@ -40,9 +40,9 @@ generate_messages(
 
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES iiwa_gazebo
  CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
  DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
+ LIBRARIES iiwa_tools
 )
 
 add_library(iiwa_tools SHARED src/iiwa_tools.cpp)
@@ -76,13 +76,7 @@ target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES}
 add_dependencies(iiwa_service iiwa_tools_generate_messages_cpp)
 
 # Install
-install(TARGETS iiwa_service
-  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-)
-
-install(TARGETS iiwa_tools
+install(TARGETS iiwa_service iiwa_tools
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
