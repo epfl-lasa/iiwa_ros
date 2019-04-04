@@ -18,7 +18,7 @@
     </include>
 
     <!-- Load iiwa service -->
-    <include file="$(find iiwa_service)/launch/iiwa_service.launch"/>
+    <include file="$(find iiwa_tools)/launch/iiwa_service.launch"/>
 
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">

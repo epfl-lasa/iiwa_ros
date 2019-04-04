@@ -11,7 +11,7 @@
   </include>
 
   <!-- Load iiwa service -->
-  <include file="$(find iiwa_service)/launch/iiwa_service.launch"/>
+  <include file="$(find iiwa_tools)/launch/iiwa_service.launch"/>
 
   <!-- call iiwa FRI driver -->
   <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">

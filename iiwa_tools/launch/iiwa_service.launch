@@ -2,10 +2,10 @@
 <launch>
 
   <!-- Load IK params from YAML file to parameter server -->
-  <rosparam file="$(find iiwa_service)/config/iiwa_service.yaml" command="load"/>
+  <rosparam file="$(find iiwa_tools)/config/iiwa_service.yaml" command="load"/>
 
   <!-- launch the IK server -->
-  <node name="iiwa_service" pkg="iiwa_service" type="iiwa_service" respawn="false"
+  <node name="iiwa_service" pkg="iiwa_tools" type="iiwa_service" respawn="false"
     output="screen" ns="/iiwa"/>
 
 </launch>
