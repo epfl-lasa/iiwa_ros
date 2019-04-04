@@ -296,9 +296,12 @@ namespace iiwa_tools {
         for (size_t i = 0; i < _rbd_indices.size(); i++) {
             size_t rbd_index = _rbd_indices[i];
 
-            rbdyn_urdf.mbc.q[rbd_index][0] = robot_state.position[i];
-            rbdyn_urdf.mbc.alpha[rbd_index][0] = robot_state.velocity[i];
-            rbdyn_urdf.mbc.jointTorque[rbd_index][0] = robot_state.torque[i];
+            if (robot_state.position.size() > i)
+                rbdyn_urdf.mbc.q[rbd_index][0] = robot_state.position[i];
+            if (robot_state.velocity.size() > i)
+                rbdyn_urdf.mbc.alpha[rbd_index][0] = robot_state.velocity[i];
+            if (robot_state.torque.size() > i)
+                rbdyn_urdf.mbc.jointTorque[rbd_index][0] = robot_state.torque[i];
         }
     }
 
