@@ -179,9 +179,29 @@ namespace iiwa_control {
         // Check the operational space
         if (operation_space_ == "task") {
             space_dim_ = 3;
-            // TO-DO: Get those from parameters
-            iiwa_client_jacobian_ = n.serviceClient<iiwa_service::GetJacobian>("/iiwa/iiwa_jacobian_server");
-            iiwa_client_fk_ = n.serviceClient<iiwa_service::GetFK>("/iiwa/iiwa_fk_server");
+
+            // Get the URDF XML from the parameter server
+            std::string urdf_string;
+            std::string robot_description = "robot_description";
+            std::string end_effector;
+
+            // search and wait for robot_description on param server
+            while (urdf_string.empty()) {
+                ROS_INFO_ONCE_NAMED("CustomEffortController", "CustomEffortController is waiting for model"
+                                                              " URDF in parameter [%s] on the ROS param server.",
+                    robot_description.c_str());
+
+                n.getParam(robot_description, urdf_string);
+
+                usleep(100000);
+            }
+            ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
+
+            // Get the end-effector
+            n.param<std::string>("end_effector", end_effector, "iiwa_link_ee");
+
+            // Initialize iiwa tools
+            tools_.init_rbdyn(urdf_string, end_effector);
         }
         else
             space_dim_ = n_joints_;
@@ -338,18 +358,6 @@ namespace iiwa_control {
             joint_urdfs_.push_back(joint_urdf);
         }
 
-        // Setup services
-        jacobian_srv_.request.joint_angles.resize(n_joints_, 0.);
-        jacobian_srv_.request.joint_velocities.resize(n_joints_, 0.);
-
-        fk_srv_.request.joints.layout.dim.resize(2);
-        fk_srv_.request.joints.layout.dim[0].size = 1;
-        fk_srv_.request.joints.layout.dim[0].stride = n_joints_;
-        fk_srv_.request.joints.layout.dim[1].size = n_joints_;
-        fk_srv_.request.joints.layout.dim[1].stride = 0;
-        fk_srv_.request.joints.layout.data_offset = 0;
-        fk_srv_.request.joints.data.resize(n_joints_);
-
         // Get controller command size
         cmd_dim_ = 0;
 
@@ -382,29 +390,28 @@ namespace iiwa_control {
         if (operation_space_ == "task") {
             has_orientation_ = ((controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)) ? true : false;
             // if task space, we need to alter the initial command
+            iiwa_tools::RobotState robot_state;
+            robot_state.position.resize(n_joints_);
+            robot_state.velocity.resize(n_joints_);
+
             for (size_t i = 0; i < n_joints_; i++) {
-                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
+                robot_state.position[i] = joints_[i].getPosition();
+                robot_state.velocity[i] = joints_[i].getVelocity();
             }
 
-            if (iiwa_client_fk_.call(fk_srv_)) {
-                assert(fk_srv_.response.poses.size() == 1);
+            auto ee_state = tools_.perform_fk(robot_state);
+            Eigen::AngleAxisd aa(ee_state.orientation);
+            Eigen::VectorXd o = aa.axis() * aa.angle();
+            Eigen::VectorXd p = ee_state.translation;
 
-                Eigen::Quaterniond quat(fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z);
-                Eigen::AngleAxisd aa(quat);
+            size_t offset = 0;
+            if (has_orientation_)
+                offset = 3;
 
-                Eigen::VectorXd o = aa.axis() * aa.angle();
-                Eigen::VectorXd p(3);
-                p << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
-
-                size_t offset = 0;
+            for (size_t i = 0; i < 3; i++) {
                 if (has_orientation_)
-                    offset = 3;
-
-                for (size_t i = 0; i < 3; i++) {
-                    if (has_orientation_)
-                        init_cmd[i] = o(i);
-                    init_cmd[i + offset] = p(i);
-                }
+                    init_cmd[i] = o(i);
+                init_cmd[i + offset] = p(i);
             }
         }
 
@@ -423,49 +430,22 @@ namespace iiwa_control {
 
         Eigen::MatrixXd jac(6, n_joints_);
         Eigen::VectorXd eef(6);
-        bool jac_valid = false;
-        bool fk_valid = false;
 
         if (operation_space_ == "task") {
-            // Call iiwa service for jacobian
+            iiwa_tools::RobotState robot_state;
+            robot_state.position.resize(n_joints_);
+            robot_state.velocity.resize(n_joints_);
+
             for (size_t i = 0; i < n_joints_; i++) {
-                jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
-                jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();
-
-                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
+                robot_state.position[i] = joints_[i].getPosition();
+                robot_state.velocity[i] = joints_[i].getVelocity();
             }
 
-            if (iiwa_client_jacobian_.call(jacobian_srv_)) {
-                assert(jacobian_srv_.response.jacobian.layout.dim.size() == 2); // we need a 2D array
-                assert(jacobian_srv_.response.jacobian.layout.dim[0].size == 6); // check if Jacobian has proper dimensions
-                assert(jacobian_srv_.response.jacobian.layout.dim[1].size == n_joints_);
-
-                for (size_t r = 0; r < 6; r++) {
-                    for (size_t c = 0; c < n_joints_; c++) {
-                        jac(r, c) = get_multi_array(jacobian_srv_.response.jacobian, r, c);
-                    }
-                }
-
-                jac_valid = true;
-            }
-            else {
-                ROS_ERROR_STREAM("Could not get Jacobian!");
-            }
-
-            if (iiwa_client_fk_.call(fk_srv_)) {
-                assert(fk_srv_.response.poses.size() == 1);
-
-                Eigen::Quaterniond quat(fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z);
-                Eigen::AngleAxisd aa(quat);
-
-                eef.head(3) = aa.axis() * aa.angle();
-                eef.tail(3) << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
-
-                fk_valid = true;
-            }
-            else {
-                ROS_ERROR_STREAM("Could not get Forward Kinematics!");
-            }
+            jac = tools_.jacobian(robot_state);
+            auto ee_state = tools_.perform_fk(robot_state);
+            Eigen::AngleAxisd aa(ee_state.orientation);
+            eef.head(3) = aa.axis() * aa.angle();
+            eef.tail(3) = ee_state.translation;
         }
 
         Eigen::VectorXd cmd(n_joints_);
@@ -487,16 +467,6 @@ namespace iiwa_control {
         }
 
         if (operation_space_ == "task") {
-            if (!jac_valid) {
-                ROS_ERROR_STREAM("Jacobian not valid! Skipping this update!");
-                return;
-            }
-
-            if (!fk_valid) {
-                ROS_ERROR_STREAM("Forward Kinematics not valid! Skipping this update!");
-                return;
-            }
-
             Eigen::VectorXd pos = eef;
             Eigen::VectorXd vel = jac * curr_state.velocity_;
             Eigen::VectorXd acc = jac * curr_state.acceleration_;
@@ -568,7 +538,7 @@ namespace iiwa_control {
         else // regular controller
             output = controller_->GetOutput().desired_.force_;
 
-        if (operation_space_ == "task" && jac_valid) {
+        if (operation_space_ == "task") {
             // output.head(3) = Eigen::VectorXd::Zero(3);
             output = jac.transpose() * output;
         }

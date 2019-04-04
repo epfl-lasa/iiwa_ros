@@ -1,7 +1,7 @@
 #include <gazebo_ros_control/default_robot_hw_sim.h>
 
 // Iiwa service headers
-#include <iiwa_service/GetGravity.h>
+#include <iiwa_tools/GetGravity.h>
 
 // std headers
 #include <vector>
@@ -22,7 +22,7 @@ namespace iiwa_gazebo {
     protected:
         // ROS related
         ros::ServiceClient _iiwa_gravity_client;
-        iiwa_service::GetGravity _gravity_srv;
+        iiwa_tools::GetGravity _gravity_srv;
     };
 
 } // namespace iiwa_gazebo

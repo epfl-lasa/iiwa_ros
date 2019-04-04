@@ -56,6 +56,8 @@ iiwa:
   # The space variable can be either set to "task" or "joint"
   # The gravity compensation can be either set to "on" or "off"
   CustomControllers:
+    # end_effector is only needed in task space
+    end_effector: iiwa_link_ee
     type: iiwa_control/CustomEffortController
     joints:
       - iiwa_joint_1
