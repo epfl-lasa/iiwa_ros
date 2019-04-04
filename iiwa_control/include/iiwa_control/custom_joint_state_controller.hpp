@@ -26,6 +26,8 @@
 #include <iiwa_tools/GetJacobian.h>
 #include <iiwa_tools/GetFK.h>
 
+#include <iiwa_tools/iiwa_tools.h>
+
 // Control stack headers
 
 namespace iiwa_control {
@@ -47,11 +49,6 @@ namespace iiwa_control {
 
     protected:
 
-        // iiwa_tools services
-        ros::ServiceClient iiwa_client_jacobian_, iiwa_client_fk_;
-        // iiwa_tools::GetGravity gravity_srv_;
-        iiwa_tools::GetJacobian jacobian_srv_;
-
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
 
@@ -62,8 +59,15 @@ namespace iiwa_control {
         boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Twist> > pub_twist_;
         boost::shared_ptr<realtime_tools::RealtimePublisher<sensor_msgs::JointState> > pub_joints_;
 
+        iiwa_tools::GetFK::Request _requestFK;
+        iiwa_tools::GetFK::Response _responseFK;
+        iiwa_tools::GetJacobian::Request _requestJacobian;
+        iiwa_tools::GetJacobian::Response _responseJacobian;
+
         ros::Time last_publish_time_;
         double publish_rate_;
+
+        iiwa_tools::IiwaTools server;
     };
 } // namespace iiwa_control
 

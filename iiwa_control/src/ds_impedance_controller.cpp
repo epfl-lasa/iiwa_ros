@@ -22,7 +22,103 @@ namespace iiwa_control {
         Mpinv = Eigen::MatrixXd(svd.matrixV()*S_.transpose()*svd.matrixU().transpose());
     }
 
-    DSImpedanceController::DSImpedanceController() 
+
+
+    Eigen::Matrix<double,4,1> rotationMatrixToQuaternion(Eigen::Matrix<double,3,3> R)
+    {
+      Eigen::Matrix<double,4,1> q;
+
+      float r11 = R(0,0);
+      float r12 = R(0,1);
+      float r13 = R(0,2);
+      float r21 = R(1,0);
+      float r22 = R(1,1);
+      float r23 = R(1,2);
+      float r31 = R(2,0);
+      float r32 = R(2,1);
+      float r33 = R(2,2);
+
+      float tr = r11+r22+r33;
+      float tr1 = r11-r22-r33;
+      float tr2 = -r11+r22-r33;
+      float tr3 = -r11-r22+r33;
+
+      if(tr>0)
+      {  
+        q(0) = sqrt(1.0f+tr)/2.0f;
+        q(1) = (r32-r23)/(4.0f*q(0));
+        q(2) = (r13-r31)/(4.0f*q(0));
+        q(3) = (r21-r12)/(4.0f*q(0));
+      }
+      else if((tr1>tr2) && (tr1>tr3))
+      {
+        q(1) = sqrt(1.0f+tr1)/2.0f;
+        q(0) = (r32-r23)/(4.0f*q(1));
+        q(2) = (r21+r12)/(4.0f*q(1));
+        q(3) = (r31+r13)/(4.0f*q(1));
+      }     
+      else if((tr2>tr1) && (tr2>tr3))
+      {   
+        q(2) = sqrt(1.0f+tr2)/2.0f;
+        q(0) = (r13-r31)/(4.0f*q(2));
+        q(1) = (r21+r12)/(4.0f*q(2));
+        q(3) = (r32+r23)/(4.0f*q(2));
+      }
+      else
+      {
+        q(3) = sqrt(1.0f+tr3)/2.0f;
+        q(0) = (r21-r12)/(4.0f*q(3));
+        q(1) = (r31+r13)/(4.0f*q(3));
+        q(2) = (r32+r23)/(4.0f*q(3));        
+      }
+
+      return q;
+    }
+
+
+    
+    Eigen::Matrix<double,3,3> quaternionToRotationMatrix(Eigen::Matrix<double,4,1> q)
+    {
+      Eigen::Matrix<double,3,3> R;
+
+      double q0 = q(0);
+      double q1 = q(1);
+      double q2 = q(2);
+      double q3 = q(3);
+
+      R(0,0) = q0*q0+q1*q1-q2*q2-q3*q3;
+      R(1,0) = 2.0f*(q1*q2+q0*q3);
+      R(2,0) = 2.0f*(q1*q3-q0*q2);
+
+      R(0,1) = 2.0f*(q1*q2-q0*q3);
+      R(1,1) = q0*q0-q1*q1+q2*q2-q3*q3;
+      R(2,1) = 2.0f*(q2*q3+q0*q1);
+
+      R(0,2) = 2.0f*(q1*q3+q0*q2);
+      R(1,2) = 2.0f*(q2*q3-q0*q1);
+      R(2,2) = q0*q0-q1*q1-q2*q2+q3*q3;  
+
+      return R;
+    }
+
+
+    
+    void quaternionToAxisAngle(Eigen::Matrix<double,4,1> q, Eigen::Matrix<double,3,1> &axis, double &angle)
+    {
+      if((q.segment(1,3)).norm() < 1e-3f)
+      {
+        axis = q.segment(1,3);
+      }
+      else
+      {
+        axis = q.segment(1,3)/(q.segment(1,3)).norm();
+        
+      }
+
+      angle = 2*std::acos(q(0));
+    }
+
+    DSImpedanceController::DSImpedanceController():server(ros::this_node::getName(),false) 
     {
         rotationalStiffness_= 0.0f;
         rotationalDamping_= 0.0f;
@@ -62,8 +158,6 @@ namespace iiwa_control {
         eigvals_vec[1] = 1.0f;
         eigvals_vec[2] = 1.0f;
 
-        iiwa_client_jacobian_ = n.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
-        iiwa_client_fk_ = n.serviceClient<iiwa_tools::GetFK>("/iiwa/iiwa_fk_server");
         // Init Controller
         std::cerr << eigvals_vec[0] << eigvals_vec[1] << eigvals_vec[2] << std::endl;
         passive_ds_.SetParams(3, eigvals_vec);
@@ -86,13 +180,13 @@ namespace iiwa_control {
         }
 
         // Setup services
-        jacobian_srv_.request.joint_angles.resize(n_joints_, 0.);
-        jacobian_srv_.request.joint_velocities.resize(n_joints_, 0.);
+        _requestJacobian.joint_angles.resize(n_joints_, 0.);
+        _requestJacobian.joint_velocities.resize(n_joints_, 0.);
 
-        fk_srv_.request.joints.data.resize(n_joints_);
-        fk_srv_.request.joints.layout.dim.resize(2);
-        fk_srv_.request.joints.layout.dim[0].size = 1;
-        fk_srv_.request.joints.layout.dim[1].size = n_joints_;
+        _requestFK.joints.data.resize(n_joints_);
+        _requestFK.joints.layout.dim.resize(2);
+        _requestFK.joints.layout.dim[0].size = 1;
+        _requestFK.joints.layout.dim[1].size = n_joints_;
 
 
         commands_buffer_.writeFromNonRT(std::vector<double>(10, 0.0));
@@ -113,14 +207,14 @@ namespace iiwa_control {
             bool fk_valid = false;
 
             for (size_t i = 0; i < n_joints_; i++) {
-                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
+                _requestFK.joints.data[i] = joints_[i].getPosition();
             }
 
             Eigen::Vector3d x;
             Eigen::Vector4d q;
-            if (iiwa_client_fk_.call(fk_srv_)) {
-                x << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
-                q << fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z;
+            if (server.perform_fk(_requestFK,_responseFK)) {
+                x << _responseFK.poses[0].position.x, _responseFK.poses[0].position.y, _responseFK.poses[0].position.z;
+                q << _responseFK.poses[0].orientation.w, _responseFK.poses[0].orientation.x, _responseFK.poses[0].orientation.y, _responseFK.poses[0].orientation.z;
                 fk_valid = true;
             }
             
@@ -129,18 +223,18 @@ namespace iiwa_control {
             bool jac_valid = false;
 
             for (size_t i = 0; i < n_joints_; i++) {
-                jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
-                jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();
+                _requestJacobian.joint_angles[i] = joints_[i].getPosition();
+                _requestJacobian.joint_velocities[i] = joints_[i].getVelocity();
             }
 
-            if (iiwa_client_jacobian_.call(jacobian_srv_)) {
-                assert(jacobian_srv_.response.jacobian.layout.dim.size() == 2); // we need a 2D array
-                assert(jacobian_srv_.response.jacobian.layout.dim[0].size == 6); // check if Jacobian has proper dimensions
-                assert(jacobian_srv_.response.jacobian.layout.dim[1].size == n_joints_);
+            if (server.get_jacobian(_requestJacobian,_responseJacobian)) {
+                assert(_responseJacobian.jacobian.layout.dim.size() == 2); // we need a 2D array
+                assert(_responseJacobian.jacobian.layout.dim[0].size == 6); // check if Jacobian has proper dimensions
+                assert(_responseJacobian.jacobian.layout.dim[1].size == n_joints_);
 
                 for (size_t r = 0; r < 6; r++) {
                     for (size_t c = 0; c < n_joints_; c++) {
-                        jac(r, c) = get_multi_array(jacobian_srv_.response.jacobian, r, c);
+                        jac(r, c) = get_multi_array(_responseJacobian.jacobian, r, c);
                     }
                 }
 
@@ -175,11 +269,11 @@ namespace iiwa_control {
             qd_ << commands[6], commands[7], commands[8], commands[9];
 
 
-            if(qd_.dot(q)<0.0f)
-            {
-                std::cerr << "PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
-                qd_*=-1.0f;
-            }
+            // if(qd_.dot(q)<0.0f)
+            // {
+            //     std::cerr << "PROBLEM !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
+            //     qd_*=-1.0f;
+            // }
 
             // Update desired velocity in passive DS
             robot_controllers::RobotState state;
@@ -194,23 +288,30 @@ namespace iiwa_control {
             Eigen::Vector3d Flin = passive_ds_.GetOutput().desired_.force_;
 
             // Get rotational force
-            Eigen::Vector4d q1, q2, qe;
-            q1 = q;
-            q1.segment(1,3) = -q1.segment(1,3);
-            q2 = qd_;
-            Eigen::Vector3d q1Im = q1.segment(1,3);
-            Eigen::Vector3d q2Im = q2.segment(1,3);
-            qe(0) = q2(0)*q1(0)-q2Im.dot(q1Im);
-            qe.segment(1,3) = q2(0)*q1Im+q1(0)*q2Im+q2Im.cross(q1Im);  
+            // Eigen::Vector4d q1, q2, qe;
+            // q1 = q;
+            // q1.segment(1,3) = -q1.segment(1,3);
+            // q2 = qd_;
+            // Eigen::Vector3d q1Im = q1.segment(1,3);
+            // Eigen::Vector3d q2Im = q2.segment(1,3);
+            // qe(0) = q2(0)*q1(0)-q2Im.dot(q1Im);
+            // qe.segment(1,3) = q2(0)*q1Im+q1(0)*q2Im+q2Im.cross(q1Im);  
 
             Eigen::Vector3d axis;
             double angle;
-            if((qe.segment(1,3)).norm() < 1e-3f){
-                axis = qe.segment(1,3);
-            }
-            else {
-                axis = qe.segment(1,3)/(qe.segment(1,3)).norm();
-            }
+            // if((qe.segment(1,3)).norm() < 1e-3f){
+            //     axis = qe.segment(1,3);
+            // }
+            // else {
+            //     axis = qe.segment(1,3)/(qe.segment(1,3)).norm();
+            // }
+            Eigen::Matrix3d Rd, R, Re;
+            R = quaternionToRotationMatrix(q);
+            Rd = quaternionToRotationMatrix(qd_);
+            Re = Rd*R.inverse();
+            Eigen::Vector4d qe;
+            qe = rotationMatrixToQuaternion(Re);
+            quaternionToAxisAngle(qe,axis,angle);
 
 
 

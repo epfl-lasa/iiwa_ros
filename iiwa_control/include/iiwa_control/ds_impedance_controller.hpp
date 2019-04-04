@@ -35,7 +35,7 @@
 // Dynamic reconfigure
 #include <dynamic_reconfigure/server.h>
 #include <iiwa_control/DSImpedance_paramConfig.h>
-
+#include <iiwa_tools/iiwa_tools.h>
 
 
 
@@ -67,12 +67,6 @@ namespace iiwa_control {
         unsigned int space_dim_;
         std::string operation_space_, gravity_comp_;
 
-        // iiwa_tools services
-        ros::ServiceClient iiwa_client_gravity_, iiwa_client_jacobian_, iiwa_client_fk_;
-        // iiwa_tools::GetGravity gravity_srv_;
-        iiwa_tools::GetJacobian jacobian_srv_;
-        iiwa_tools::GetFK fk_srv_;
-
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
 
@@ -91,7 +85,12 @@ namespace iiwa_control {
         boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Pose> > pub_pose_;
         boost::shared_ptr<realtime_tools::RealtimePublisher<geometry_msgs::Twist> > pub_twist_;
 
+        iiwa_tools::GetFK::Request _requestFK;
+        iiwa_tools::GetFK::Response _responseFK;
+        iiwa_tools::GetJacobian::Request _requestJacobian;
+        iiwa_tools::GetJacobian::Response _responseJacobian;
 
+        iiwa_tools::IiwaTools server;
 
 
         boost::scoped_ptr< dynamic_reconfigure::Server<iiwa_control::DSImpedance_paramConfig> > _dynamicServerParam;

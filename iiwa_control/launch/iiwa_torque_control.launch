@@ -6,13 +6,15 @@
 
   <!-- load the controllers -->
 <!--   <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/iiwa" args="/iiwa/PassiveDS /iiwa/joint_state_controller"/>
- -->
+    output="screen" ns="/iiwa" args="/iiwa/PassiveDS /iiwa/joint_state_controller"/> -->
+
 <!--   <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
     output="screen" ns="/iiwa" args="/iiwa/DSImpedance /iiwa/joint_state_controller"/>
  -->
+ 
   <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
-    output="screen" ns="/iiwa" args="/iiwa/DSImpedance /iiwa/custom_joint_state_controller"/>
+    output="screen" ns="/iiwa" args="/iiwa/DSImpedance /iiwa/custom_joint_state_controller">
+  </node> 
 
   <!-- convert joint states to TF transforms for rviz, etc -->
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"

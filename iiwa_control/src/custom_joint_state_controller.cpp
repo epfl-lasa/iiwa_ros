@@ -7,13 +7,14 @@
 
 namespace iiwa_control {
 
-    CustomJointStateController::CustomJointStateController() {}
+    CustomJointStateController::CustomJointStateController():server(ros::this_node::getName(),false) {}
 
     CustomJointStateController::~CustomJointStateController() { }
 
     bool CustomJointStateController::init(hardware_interface::JointStateInterface* hw, ros::NodeHandle& nh_root, ros::NodeHandle& nh_controller)
     {
         // List of controlled joints
+        // server = iiwa_tools::IiwaTools(nh_root,false);
         joint_names_ = hw->getNames();
         n_joints_ = joint_names_.size();
         for (unsigned i=0; i<n_joints_; i++)
@@ -39,8 +40,6 @@ namespace iiwa_control {
             return false;
         }
 
-        iiwa_client_fk_ = nh_root.serviceClient<iiwa_tools::GetFK>("/iiwa/iiwa_fk_server");
-        iiwa_client_jacobian_ = nh_root.serviceClient<iiwa_tools::GetJacobian>("/iiwa/iiwa_jacobian_server");
 
         for (unsigned int i = 0; i < n_joints_; i++) {
             try {
@@ -61,13 +60,13 @@ namespace iiwa_control {
 
 
         // Setup services
-        jacobian_srv_.request.joint_angles.resize(n_joints_, 0.);
-        jacobian_srv_.request.joint_velocities.resize(n_joints_, 0.);
+        _requestJacobian.joint_angles.resize(n_joints_, 0.);
+        _requestJacobian.joint_velocities.resize(n_joints_, 0.);
 
-        fk_srv_.request.joints.data.resize(n_joints_);
-        fk_srv_.request.joints.layout.dim.resize(2);
-        fk_srv_.request.joints.layout.dim[0].size = 1;
-        fk_srv_.request.joints.layout.dim[1].size = n_joints_;
+        _requestFK.joints.data.resize(n_joints_);
+        _requestFK.joints.layout.dim.resize(2);
+        _requestFK.joints.layout.dim[0].size = 1;
+        _requestFK.joints.layout.dim[1].size = n_joints_;
 
         // Setup publishers
         std::cerr << nh_root.getNamespace() << " "  << nh_controller.getNamespace() <<std::endl;
@@ -93,13 +92,14 @@ namespace iiwa_control {
             // Get current end effector pose
             bool fk_valid = false;
             for (size_t i = 0; i < n_joints_; i++) {
-                fk_srv_.request.joints.data[i] = joints_[i].getPosition();
+                _requestFK.joints.data[i] = joints_[i].getPosition();
             }
             Eigen::Vector3d x;
             Eigen::Vector4d q;
-            if (iiwa_client_fk_.call(fk_srv_)) {
-                x_ << fk_srv_.response.poses[0].position.x, fk_srv_.response.poses[0].position.y, fk_srv_.response.poses[0].position.z;
-                q_ << fk_srv_.response.poses[0].orientation.w, fk_srv_.response.poses[0].orientation.x, fk_srv_.response.poses[0].orientation.y, fk_srv_.response.poses[0].orientation.z;
+            // if (iiwa_client_fk_.call(fk_srv_)) {
+            if (server.perform_fk(_requestFK,_responseFK)) {
+                x_ << _responseFK.poses[0].position.x, _responseFK.poses[0].position.y, _responseFK.poses[0].position.z;
+                q_ << _responseFK.poses[0].orientation.w, _responseFK.poses[0].orientation.x, _responseFK.poses[0].orientation.y, _responseFK.poses[0].orientation.z;
                 fk_valid = true;
             }
                 
@@ -108,18 +108,18 @@ namespace iiwa_control {
             bool jac_valid = false;
 
             for (size_t i = 0; i < n_joints_; i++) {
-                jacobian_srv_.request.joint_angles[i] = joints_[i].getPosition();
-                jacobian_srv_.request.joint_velocities[i] = joints_[i].getVelocity();
+                _requestJacobian.joint_angles[i] = joints_[i].getPosition();
+                _requestJacobian.joint_velocities[i] = joints_[i].getVelocity();
             }
 
-            if (iiwa_client_jacobian_.call(jacobian_srv_)) {
-                assert(jacobian_srv_.response.jacobian.layout.dim.size() == 2); // we need a 2D array
-                assert(jacobian_srv_.response.jacobian.layout.dim[0].size == 6); // check if Jacobian has proper dimensions
-                assert(jacobian_srv_.response.jacobian.layout.dim[1].size == n_joints_);
+            if (server.get_jacobian(_requestJacobian,_responseJacobian)) {
+                assert(_responseJacobian.jacobian.layout.dim.size() == 2); // we need a 2D array
+                assert(_responseJacobian.jacobian.layout.dim[0].size == 6); // check if Jacobian has proper dimensions
+                assert(_responseJacobian.jacobian.layout.dim[1].size == n_joints_);
 
                 for (size_t r = 0; r < 6; r++) {
                     for (size_t c = 0; c < n_joints_; c++) {
-                        jac(r, c) = get_multi_array(jacobian_srv_.response.jacobian, r, c);
+                        jac(r, c) = get_multi_array(_responseJacobian.jacobian, r, c);
                     }
                 }
 
