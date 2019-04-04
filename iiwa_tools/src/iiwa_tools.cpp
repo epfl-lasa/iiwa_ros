@@ -39,29 +39,35 @@ namespace iiwa_tools {
         return wrapped;
     }
 
-    IiwaTools::IiwaTools(ros::NodeHandle nh) : _nh(nh)
+
+    IiwaTools::IiwaTools(ros::NodeHandle nh, bool startService) : _nh(nh)
     {
         ROS_INFO_STREAM("Starting Iiwa IK server..");
         _load_params();
         _init_rbdyn();
 
-        _fk_server = _nh.advertiseService(_fk_service_name, &IiwaTools::perform_fk, this);
-        ROS_INFO_STREAM("Started Iiwa FK server..");
+        if(startService)
+        {
+            _fk_server = _nh.advertiseService(_fk_service_name, &IiwaTools::perform_fk, this);
+            ROS_INFO_STREAM("Started Iiwa FK server..");
 
-        _ik_server = _nh.advertiseService(_ik_service_name, &IiwaTools::perform_ik, this);
-        ROS_INFO_STREAM("Started Iiwa IK server..");
+            _ik_server = _nh.advertiseService(_ik_service_name, &IiwaTools::perform_ik, this);
+            ROS_INFO_STREAM("Started Iiwa IK server..");
 
-        _jacobian_server = _nh.advertiseService(_jacobian_service_name, &IiwaTools::get_jacobian, this);
-        ROS_INFO_STREAM("Started Iiwa Jacobian server..");
+            _jacobian_server = _nh.advertiseService(_jacobian_service_name, &IiwaTools::get_jacobian, this);
+            ROS_INFO_STREAM("Started Iiwa Jacobian server..");
 
-        _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaTools::get_gravity, this);
-        ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
+            _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaTools::get_gravity, this);
+            ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
+        }
     }
 
     bool IiwaTools::perform_fk(iiwa_tools::GetFK::Request& request,
         iiwa_tools::GetFK::Response& response)
     {
         if (request.joints.layout.dim.size() != 2 || request.joints.layout.dim[1].size != _rbd_indices.size()) {
+            std::cout << request.joints.layout.dim.size() << std::endl;
+            std::cout << request.joints.layout.dim[1].size << std::endl;
             ROS_ERROR("Request joint angles not properly defined.");
             return false;
         }

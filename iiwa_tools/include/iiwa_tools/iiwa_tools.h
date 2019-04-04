@@ -21,7 +21,7 @@
 namespace iiwa_tools {
     class IiwaTools {
     public:
-        IiwaTools(ros::NodeHandle nh);
+        IiwaTools(ros::NodeHandle nh, bool startService=true);
 
         bool perform_fk(iiwa_tools::GetFK::Request& request,
             iiwa_tools::GetFK::Response& response);

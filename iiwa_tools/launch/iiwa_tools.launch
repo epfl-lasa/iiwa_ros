@@ -5,7 +5,7 @@
   <rosparam file="$(find iiwa_tools)/config/iiwa_tools.yaml" command="load"/>
 
   <!-- launch the IK server -->
-  <node name="iiwa_tools" pkg="iiwa_tools" type="iiwa_tools" respawn="false"
+  <node name="iiwa_service" pkg="iiwa_tools" type="iiwa_tools" respawn="false"
     output="screen" ns="/iiwa"/>
 
 </launch>
