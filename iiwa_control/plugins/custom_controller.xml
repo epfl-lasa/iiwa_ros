@@ -5,4 +5,16 @@
            base_class_type="controller_interface::ControllerBase">
         <description>CustomEffortController</description>
     </class>
+    <class
+           name="iiwa_control/DSImpedanceController"
+           type="iiwa_control::DSImpedanceController"
+           base_class_type="controller_interface::ControllerBase">
+        <description>DSImpedanceController</description>
+    </class>
+    <class
+           name="iiwa_control/CustomJointStateController"
+           type="iiwa_control::CustomJointStateController"
+           base_class_type="controller_interface::ControllerBase">
+        <description>CustomJointStateController</description>
+    </class>
 </library>

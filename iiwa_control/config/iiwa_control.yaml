@@ -96,5 +96,12 @@ iiwa:
       # CascadeLinearDSController: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1]
       # PassiveDS: [1.5, 1.5]
 
+  custom_joint_state_controller:
+    type: iiwa_control/CustomJointStateController
+    end_effector: iiwa_link_ee
+    publish_rate: 500
 
-  
+  DSImpedance:
+    type: iiwa_control/DSImpedanceController
+    end_effector: iiwa_link_ee
+

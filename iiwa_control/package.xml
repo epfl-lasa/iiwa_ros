@@ -22,6 +22,7 @@
   <build_depend>hardware_interface</build_depend>
   <build_depend>urdf</build_depend>
   <build_depend>iiwa_tools</build_depend>
+  <build_depend>dynamic_reconfigure</build_depend>
   
   <run_depend>robot_state_publisher</run_depend>
   <run_depend>roscpp</run_depend>
@@ -31,6 +32,7 @@
   <run_depend>hardware_interface</run_depend>
   <run_depend>urdf</run_depend>
   <run_depend>iiwa_tools</run_depend>
+  <run_depend>dynamic_reconfigure</run_depend>
 
   <export>
     <controller_interface plugin="${prefix}/plugins/custom_controller.xml"/>

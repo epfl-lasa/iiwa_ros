@@ -14,7 +14,8 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   controller_interface
   urdf
-  iiwa_tools)
+  iiwa_tools
+  dynamic_reconfigure)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS
@@ -28,6 +29,14 @@ pkg_search_module(Eigen3 REQUIRED eigen3)
 # Find Corrade
 find_package(Corrade REQUIRED Utility PluginManager)
 
+
+find_package(RobotControllers REQUIRED PassiveDSController)
+
+
+generate_dynamic_reconfigure_options(
+    cfg/ds_impedance_params.cfg
+)
+
 ##Needed for ros packages
 catkin_package(
   CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
@@ -37,6 +46,8 @@ catkin_package(
 
 set(iiwa_control_SOURCES
   src/custom_effort_controller.cpp
+  src/custom_joint_state_controller.cpp
+  src/ds_impedance_controller.cpp
 )
 
 add_library(CustomEffortController ${iiwa_control_SOURCES})
@@ -71,7 +82,7 @@ target_link_libraries(CustomEffortController PUBLIC
 add_dependencies(CustomEffortController iiwa_service)
 
 # Require C++11
-set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 11)
+set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 17)
 set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD_REQUIRED ON)
 
 install(TARGETS CustomEffortController
