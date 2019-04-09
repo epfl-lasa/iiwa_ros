@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_control)
 
-option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
+option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" OFF)
 
 # Tell CMake where to find "Find<LIB>.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -82,7 +82,7 @@ target_link_libraries(CustomEffortController PUBLIC
 add_dependencies(CustomEffortController iiwa_service)
 
 # Require C++11
-set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 17)
+set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD 11)
 set_property(TARGET CustomEffortController PROPERTY CXX_STANDARD_REQUIRED ON)
 
 install(TARGETS CustomEffortController

@@ -66,7 +66,7 @@ namespace iiwa_control {
         nh_controller.param<std::string>("end_effector", end_effector, "iiwa_link_ee");
 
         // // Initialize iiwa tools
-        std::cerr << "AAAAA: " << urdf_string << std::endl;
+        // std::cerr << "AAAAA: " << urdf_string << std::endl;
         // std::cerr << "BBBBB: " << end_effector << std::endl;
         tools_.init_rbdyn(urdf_string, end_effector);
 
@@ -112,78 +112,78 @@ namespace iiwa_control {
     {
 
         if (publish_rate_ > 0.0 && last_publish_time_ + ros::Duration(1.0/publish_rate_) < time) {
-            // // Get current end effector pose
-            // iiwa_tools::RobotState robot_state;
-            // robot_state.position.resize(n_joints_);
-            // robot_state.velocity.resize(n_joints_);
+            // Get current end effector pose
+            iiwa_tools::RobotState robot_state;
+            robot_state.position.resize(n_joints_);
+            robot_state.velocity.resize(n_joints_);
 
-            // for (size_t i = 0; i < n_joints_; i++) {
-            //     robot_state.position[i] = joints_[i].getPosition();
-            //     robot_state.velocity[i] = joints_[i].getVelocity();
-            // }
+            for (size_t i = 0; i < n_joints_; i++) {
+                robot_state.position[i] = joints_[i].getPosition();
+                robot_state.velocity[i] = joints_[i].getVelocity();
+            }
 
-            // auto ee_state = tools_.perform_fk(robot_state);
+            auto ee_state = tools_.perform_fk(robot_state);
 
-            // x_ = ee_state.translation;
-            // q_ << ee_state.orientation.w(), ee_state.orientation.x(), ee_state.orientation.y(), ee_state.orientation.z();
+            x_ = ee_state.translation;
+            q_ << ee_state.orientation.w(), ee_state.orientation.x(), ee_state.orientation.y(), ee_state.orientation.z();
                 
-            // // Get jacobian and end effector twist
-            // Eigen::MatrixXd jac(6, n_joints_);
+            // Get jacobian and end effector twist
+            Eigen::MatrixXd jac(6, n_joints_);
 
-            // jac = tools_.jacobian(robot_state);
+            jac = tools_.jacobian(robot_state);
 
-            // Eigen::Vector3d v, omega;
-            // Eigen::VectorXd twist, j, jv;
-            // twist.resize(6);
-            // j.resize(n_joints_);
-            // jv.resize(n_joints_);
+            Eigen::Vector3d v, omega;
+            Eigen::VectorXd twist, j, jv;
+            twist.resize(6);
+            j.resize(n_joints_);
+            jv.resize(n_joints_);
 
-            // for (unsigned int i = 0; i < n_joints_; i++) {
-            //     j(i) = joints_[i].getPosition();
-            //     jv(i) = joints_[i].getVelocity();
-            // }
+            for (unsigned int i = 0; i < n_joints_; i++) {
+                j(i) = joints_[i].getPosition();
+                jv(i) = joints_[i].getVelocity();
+            }
 
-            // twist = jac * jv;
-            // omega_ = twist.segment(0,3);
-            // v_ = twist.segment(3,3);
+            twist = jac * jv;
+            omega_ = twist.segment(0,3);
+            v_ = twist.segment(3,3);
 
-            // // Publish pos/vel/acc
-            // if(pub_pose_->trylock()) {
-            //     pub_pose_->msg_.position.x = x_(0);
-            //     pub_pose_->msg_.position.y = x_(1);
-            //     pub_pose_->msg_.position.z = x_(2);
-            //     pub_pose_->msg_.orientation.w = q_(0);
-            //     pub_pose_->msg_.orientation.x = q_(1);
-            //     pub_pose_->msg_.orientation.y = q_(2);
-            //     pub_pose_->msg_.orientation.z = q_(3);
+            // Publish pos/vel/acc
+            if(pub_pose_->trylock()) {
+                pub_pose_->msg_.position.x = x_(0);
+                pub_pose_->msg_.position.y = x_(1);
+                pub_pose_->msg_.position.z = x_(2);
+                pub_pose_->msg_.orientation.w = q_(0);
+                pub_pose_->msg_.orientation.x = q_(1);
+                pub_pose_->msg_.orientation.y = q_(2);
+                pub_pose_->msg_.orientation.z = q_(3);
 
-            //     pub_pose_->unlockAndPublish();
-            // }
+                pub_pose_->unlockAndPublish();
+            }
 
-            // if(pub_twist_->trylock())  {
-            //     pub_twist_->msg_.linear.x = v_(0);
-            //     pub_twist_->msg_.linear.y = v_(1);
-            //     pub_twist_->msg_.linear.z = v_(2);
+            if(pub_twist_->trylock())  {
+                pub_twist_->msg_.linear.x = v_(0);
+                pub_twist_->msg_.linear.y = v_(1);
+                pub_twist_->msg_.linear.z = v_(2);
 
-            //     pub_twist_->msg_.angular.x = omega_(0);
-            //     pub_twist_->msg_.angular.y = omega_(1);
-            //     pub_twist_->msg_.angular.z = omega_(2);
+                pub_twist_->msg_.angular.x = omega_(0);
+                pub_twist_->msg_.angular.y = omega_(1);
+                pub_twist_->msg_.angular.z = omega_(2);
 
-            //     pub_twist_->unlockAndPublish();
-            // }
+                pub_twist_->unlockAndPublish();
+            }
 
-            // if(pub_joints_->trylock())  {
+            if(pub_joints_->trylock())  {
 
-            //     last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
+                last_publish_time_ = last_publish_time_ + ros::Duration(1.0/publish_rate_);
 
-            //     pub_joints_->msg_.header.stamp = time;
-            //     for(unsigned int i=0; i < n_joints_; i++) {
-            //         pub_joints_->msg_.position[i] = joints_[i].getPosition();
-            //         pub_joints_->msg_.velocity[i] = joints_[i].getVelocity();
-            //         pub_joints_->msg_.effort[i] = joints_[i].getEffort();
-            //     }
-            //     pub_joints_->unlockAndPublish();
-            // }
+                pub_joints_->msg_.header.stamp = time;
+                for(unsigned int i=0; i < n_joints_; i++) {
+                    pub_joints_->msg_.position[i] = joints_[i].getPosition();
+                    pub_joints_->msg_.velocity[i] = joints_[i].getVelocity();
+                    pub_joints_->msg_.effort[i] = joints_[i].getEffort();
+                }
+                pub_joints_->unlockAndPublish();
+            }
         }
     }
 } // namespace iiwa_control
