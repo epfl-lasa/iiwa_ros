@@ -54,7 +54,6 @@ iiwa:
 
   # Custom Controllers ------------------------------------------------
   # The space variable can be either set to "task" or "joint"
-  # The gravity compensation can be either set to "on" or "off"
   CustomControllers:
     # end_effector is only needed in task space
     end_effector: iiwa_link_ee
@@ -67,34 +66,13 @@ iiwa:
       - iiwa_joint_5
       - iiwa_joint_6
       - iiwa_joint_7
-    controller_names:
-      # - PassiveDS
-      - Cascade
-      - PID
-    controller_types:
-      # - PassiveDSController
-      - CascadeController
-      - PidController
-    subcontrollers:
-      Cascade:
-        - LinearDSController
-        - PassiveDSController
     params:
       space: "task"
-      # orientation only: P-matrix, D-matrix, I-matrix
-      # PID: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1,   0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0]
-      # P-values, D-values, I-values (optional)
-      PID: [20., 2.]
-      PIDIO:
-        - "Orientation" # input, multiple example: "Orientation|Position"
-        - "Torque" # output
-      # eigen-values (<= DIM)
-      CascadePassiveDSController: [200, 200]
-      # only diagonal values of A matrix
-      # ignore orientation
-      CascadeLinearDSController: [1., 1., 1.]
-      # CascadeLinearDSController: [0, 0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 0, 0,  0, 0, 0, 0, 1, 0,  0, 0, 0, 0, 0, 1]
-      # PassiveDS: [1.5, 1.5]
-
-
-  
+    controllers:
+      LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+      PassiveDS: {type: "PassiveDSController", params: [200, 200]}
+      PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
+    structure:
+      CascadeCtrl:
+        - LinearDS
+        - PassiveDS

@@ -8,29 +8,12 @@
 #include <robot_controllers/SumController.hpp>
 
 namespace iiwa_control {
-    double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
+    std::vector<std::vector<std::string>> get_types(const std::string& input, const std::string& output)
     {
-        assert(array.layout.dim.size() == 2);
-        size_t offset = array.layout.data_offset;
-
-        return array.data[offset + i * array.layout.dim[0].stride + j];
-    }
-
-    std::vector<std::vector<std::string>> get_types(ros::NodeHandle& n, const std::string& name)
-    {
-        std::vector<std::string> io;
-        n.getParam("params/" + name + "IO", io);
-
-        if (io.size() != 2) {
-            if (io.size() != 0)
-                ROS_WARN_STREAM("Wrong number of input/output for controller '" << name << "'. Will not change the I/O of this controller.");
-            return std::vector<std::vector<std::string>>();
-        }
-
         std::vector<std::vector<std::string>> result(2);
 
         // Input
-        std::string s = io[0];
+        std::string s = input;
         std::string delimiter = "|";
 
         size_t pos = 0;
@@ -44,7 +27,7 @@ namespace iiwa_control {
         result[0].push_back(s);
 
         // Output
-        s = io[1];
+        s = output;
         delimiter = "|";
 
         pos = 0;
@@ -167,14 +150,8 @@ namespace iiwa_control {
             return false;
         }
 
-        // Get controller's parameters
-        // std::vector<double> values;
-        std::vector<std::string> controller_names, controller_types;
-
+        // Get basic parameters
         n.param<std::string>("params/space", operation_space_, "joint"); // Default operation space is task-space
-        n.param<std::string>("params/gravity", gravity_comp_, "off"); // We do not use gravity compensation by default
-        n.getParam("controller_names", controller_names);
-        n.getParam("controller_types", controller_types);
 
         // Check the operational space
         if (operation_space_ == "task") {
@@ -212,119 +189,102 @@ namespace iiwa_control {
         else
             space_dim_ = n_joints_;
 
-        // Init Controllers
-        unsigned int ctrl_size = controller_names.size();
+        // Read Controllers from Params
+        std::map<std::string, ControllerPtr> controllers;
+        std::vector<std::string> ctrl_names;
 
-        if (ctrl_size == 0) {
-            ROS_ERROR_STREAM("No controllers specified! Exiting..!");
-            return false;
-        }
-        if (ctrl_size != controller_types.size()) {
-            ROS_ERROR_STREAM("Sizes of controller names and controller types do match! Exiting..!");
-            return false;
-        }
+        XmlRpc::XmlRpcValue symbols;
 
-        std::vector<ControllerPtr> controllers;
+        n.getParam("controllers", symbols);
 
-        for (unsigned int i = 0; i < ctrl_size; i++) {
-            std::string name = controller_names[i];
-            std::string type = controller_types[i];
+        assert(symbols.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+        for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end(); ++i) {
+            // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
+            std::string name = i->first;
+            std::string type, input, output;
+            std::vector<double> param_values;
+            n.getParam("controllers/" + name + "/type", type);
+            n.getParam("controllers/" + name + "/params", param_values);
+            n.getParam("controllers/" + name + "/input", input);
+            n.getParam("controllers/" + name + "/output", output);
 
-            // ROS_WARN_STREAM(name << " ---> " << type);
+            if (type.size() == 0) {
+                ROS_WARN_STREAM("Could not find type of controller '" << name << "'. Skipping this controller!");
+                continue;
+            }
 
-            if (type == "SumController" || type == "CascadeController") {
-                std::vector<std::string> subcontrollers;
-                n.getParam("subcontrollers/" + name, subcontrollers);
+            auto ctrl = manager_.loadAndInstantiate(type);
 
-                unsigned int sub_ctrl_size = subcontrollers.size();
-
-                if (sub_ctrl_size == 0) {
-                    ROS_ERROR_STREAM("No subcontrollers specified (at least one needed)! Exiting..!");
-                    return false;
-                }
-
-                ControllerPtr big_ctrl;
-
-                if (type == "SumController")
-                    big_ctrl.reset(new robot_controllers::SumController);
-                else
-                    big_ctrl.reset(new robot_controllers::CascadeController);
-
-                unsigned int num_ctrls = 0;
-                for (unsigned int j = 0; j < sub_ctrl_size; j++) {
-                    std::string sub_name = subcontrollers[j];
-                    auto ctrl = manager_.loadAndInstantiate(sub_name);
-                    if (ctrl) {
-                        robot_controllers::RobotParams params;
-                        params.input_dim_ = space_dim_;
-                        params.output_dim_ = space_dim_;
-
-                        params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
-
-                        n.getParam("params/" + name + sub_name, params.values_);
-
-                        ctrl->SetParams(params);
-
-                        std::vector<std::vector<std::string>> tt = get_types(n, name + sub_name);
-                        if (tt.size() == 2)
-                            set_types(ctrl, tt[0], tt[1]);
-
-                        set_input_space(ctrl, space_dim_);
-
-                        if (type == "SumController")
-                            static_cast<robot_controllers::SumController*>(big_ctrl.get())->AddController(std::move(ctrl));
-                        else
-                            static_cast<robot_controllers::CascadeController*>(big_ctrl.get())->AddController(std::move(ctrl));
-                        num_ctrls++;
-                    }
-                }
-
-                if (num_ctrls == 0) {
-                    ROS_ERROR_STREAM("Could not load specified subcontrollers for " << name << "! Exiting..!");
-                    return false;
-                }
-
+            if (ctrl) {
                 robot_controllers::RobotParams params;
                 params.input_dim_ = space_dim_;
                 params.output_dim_ = space_dim_;
 
                 params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
-                big_ctrl->SetParams(params);
 
-                std::vector<std::vector<std::string>> tt = get_types(n, name);
-                if (tt.size() == 2)
-                    set_types(big_ctrl, tt[0], tt[1]);
+                params.values_ = param_values;
 
-                set_input_space(big_ctrl, space_dim_);
+                ctrl->SetParams(params);
 
-                controllers.emplace_back(std::move(big_ctrl));
-            }
-            else {
-                auto ctrl = manager_.loadAndInstantiate(type);
-
-                if (ctrl) {
-                    robot_controllers::RobotParams params;
-                    params.input_dim_ = space_dim_;
-                    params.output_dim_ = space_dim_;
-
-                    params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
-
-                    n.getParam("params/" + name, params.values_);
-
-                    ctrl->SetParams(params);
-
-                    std::vector<std::vector<std::string>> tt = get_types(n, name);
+                // TO-DO: Maybe separate input and output
+                if (input.size() > 0 && output.size() > 0) {
+                    std::vector<std::vector<std::string>> tt = get_types(input, output);
                     if (tt.size() == 2)
                         set_types(ctrl, tt[0], tt[1]);
-
-                    set_input_space(ctrl, space_dim_);
-
-                    controllers.emplace_back(std::move(ctrl));
                 }
+
+                set_input_space(ctrl, space_dim_);
+
+                controllers[name] = std::move(ctrl);
+                ctrl_names.push_back(name);
             }
         }
 
-        ctrl_size = controllers.size();
+        n.getParam("structure", symbols);
+
+        assert(symbols.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+        for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end(); ++i) {
+            // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
+            std::string name = i->first;
+            std::vector<std::string> sub;
+            n.getParam("structure/" + name, sub);
+            bool is_sum = false;
+            if (name.find("Add") == 0) {
+                controllers[name] = ControllerPtr(new robot_controllers::SumController);
+                is_sum = true;
+            }
+            else if (name.find("Cascade") == 0) {
+                controllers[name] = ControllerPtr(new robot_controllers::CascadeController);
+            }
+            else {
+                ROS_WARN_STREAM("Cannot identify the type of the controller by the name: '" << name << "'. Ignoring!");
+                continue;
+            }
+            // std::cout << sub.size() << std::endl;
+            for (size_t k = 0; k < sub.size(); k++) {
+                // ROS_WARN_STREAM("    " << sub[k]);
+                if (is_sum)
+                    static_cast<robot_controllers::SumController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
+                else
+                    static_cast<robot_controllers::CascadeController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
+                ctrl_names.erase(std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]), ctrl_names.end());
+                controllers.erase(sub[k]);
+            }
+
+            // Initialize parameters
+            robot_controllers::RobotParams params;
+            params.input_dim_ = space_dim_;
+            params.output_dim_ = space_dim_;
+
+            params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
+            controllers[name]->SetParams(params);
+
+            set_input_space(controllers[name], space_dim_);
+
+            ctrl_names.push_back(name);
+        }
+
+        unsigned int ctrl_size = ctrl_names.size();
 
         if (ctrl_size == 0) {
             ROS_ERROR_STREAM("Could not load specified controllers! Exiting..!");
@@ -332,13 +292,15 @@ namespace iiwa_control {
         }
 
         if (ctrl_size == 1) {
-            controller_ = std::move(controllers[0]);
+            controller_ = std::move(controllers[ctrl_names[0]]);
         }
         else {
             controller_.reset(new robot_controllers::SumController);
             for (unsigned int i = 0; i < ctrl_size; i++) {
-                static_cast<robot_controllers::SumController*>(controller_.get())->AddController(std::move(controllers[i]));
+                static_cast<robot_controllers::SumController*>(controller_.get())->AddController(std::move(controllers[ctrl_names[i]]));
             }
+
+            set_input_space(controller_, space_dim_);
         }
 
         // Initialize the controller(s)
