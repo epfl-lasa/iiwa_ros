@@ -55,8 +55,6 @@ iiwa:
   # Custom Controllers ------------------------------------------------
   # The space variable can be either set to "task" or "joint"
   CustomControllers:
-    # end_effector is only needed in task space
-    end_effector: iiwa_link_ee
     type: iiwa_control/CustomEffortController
     joints:
       - iiwa_joint_1
@@ -68,6 +66,8 @@ iiwa:
       - iiwa_joint_7
     params:
       space: "task"
+      # end_effector is only needed in task space
+      end_effector: iiwa_link_ee
     controllers:
       LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
       PassiveDS: {type: "PassiveDSController", params: [200, 200]}

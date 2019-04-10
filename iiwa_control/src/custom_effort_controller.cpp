@@ -181,7 +181,7 @@ namespace iiwa_control {
             ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
 
             // Get the end-effector
-            n.param<std::string>("end_effector", end_effector, "iiwa_link_ee");
+            n.param<std::string>("params/end_effector", end_effector, "iiwa_link_ee");
 
             // Initialize iiwa tools
             tools_.init_rbdyn(urdf_string, end_effector);
