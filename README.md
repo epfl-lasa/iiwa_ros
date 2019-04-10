@@ -13,22 +13,24 @@ Requirements
 
 iiwa_ros requires several packages to be installed in order to work properly:
 
-* [ROS] - ROS: tested in **Melodic**, but *Kinetic* should work also
+* [ROS] - ROS: tested in **Melodic** and **Kinetic**; *Indigo* should work also
 * [KUKA FRI]
 * [ROS Control]
 * [Gazebo] and gazebo-ros-pkgs
 * [SpaceVecAlg]
 * [RBDyn]
 * [mc_rbdyn_urdf]
+* [corrade]
+* [robot_controllers]
 
-Compilation
-------------
+Dependencies
+-------------
 
 ### KUKA FRI
 
 ```sh
 cd /source/directory
-git clone https://github.com/costashatz/kuka_fri.git
+git clone https://github.com/epfl-lasa/kuka_fri.git
 cd kuka_fri
 ./waf configure
 ./waf
@@ -71,7 +73,32 @@ make -j
 sudo make install
 ```
 
-### ROS related packages
+### corrade
+
+```sh
+cd /source/directory
+git clone https://github.com/mosra/corrade.git
+cd corrade
+mkdir build && cd build
+cmake ..
+make -j
+sudo make install
+```
+
+### robot_controllers
+
+```sh
+cd /source/directory
+git clone https://github.com/epfl-lasa/robot_controllers.git
+cd robot_controllers
+mkdir build && cd build
+cmake ..
+make -j
+sudo make install
+```
+
+Compilation
+------------
 
 ```sh
 cd /path/to/ros_workspace
@@ -114,8 +141,13 @@ roslaunch iiwa_gazebo iiwa_gazebo.launch
 roslaunch iiwa_gazebo iiwa_gazebo_position.launch
 ```
 
+Authors/Maintainers
+---------------------
 
-Copyright (c) 2019, **Konstantinos Chatzilygeroudis**
+- Konstantinos Chatzilygeroudis
+- Bernardo Fichera
+
+Copyright (c) 2019, **Konstantinos Chatzilygeroudis, Bernardo Fichera**
 
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/
@@ -124,3 +156,5 @@ Copyright (c) 2019, **Konstantinos Chatzilygeroudis**
 [spacevecalg]: https://github.com/costashatz/SpaceVecAlg
 [rbdyn]: https://github.com/costashatz/RBDyn
 [mc_rbdyn_urdf]: https://github.com/costashatz/mc_rbdyn_urdf
+[robot_controllers]: https://github.com/epfl-lasa/robot_controllers
+[corrade]: https://github.com/mosra/corrade
