@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_driver)
 
-# Tell CMake where to find "FindNAOqi.cmake"
+# Tell CMake where to find "FindFRI.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # Find catkin macros and libraries
@@ -19,7 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(FRI REQUIRED COMPONENTS
     kuka_fri
-    kuka_pb # TO-DO: Check why is this needed
 )
 
 # Needed for ros packages

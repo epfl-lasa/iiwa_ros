@@ -1,6 +1,6 @@
 #include <gazebo_ros_control/default_robot_hw_sim.h>
 
-// Iiwa tools headers
+// Iiwa service headers
 #include <iiwa_tools/GetGravity.h>
 
 // std headers

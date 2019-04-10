@@ -1,0 +1,8 @@
+<library path="lib/libCustomEffortController">
+    <class
+           name="iiwa_control/CustomEffortController"
+           type="iiwa_control::CustomEffortController"
+           base_class_type="controller_interface::ControllerBase">
+        <description>CustomEffortController</description>
+    </class>
+</library>

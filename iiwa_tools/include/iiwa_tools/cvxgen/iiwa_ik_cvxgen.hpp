@@ -1,5 +1,9 @@
+#ifndef IIWA_TOOLS_IIWA_TOOLS_CVXGEN_IIWA_IK_CVXGEN_HPP
+#define IIWA_TOOLS_IIWA_TOOLS_CVXGEN_IIWA_IK_CVXGEN_HPP
+
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 #define IA 16807
@@ -1838,3 +1842,5 @@ namespace iiwa_ik_cvxgen {
         }
     };
 } // namespace iiwa_ik_cvxgen
+
+#endif

@@ -2,9 +2,9 @@ iiwa:
   # Publish all joint states -----------------------------------
   joint_state_controller:
     type: joint_state_controller/JointStateController
-    publish_rate: 200  # in Hz
+    publish_rate: 500  # in Hz
 
-  # Controllers ------------------------------------------------
+  # Default Controllers ------------------------------------------------
   TorqueController:
     type: effort_controllers/JointGroupEffortController
     joints:
@@ -41,7 +41,6 @@ iiwa:
     iiwa_joint_7:
       pid: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
 
-  # Controllers ------------------------------------------------
   PositionController:
     type: position_controllers/JointGroupPositionController
     joints:
@@ -52,3 +51,28 @@ iiwa:
       - iiwa_joint_5
       - iiwa_joint_6
       - iiwa_joint_7
+
+  # Custom Controllers ------------------------------------------------
+  # The space variable can be either set to "task" or "joint"
+  CustomControllers:
+    # end_effector is only needed in task space
+    end_effector: iiwa_link_ee
+    type: iiwa_control/CustomEffortController
+    joints:
+      - iiwa_joint_1
+      - iiwa_joint_2
+      - iiwa_joint_3
+      - iiwa_joint_4
+      - iiwa_joint_5
+      - iiwa_joint_6
+      - iiwa_joint_7
+    params:
+      space: "task"
+    controllers:
+      LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+      PassiveDS: {type: "PassiveDSController", params: [200, 200]}
+      PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
+    structure:
+      CascadeCtrl:
+        - LinearDS
+        - PassiveDS

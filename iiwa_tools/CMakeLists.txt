@@ -39,35 +39,44 @@ generate_messages(
 )
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES iiwa_gazebo
+ INCLUDE_DIRS include
  CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
  DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
+ LIBRARIES iiwa_tools
 )
 
-add_executable(iiwa_tools src/iiwa_tools.cpp src/iiwa_tools_node.cpp)
+add_library(iiwa_tools SHARED src/iiwa_tools.cpp)
+target_compile_options(iiwa_tools PUBLIC -std=c++11)
+target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
+target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+
+add_executable(iiwa_service src/iiwa_service.cpp src/iiwa_service_node.cpp)
 
 if(ENABLE_SIMD)
   if(CMAKE_COMPILER_IS_GNUCXX)
     execute_process(
       COMMAND ${CMAKE_CXX_COMPILER} -dumpfullversion -dumpversion OUTPUT_VARIABLE GCC_VERSION)
     set(CXX_COMPILER_VERSION ${GCC_VERSION})
+    target_compile_options(iiwa_service PUBLIC -march=native)
     target_compile_options(iiwa_tools PUBLIC -march=native)
     if(GCC_VERSION VERSION_GREATER 7.0)
+      target_compile_options(iiwa_service PUBLIC -faligned-new)
       target_compile_options(iiwa_tools PUBLIC -faligned-new)
     endif()
   elseif("${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
+    target_compile_options(iiwa_service PUBLIC -march=native -faligned-new)
     target_compile_options(iiwa_tools PUBLIC -march=native -faligned-new)
   endif()
 endif()
 
-target_compile_options(iiwa_tools PUBLIC -std=c++11)
-target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+target_compile_options(iiwa_service PUBLIC -std=c++11)
+target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
+target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES} iiwa_tools)
 
+add_dependencies(iiwa_service iiwa_tools_generate_messages_cpp)
 
 # Install
-install(TARGETS iiwa_tools
+install(TARGETS iiwa_service iiwa_tools
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

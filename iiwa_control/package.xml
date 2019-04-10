@@ -14,12 +14,26 @@
   <author email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>controller_manager</build_depend>
+  <build_depend>controller_interface</build_depend>
+  <build_depend>hardware_interface</build_depend>
+  <build_depend>urdf</build_depend>
+  <build_depend>iiwa_tools</build_depend>
   
   <run_depend>robot_state_publisher</run_depend>
-  <run_depend>ros_control</run_depend>
-  <run_depend>ros_controllers</run_depend>
-
+  <run_depend>roscpp</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>controller_manager</run_depend>
+  <run_depend>controller_interface</run_depend>
+  <run_depend>hardware_interface</run_depend>
+  <run_depend>urdf</run_depend>
+  <run_depend>iiwa_tools</run_depend>
 
   <export>
+    <controller_interface plugin="${prefix}/plugins/custom_controller.xml"/>
   </export>
+  
 </package>
