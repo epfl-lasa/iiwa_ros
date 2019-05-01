@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--|
     Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
@@ -21,7 +22,6 @@
     GNU General Public License for more details.
 
 |-->
-<?xml version="1.0"?>
 <robot name="iiwa14" xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- Import Rviz colors -->
   <xacro:include filename="$(find iiwa_description)/urdf/materials.xacro" />

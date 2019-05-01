@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--|
     Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
@@ -21,7 +22,6 @@
     GNU General Public License for more details.
 
 |-->
-<?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:property name="PI" value="3.1415926535897931"/>
