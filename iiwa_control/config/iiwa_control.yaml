@@ -65,7 +65,7 @@ iiwa:
       - iiwa_joint_6
       - iiwa_joint_7
     params:
-      space: "task"
+      space: task
       # end_effector is only needed in task space
       end_effector: iiwa_link_ee
     controllers:
