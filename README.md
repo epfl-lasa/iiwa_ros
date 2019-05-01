@@ -141,13 +141,16 @@ roslaunch iiwa_gazebo iiwa_gazebo.launch
 roslaunch iiwa_gazebo iiwa_gazebo_position.launch
 ```
 
+Acknowledgements
+---------------------
+The URDF description files are copied and refactored from [iiwa_stack] (by Salvatore Virga and Marco Esposito).
+
 Authors/Maintainers
 ---------------------
 
-- Konstantinos Chatzilygeroudis
-- Bernardo Fichera
-
-Copyright (c) 2019, **Konstantinos Chatzilygeroudis, Bernardo Fichera**
+- Konstantinos Chatzilygeroudis (konstantinos.chatzilygeroudis@epfl.ch)
+- Bernardo Fichera (bernardo.fichera@epfl.ch)
+- Walid Amanhoud (walid.amanhoud@epfl.ch)
 
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/
@@ -158,3 +161,4 @@ Copyright (c) 2019, **Konstantinos Chatzilygeroudis, Bernardo Fichera**
 [mc_rbdyn_urdf]: https://github.com/costashatz/mc_rbdyn_urdf
 [robot_controllers]: https://github.com/epfl-lasa/robot_controllers
 [corrade]: https://github.com/mosra/corrade
+[iiwa_stack]: https://github.com/IFL-CAMP/iiwa_stack
