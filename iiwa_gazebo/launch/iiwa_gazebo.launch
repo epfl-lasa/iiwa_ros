@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--|
     Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
@@ -21,7 +22,6 @@
     GNU General Public License for more details.
 
 |-->
-<?xml version="1.0"?>
 <launch>
     <!-- These are the arguments you can pass this launch file, for example paused:=true -->
     <arg name="paused" default="false"/>
@@ -30,18 +30,19 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
 
-    <arg name="hardware_interface" default="EffortJointInterface"/>
+    <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
-    <arg name="type" default="14" />
+    <arg name="model" default="14" />
 
-    <!-- Upload iiwa URDF -->
-    <include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">
-        <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+    <!-- Select the controller -->
+    <arg name="controller" default="TorqueController"/>
+
+    <!-- Setup iiwa -->
+    <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
         <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="model" value="$(arg model)"/>
+        <arg name="controller" value="$(arg controller)"/>
     </include>
-
-    <!-- Load iiwa service -->
-    <include file="$(find iiwa_tools)/launch/iiwa_service.launch"/>
 
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -57,8 +58,10 @@
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
         args="-urdf -model iiwa -param robot_description"/>
 
-    <!-- Spawn torque controller -->
-    <include file="$(find iiwa_control)/launch/iiwa_torque_control.launch"/>
+    <!-- Spawn controller -->
+    <include file="$(find iiwa_control)/launch/iiwa_control.launch">
+        <arg name="controller" value="$(arg controller)"/>
+    </include>
 
 </launch>
 

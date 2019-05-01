@@ -99,11 +99,15 @@ def insert(directory):
     # CMake
     cmake = make_dirlist(directory, ['CMakeLists.txt'])
     for i in cmake:
+        # metapackages should not have any comments
+        if i.endswith('iiwa_ros/CMakeLists.txt'):
+            continue
         insert_header(i, '#|', '', license)
     # # XML/URDF
     xml_urdf = make_dirlist(directory, ['.xml', '.urdf', '.xacro', '.launch'])
     for i in xml_urdf:
-        insert_header(i, '<!--|', '|-->', license)
+        header = ['<?xml version="1.0"?>']
+        insert_header(i, '<!--|', '|-->', license, header)
 
 if __name__ == '__main__':
     insert('.')

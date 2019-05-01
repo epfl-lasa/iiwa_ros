@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--|
     Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
@@ -21,7 +22,6 @@
     GNU General Public License for more details.
 
 |-->
-<?xml version="1.0"?>
 <launch>
 	<arg name="hardware_interface" default="EffortJointInterface"/>
 	<arg name="robot_name" default="iiwa"/>
