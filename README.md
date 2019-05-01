@@ -148,10 +148,9 @@ The URDF description files are copied and refactored from [iiwa_stack] (by Salva
 Authors/Maintainers
 ---------------------
 
-- Konstantinos Chatzilygeroudis
-- Bernardo Fichera
-
-Copyright (c) 2019, **Konstantinos Chatzilygeroudis, Bernardo Fichera**
+- Konstantinos Chatzilygeroudis (konstantinos.chatzilygeroudis@epfl.ch)
+- Bernardo Fichera (bernardo.fichera@epfl.ch)
+- Walid Amanhoud (walid.amanhoud@epfl.ch)
 
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/
