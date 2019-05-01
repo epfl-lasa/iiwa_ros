@@ -111,35 +111,23 @@ Basic Usage
 
 ### Bringup iiwa_driver
 
-**Control IIWA in torque-control**
+**Control IIWA with FRI**
 
 ```sh
 roslaunch iiwa_driver iiwa_bringup.launch
 ```
 
-This will connect to IIWA robot and provide torque-based controllers.
-
-**Control IIWA in position-control**
-
-```sh
-roslaunch iiwa_driver iiwa_bringup_position.launch
-```
-
-This will connect to IIWA robot and provide position-based controllers.
+This will connect to IIWA robot using FRI.
 
 ### Gazebo Simulation
 
-**To launch Gazebo with IIWA in torque-control**
+**To launch Gazebo with IIWA**
 
 ```sh
 roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
-**To launch Gazebo with IIWA in position-control**
-
-```sh
-roslaunch iiwa_gazebo iiwa_gazebo_position.launch
-```
+**Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the controller, please edit the launch files to select the appropriate controller.**
 
 Acknowledgements
 ---------------------
