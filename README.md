@@ -127,7 +127,7 @@ This will connect to IIWA robot using FRI.
 roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
-**Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the controller, please edit the launch files to select the appropriate controller.**
+**Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the control mode (e.g., position), please edit the launch files to select the appropriate controller.**
 
 Acknowledgements
 ---------------------
