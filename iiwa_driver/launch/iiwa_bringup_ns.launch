@@ -35,6 +35,7 @@
 
   <!-- Call bringup with correct namespace -->
   <group ns="$(arg iiwa_ns)">
+      <param name="tf_prefix" value="$(arg iiwa_ns)"/>
       <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
           <arg name="namespace" value="$(arg iiwa_ns)" />
           <arg name="robot_name" value="$(arg robot_name)"/>
