@@ -93,15 +93,22 @@ namespace iiwa_ros {
 
         // Get the URDF XML from the parameter server
         urdf::Model urdf_model;
-        std::string urdf_string;
+        std::string urdf_string, full_param;
+        std::string robot_description = "robot_description";
+
+        // gets the location of the robot description on the parameter server
+        if (!_nh.searchParam(robot_description, full_param)) {
+            ROS_ERROR("Could not find parameter %s on parameter server", robot_description.c_str());
+            return;
+        }
 
         // search and wait for robot_description on param server
         while (urdf_string.empty()) {
             ROS_INFO_ONCE_NAMED("Iiwa", "Iiwa is waiting for model"
                                         " URDF in parameter [%s] on the ROS param server.",
-                _robot_description.c_str());
+                robot_description.c_str());
 
-            _nh.getParam(_robot_description, urdf_string);
+            _nh.getParam(full_param, urdf_string);
 
             usleep(100000);
         }
@@ -109,7 +116,7 @@ namespace iiwa_ros {
 
         const urdf::Model* const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : nullptr;
         if (urdf_model_ptr == nullptr)
-            ROS_WARN_STREAM_NAMED("Iiwa", "Could not read URDF from '" << _robot_description << "' parameters. Joint limits will not work.");
+            ROS_WARN_STREAM_NAMED("Iiwa", "Could not read URDF from '" << full_param << "' parameters. Joint limits will not work.");
 
         // Initialize Controller
         for (int i = 0; i < _num_joints; ++i) {
@@ -208,7 +215,6 @@ namespace iiwa_ros {
 
         n_p.param("fri/port", _port, 30200); // Default port is 30200
         n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-        n_p.param<std::string>("fri/robot_description", _robot_description, "/robot_description");
 
         n_p.param("hardware_interface/control_freq", _control_freq, 50.);
         n_p.getParam("hardware_interface/joints", _joint_names);

@@ -128,7 +128,6 @@ namespace iiwa_ros {
 
         // ROS communication/timing related
         ros::NodeHandle _nh;
-        std::string _robot_description;
         ros::Duration _control_period;
         double _control_freq;
         bool _initialized;

@@ -25,7 +25,7 @@
 <launch>
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
-    <arg name="model" default="14" />
+    <arg name="model" default="14"/>
 
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
@@ -39,8 +39,8 @@
 
     <!-- Upload iiwa URDF -->
     <include file="$(find iiwa_description)/launch/iiwa$(arg model)_upload.launch">
-    <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-    <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+        <arg name="robot_name" value="$(arg robot_name)"/>
     </include>
 
     <!-- Spawn iiwa service -->

@@ -26,6 +26,7 @@
   <!-- Select the robot -->
   <arg name="robot_name" default="iiwa"/>
   <arg name="model" default="14" />
+  <arg name="namespace" default="iiwa"/>
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
@@ -48,6 +49,7 @@
   <!-- Spawn controller -->
   <include file="$(find iiwa_control)/launch/iiwa_control.launch">
     <arg name="controller" value="$(arg controller)"/>
+    <arg name="namespace" value="$(arg namespace)" />
   </include>
 
 </launch>
