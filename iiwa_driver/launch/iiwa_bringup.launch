@@ -27,6 +27,7 @@
   <arg name="robot_name" default="iiwa"/>
   <arg name="model" default="14" />
   <arg name="namespace" default="iiwa"/>
+  <arg name="parent_link" default="world"/>
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
@@ -36,6 +37,7 @@
       <arg name="robot_name" value="$(arg robot_name)"/>
       <arg name="model" value="$(arg model)"/>
       <arg name="controller" value="$(arg controller)"/>
+      <arg name="parent_link" value="$(arg parent_link)"/>
   </include>
 
   <!-- Spawn iiwa FRI driver -->

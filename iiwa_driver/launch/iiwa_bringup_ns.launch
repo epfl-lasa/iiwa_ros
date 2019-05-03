@@ -41,6 +41,7 @@
           <arg name="robot_name" value="$(arg robot_name)"/>
           <arg name="model" value="$(arg model)"/>
           <arg name="controller" value="$(arg controller)"/>
+          <arg name="parent_link" value="$(arg iiwa_ns)_base"/>
       </include>
   </group>
 
