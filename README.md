@@ -26,7 +26,7 @@ iiwa_ros requires several packages to be installed in order to work properly:
 Dependencies
 -------------
 
-### KUKA FRI
+### KUKA FRI (Private)
 
 ```sh
 cd /source/directory
