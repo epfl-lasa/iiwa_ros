@@ -137,7 +137,7 @@ Documentation
 Contributing
 ---------------------
 
-**iiwa_ros** is being actively developped. Please see [CONTRIBUTING](CONTRIBUTING.md) for more on how to help.
+**iiwa_ros** is being actively developed. Please see [CONTRIBUTING](CONTRIBUTING.md) for more on how to help.
 
 Acknowledgements
 ---------------------
