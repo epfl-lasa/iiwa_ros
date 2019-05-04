@@ -129,6 +129,11 @@ roslaunch iiwa_gazebo iiwa_gazebo.launch
 
 **Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the control mode (e.g., position), please edit the launch files to select the appropriate controller.**
 
+Contributing
+---------------------
+
+**iiwa_ros** is being actively developped. Please see [CONTRIBUTING](CONTRIBUTING.md) for more on how to help.
+
 Acknowledgements
 ---------------------
 The URDF description files are copied and refactored from [iiwa_stack] (by Salvatore Virga and Marco Esposito).
