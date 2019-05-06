@@ -262,48 +262,50 @@ namespace iiwa_control {
             }
         }
 
-        n.getParam("structure", symbols);
+        XmlRpc::XmlRpcValue symbols_structure;
+        n.getParam("structure", symbols_structure);
 
-        assert(symbols.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-        for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end(); ++i) {
-            // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
-            std::string name = i->first;
-            std::vector<std::string> sub;
-            n.getParam("structure/" + name, sub);
-            bool is_sum = false;
-            if (name.find("Add") == 0) {
-                controllers[name] = ControllerPtr(new robot_controllers::SumController);
-                is_sum = true;
+        if (symbols_structure.getType() == XmlRpc::XmlRpcValue::TypeStruct) {
+            for (XmlRpc::XmlRpcValue::iterator i = symbols_structure.begin(); i != symbols_structure.end(); ++i) {
+                // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
+                std::string name = i->first;
+                std::vector<std::string> sub;
+                n.getParam("structure/" + name, sub);
+                bool is_sum = false;
+                if (name.find("Add") == 0) {
+                    controllers[name] = ControllerPtr(new robot_controllers::SumController);
+                    is_sum = true;
+                }
+                else if (name.find("Cascade") == 0) {
+                    controllers[name] = ControllerPtr(new robot_controllers::CascadeController);
+                }
+                else {
+                    ROS_WARN_STREAM("Cannot identify the type of the controller by the name: '" << name << "'. Ignoring!");
+                    continue;
+                }
+                // std::cout << sub.size() << std::endl;
+                for (size_t k = 0; k < sub.size(); k++) {
+                    // ROS_WARN_STREAM("    " << sub[k]);
+                    if (is_sum)
+                        static_cast<robot_controllers::SumController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
+                    else
+                        static_cast<robot_controllers::CascadeController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
+                    ctrl_names.erase(std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]), ctrl_names.end());
+                    controllers.erase(sub[k]);
+                }
+
+                // Initialize parameters
+                robot_controllers::RobotParams params;
+                params.input_dim_ = space_dim_;
+                params.output_dim_ = space_dim_;
+
+                params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
+                controllers[name]->SetParams(params);
+
+                set_input_space(controllers[name], space_dim_);
+
+                ctrl_names.push_back(name);
             }
-            else if (name.find("Cascade") == 0) {
-                controllers[name] = ControllerPtr(new robot_controllers::CascadeController);
-            }
-            else {
-                ROS_WARN_STREAM("Cannot identify the type of the controller by the name: '" << name << "'. Ignoring!");
-                continue;
-            }
-            // std::cout << sub.size() << std::endl;
-            for (size_t k = 0; k < sub.size(); k++) {
-                // ROS_WARN_STREAM("    " << sub[k]);
-                if (is_sum)
-                    static_cast<robot_controllers::SumController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
-                else
-                    static_cast<robot_controllers::CascadeController*>(controllers[name].get())->AddController(std::move(controllers[sub[k]]));
-                ctrl_names.erase(std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]), ctrl_names.end());
-                controllers.erase(sub[k]);
-            }
-
-            // Initialize parameters
-            robot_controllers::RobotParams params;
-            params.input_dim_ = space_dim_;
-            params.output_dim_ = space_dim_;
-
-            params.time_step_ = 0.01; // TO-DO: Get this from controller manager or yaml
-            controllers[name]->SetParams(params);
-
-            set_input_space(controllers[name], space_dim_);
-
-            ctrl_names.push_back(name);
         }
 
         unsigned int ctrl_size = ctrl_names.size();
@@ -315,6 +317,8 @@ namespace iiwa_control {
 
         if (ctrl_size == 1) {
             controller_ = std::move(controllers[ctrl_names[0]]);
+
+            set_input_space(controller_, space_dim_);
         }
         else {
             controller_.reset(new robot_controllers::SumController);
@@ -377,31 +381,36 @@ namespace iiwa_control {
         }
 
         std::vector<double> init_cmd(cmd_dim_, 0.0);
+        has_orientation_ = false;
         if (operation_space_ == "task") {
             has_orientation_ = ((controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)) ? true : false;
-            // if task space, we need to alter the initial command
-            iiwa_tools::RobotState robot_state;
-            robot_state.position.resize(n_joints_);
-            robot_state.velocity.resize(n_joints_);
+            bool has_position = ((controller_->GetInput().GetType() & robot_controllers::IOType::Position)) ? true : false;
+            if (has_position || has_orientation_) {
+                // if task space, we need to alter the initial command
+                iiwa_tools::RobotState robot_state;
+                robot_state.position.resize(n_joints_);
+                robot_state.velocity.resize(n_joints_);
 
-            for (size_t i = 0; i < n_joints_; i++) {
-                robot_state.position[i] = joints_[i].getPosition();
-                robot_state.velocity[i] = joints_[i].getVelocity();
-            }
+                for (size_t i = 0; i < n_joints_; i++) {
+                    robot_state.position[i] = joints_[i].getPosition();
+                    robot_state.velocity[i] = joints_[i].getVelocity();
+                }
 
-            auto ee_state = tools_.perform_fk(robot_state);
-            Eigen::AngleAxisd aa(ee_state.orientation);
-            Eigen::VectorXd o = aa.axis() * aa.angle();
-            Eigen::VectorXd p = ee_state.translation;
+                auto ee_state = tools_.perform_fk(robot_state);
+                Eigen::AngleAxisd aa(ee_state.orientation);
+                Eigen::VectorXd o = aa.axis() * aa.angle();
+                Eigen::VectorXd p = ee_state.translation;
 
-            size_t offset = 0;
-            if (has_orientation_)
-                offset = 3;
-
-            for (size_t i = 0; i < 3; i++) {
+                size_t offset = 0;
                 if (has_orientation_)
-                    init_cmd[i] = o(i);
-                init_cmd[i + offset] = p(i);
+                    offset = 3;
+
+                for (size_t i = 0; i < 3; i++) {
+                    if (has_orientation_)
+                        init_cmd[i] = o(i);
+                    if (has_position)
+                        init_cmd[i + offset] = p(i);
+                }
             }
         }
 
