@@ -166,6 +166,8 @@ namespace iiwa_tools {
             }
             ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref.transpose());
         }
+        else
+            rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
 
         rbd::Jacobian jac(rbdyn_urdf.mb, rbdyn_urdf.mb.body(_ef_index).name());
 
