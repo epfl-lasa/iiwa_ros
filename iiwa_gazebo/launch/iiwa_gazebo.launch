@@ -35,7 +35,7 @@
     <arg name="model" default="7" />
 
     <!-- Select the controller -->
-    <arg name="controller" default="PositionController"/>
+    <arg name="controller" default="PositionTrajectoryController"/>
 
     <!-- Setup iiwa -->
     <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
