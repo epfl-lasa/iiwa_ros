@@ -32,10 +32,10 @@
 
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
-    <arg name="model" default="14" />
+    <arg name="model" default="7" />
 
     <!-- Select the controller -->
-    <arg name="controller" default="TorqueController"/>
+    <arg name="controller" default="PositionController"/>
 
     <!-- Setup iiwa -->
     <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
