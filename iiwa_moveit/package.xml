@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>iiwa_moveit</name>
+  <version>1.4.0</version>
+  <description>
+	  A package with all the configuration and launch files for using the KUKA LBR IIWA with the MoveIt Motion Planning Framework
+  </description>
+  <author email="salvo.virga@tum.de">Salvo Virga</author>
+  <maintainer email="salvo.virga@tum.de">Salvo Virga</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>moveit_ros_move_group</depend>
+  <depend>moveit_setup_assistant</depend>
+  <depend>moveit_planners_ompl</depend>
+  <depend>moveit_fake_controller_manager</depend>
+  <depend>moveit_simple_controller_manager</depend>
+  <depend>joint_state_controller</depend>
+  <depend>joint_trajectory_controller</depend>
+  <depend>position_controllers</depend>
+  <depend>velocity_controllers</depend>
+  <depend>effort_controllers</depend>
+  <depend>gazebo_ros_control</depend>
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>moveit_ros_warehouse</depend>
+  <depend>moveit_ros_visualization</depend>
+  <depend>joint_state_publisher</depend>
+  <depend>robot_state_publisher</depend>
+  <depend>xacro</depend>
+  <depend>iiwa_description</depend>
+  <depend>iiwa_hw</depend>
+
+</package>
