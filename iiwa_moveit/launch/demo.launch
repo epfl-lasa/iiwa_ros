@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-    
+    <!-- You can disable the RViz graphical user interface -->
+    <arg name="gui" default="true"/>
+
     <!-- By default, we do not start a database (it can be large) -->
     <arg name="db" default="false" />
     
@@ -31,7 +33,7 @@
         </include>
         
         <!-- Run Rviz and load the default config to see the state of the move_group node -->
-        <include file="$(find iiwa_moveit)/launch/moveit_rviz.launch">
+        <include if="$(arg gui)" file="$(find iiwa_moveit)/launch/moveit_rviz.launch">
             <arg name="config" value="true"/>
             <arg name="debug" value="$(arg debug)"/>
         </include>
