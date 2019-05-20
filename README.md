@@ -134,12 +134,7 @@ Basic Usage
 
 3. Within 10 seconds before the timeout, launch: `roslaunch iiwa_driver iiwa_bringup.launch`. This will connect to IIWA robot using FRI.
 4. Check that everything works if `/iiwa/joint_states` is being published and reflects the actual robot state.
-5. In case of timeout or any failure, unload the app by unchecking it in [Application] before retrying
-
-A good idea to go next is testing the MoveIt package with precaution regarding the targets before actual motion:
-```sh
-roslaunch iiwa_moveit demo.launch
-```
+5. The Smarpad'd [Application] tab must remain green. In case of timeout or any failure, unload the app by unchecking it in [Application] before retrying
 
 ### Gazebo Simulation
 
@@ -149,7 +144,11 @@ roslaunch iiwa_moveit demo.launch
 roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
-**Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the control mode (e.g., position), please edit the launch files to select the appropriate controller.**
+Both of the above commands will launch IIWA in **position-control mode**. To change the control mode (e.g., torque with gravity compensation), please edit the launch files to select the appropriate controller.
+
+### MoveIt planning
+
+If everything looks in simulation or with the FRI driver, a next step might be to try out your robot with [MoveIt](/iiwa_moveit).
 
 Documentation
 ---------------------
