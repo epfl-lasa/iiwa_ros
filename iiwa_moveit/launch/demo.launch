@@ -3,6 +3,9 @@
     <!-- You can disable the RViz graphical user interface -->
     <arg name="gui" default="true"/>
 
+    <!-- Set to true if you also want to start the FRI driver in order to drive a real IIWA -->
+    <arg name="driver" default="false"/>
+
     <!-- By default, we do not start a database (it can be large) -->
     <arg name="db" default="false" />
     
@@ -20,6 +23,11 @@
     <remap from="/move_group/fake_controller_joint_states" to="/$(arg robot_name)/move_group/fake_controller_joint_states" /> 
     <remap from="/get_planning_scene" to="/$(arg robot_name)/get_planning_scene" /> 
     
+    <!-- Start the FRI driver, if requested -->
+    <include if="$(arg driver)" file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="controller" default="PositionTrajectoryController"/>
+    </include>
+
     <!--Put in a namespace to allow many instances to run-->
     <group ns="$(arg robot_name)" >
         
