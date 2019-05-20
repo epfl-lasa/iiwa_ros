@@ -129,12 +129,14 @@ Basic Usage
 
 * Activate `AUT` mode (turn key right > AUT > key left)
 * In `[Application]`, check yours in order to select it
-* Press the mechanical play button ▶
-* The app starts and let you select control mode and stiffness
+* Press the mechanical `Play` button ▶
 
 3. Within 10 seconds before the timeout, launch: `roslaunch iiwa_driver iiwa_bringup.launch`. This will connect to IIWA robot using FRI.
-4. Check that everything works if `/iiwa/joint_states` is being published and reflects the actual robot state.
-5. The Smarpad'd [Application] tab must remain green. In case of timeout or any failure, unload the app by unchecking it in [Application] before retrying
+4 The Smartpad lets you select control mode and stiffness
+5. Check that everything works if `/iiwa/joint_states` is being published and reflects the actual robot state.
+6. The Smarpad'd [Application] tab must remain green. Otherwise you can press `Play ▶` again to reconnect.
+
+In case of a hard failure, unload the app by unchecking it in [Application] before retrying.
 
 ### Gazebo Simulation
 
