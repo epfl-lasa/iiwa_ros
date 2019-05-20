@@ -106,6 +106,17 @@ cd /path/to/ros_workspace
 catkin_make
 ```
 
+Sunrise Robot Application upload
+------------
+You need a specific application to run on the robot side.
+0. Make sure a Windows laptop is connected on the X66 Ethernet port and has IP `172.31.1.42` mask `255.255.0.0`
+1. Create a new Sunrise project with Sunrise Workbench and setup an empty RobotApplication template 
+2. Setup the safety configuration in `SafetyConfiguration.sconf` ([example](https://github.com/IFL-CAMP/iiwa_stack/wiki/safetyconf))
+3. Replace the empty template with the [online app](https://github.com/epfl-lasa/iiwa_ros/blob/master/iiwa_driver/java/FRIOverlay.java)
+4. In `StationSetup.cat`, tab `Software`, active the FRI extension, push it to the robot with `Installation` and accept the reboot question
+5. Synchronise your new Sunrise project to the robot with icon `Synchronize project`
+6. On the Smartpad tablet, your app must be listed in [Applications] and you must also see a new [FRI] tab
+
 Basic Usage
 --------------
 
@@ -113,11 +124,22 @@ Basic Usage
 
 **Control IIWA with FRI**
 
-```sh
-roslaunch iiwa_driver iiwa_bringup.launch
-```
+1. Make sure your Linux/ROS laptop is connected on the KONI Ethernet port and has IP `192.170.10.100` mask `255.255.255.0`.
+2. On the Smartpad tablet:
 
-This will connect to IIWA robot using FRI.
+* Activate `AUT` mode (turn key right > AUT > key left)
+* In `[Application]`, check yours in order to select it
+* Press the mechanical play button ▶
+* The app starts and let you select control mode and stiffness
+
+3. Within 10 seconds before the timeout, launch: `roslaunch iiwa_driver iiwa_bringup.launch`. This will connect to IIWA robot using FRI.
+4. Check that everything works if `/iiwa/joint_states` is being published and reflects the actual robot state.
+5. In case of timeout or any failure, unload the app by unchecking it in [Application] before retrying
+
+A good idea to go next is testing the MoveIt package with precaution regarding the targets before actual motion:
+```sh
+roslaunch iiwa_moveit demo.launch
+```
 
 ### Gazebo Simulation
 
