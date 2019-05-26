@@ -107,7 +107,7 @@ public class FRIOverlay extends RoboticsAPIApplication
         }
         else if (choice == 4) {
         	getLogger().info("Stiffness of '300' chosen");
-        	stiffness = 30.;
+        	stiffness = 300.;
         }
         else if (choice == 5) {
         	getLogger().info("Stiffness of '500' chosen");
