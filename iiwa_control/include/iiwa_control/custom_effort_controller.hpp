@@ -76,7 +76,7 @@ namespace iiwa_control {
         // Controller's settings
         unsigned int space_dim_;
         unsigned int cmd_dim_;
-        bool has_orientation_;
+        bool has_orientation_, null_space_control_;
         std::string operation_space_, gravity_comp_;
 
         // Iiwa tools
@@ -84,6 +84,10 @@ namespace iiwa_control {
 
         // URDF
         std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
+
+        // Null-space control
+        Eigen::VectorXd null_space_joint_config_;
+        double null_space_Kp_, null_space_Kd_, null_space_max_torque_;
 
         // Command callback
         void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
