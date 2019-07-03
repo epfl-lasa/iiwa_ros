@@ -1,7 +1,8 @@
-# Publish all joint states -----------------------------------
-joint_state_controller:
-  type: joint_state_controller/JointStateController
-  publish_rate: 500  # in Hz
+iiwa:
+  # Publish all joint states -----------------------------------
+  joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 500  # in Hz
 
 # Default Controllers ------------------------------------------------
 TorqueController:
@@ -67,11 +68,20 @@ CustomControllers:
     space: task
     # end_effector is only needed in task space
     end_effector: iiwa_link_ee
+    null_space:
+      joints: [0.044752691045324394, 0.6951627023357917, -0.01416978801753847, -1.0922311725109015, -0.0050429618456282, 1.1717338014778385, -0.01502630060305613]
+      Kp: 20.
+      Kd: 0.1
+      max_torque: 10.
   controllers:
     LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+    # ForceDS: {type: "ForceModDSController", params: [200]}
     PassiveDS: {type: "PassiveDSController", params: [200, 200]}
     PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
   structure:
+    # AddCtrl:
+    #   - LinearDS
+    #   - ForceDS
     CascadeCtrl:
       - LinearDS
       - PassiveDS

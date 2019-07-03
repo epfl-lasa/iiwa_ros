@@ -14,7 +14,7 @@ Requirements
 iiwa_ros requires several packages to be installed in order to work properly:
 
 * [ROS] - ROS: tested in **Melodic** and **Kinetic**; *Indigo* should work also
-* [KUKA FRI]
+* [KUKA FRI] - This is a modified version of the C++ FRI library provided by KUKA: unfortunately, we cannot release this code, but if you own a KUKA manipulator please contact us in order to acquire this modified library.
 * [ROS Control]
 * [Gazebo] and gazebo-ros-pkgs
 * [SpaceVecAlg]
@@ -26,7 +26,7 @@ iiwa_ros requires several packages to be installed in order to work properly:
 Dependencies
 -------------
 
-### KUKA FRI
+### KUKA FRI (Private)
 
 ```sh
 cd /source/directory
@@ -128,6 +128,16 @@ roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
 **Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the control mode (e.g., position), please edit the launch files to select the appropriate controller.**
+
+Documentation
+---------------------
+
+**UNDER CONSTRUCTION**
+
+Contributing
+---------------------
+
+**iiwa_ros** is being actively developed. Please see [CONTRIBUTING](CONTRIBUTING.md) for more on how to help.
 
 Acknowledgements
 ---------------------

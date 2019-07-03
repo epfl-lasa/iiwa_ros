@@ -93,7 +93,7 @@ namespace iiwa_tools {
         return {trans, quat};
     }
 
-    Eigen::VectorXd IiwaTools::perform_ik(const EefState& ee_state)
+    Eigen::VectorXd IiwaTools::perform_ik(const EefState& ee_state, const RobotState& seed_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -131,23 +131,22 @@ namespace iiwa_tools {
         Eigen::VectorXd qref = Eigen::VectorXd::Zero(_rbd_indices.size());
 
         rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
-        // TO-DO: Get seeds from parameters?
-        // if (seeds_provided) {
-        //     for (size_t i = 0; i < _rbd_indices.size(); i++) {
-        //         size_t rbd_index = _rbd_indices[i];
-        //         double seed = get_multi_array(request.seed_angles, point, i);
-        //         // wrap in [-pi,pi]
-        //         seed = wrap_angle(seed);
-        //         // enforce limits
-        //         if (seed < q_low(i))
-        //             seed = q_low(i);
-        //         if (seed > q_high(i))
-        //             seed = q_high(i);
+        bool seeds_provided = (seed_state.position.size() == _rbd_indices.size());
+        if (seeds_provided) {
+            for (size_t i = 0; i < _rbd_indices.size(); i++) {
+                size_t rbd_index = _rbd_indices[i];
+                // wrap in [-pi,pi]
+                double seed = wrap_angle(seed_state.position[i]);
+                // enforce limits
+                if (seed < q_low(i))
+                    seed = q_low(i);
+                if (seed > q_high(i))
+                    seed = q_high(i);
 
-        //         rbdyn_urdf.mbc.q[rbd_index][0] = seed;
-        //         qref(i) = seed;
-        //     }
-        // }
+                rbdyn_urdf.mbc.q[rbd_index][0] = seed;
+                qref(i) = seed;
+            }
+        }
 
         // Solve IK with traditional approach and pass it as a seed if successful
         bool valid = _ik->inverseKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc, target_tf);
@@ -165,6 +164,25 @@ namespace iiwa_tools {
                     qref(i) = q_high(i);
             }
             ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref.transpose());
+        }
+        else {
+            if (seeds_provided) {
+                for (size_t i = 0; i < _rbd_indices.size(); i++) {
+                    size_t rbd_index = _rbd_indices[i];
+                    // wrap in [-pi,pi]
+                    double seed = wrap_angle(seed_state.position[i]);
+                    // enforce limits
+                    if (seed < q_low(i))
+                        seed = q_low(i);
+                    if (seed > q_high(i))
+                        seed = q_high(i);
+
+                    rbdyn_urdf.mbc.q[rbd_index][0] = seed;
+                    qref(i) = seed;
+                }
+            }
+            else
+                rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
         }
 
         rbd::Jacobian jac(rbdyn_urdf.mb, rbdyn_urdf.mb.body(_ef_index).name());

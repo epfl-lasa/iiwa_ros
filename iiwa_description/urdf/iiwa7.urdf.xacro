@@ -31,7 +31,7 @@
   <xacro:arg name="hardware_interface" default="PositionJointInterface"/>
   <xacro:arg name="robot_name" default="iiwa"/>
   <xacro:arg name="origin_xyz" default="0 0 0"/>
-  <xacro:arg name="origin_rpy" default="0 0 -1.57"/>
+  <xacro:arg name="origin_rpy" default="0 0 0"/>
   <xacro:arg name="simple_collision" default="false"/>
 
   <!-- collision shapes -->
