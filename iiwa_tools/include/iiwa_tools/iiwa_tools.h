@@ -53,7 +53,7 @@ namespace iiwa_tools {
         std::vector<size_t> get_indices() { return _rbd_indices; }
 
         EefState perform_fk(const RobotState& robot_state);
-        Eigen::VectorXd perform_ik(const EefState& ee_state);
+        Eigen::VectorXd perform_ik(const EefState& ee_state, const RobotState& seed_state = RobotState());
         Eigen::MatrixXd jacobian(const RobotState& robot_state);
         Eigen::VectorXd gravity(const std::vector<double>& gravity, const RobotState& robot_state);
 

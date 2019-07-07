@@ -36,7 +36,7 @@
 
   <!-- some constants -->
   <xacro:property name="safety_controller_k_pos" value="100"/>
-  <xacro:property name="safety_controller_k_vel" value="2"/>
+  <xacro:property name="safety_controller_k_vel" value="10"/>
   <xacro:property name="safety_percentage" value="0.95"/>
   <xacro:property name="joint_damping" value="0.5"/>
   <!-- joint limits -->

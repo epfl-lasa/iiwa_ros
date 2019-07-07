@@ -30,6 +30,25 @@
 #include <robot_controllers/SumController.hpp>
 
 namespace iiwa_control {
+    template <class MatT>
+    Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> pseudo_inverse(const MatT& mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4}) // choose appropriately
+    {
+        typedef typename MatT::Scalar Scalar;
+        auto svd = mat.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
+        const auto& singularValues = svd.singularValues();
+        Eigen::Matrix<Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> singularValuesInv(mat.cols(), mat.rows());
+        singularValuesInv.setZero();
+        for (unsigned int i = 0; i < singularValues.size(); ++i) {
+            if (singularValues(i) > tolerance) {
+                singularValuesInv(i, i) = Scalar{1} / singularValues(i);
+            }
+            else {
+                singularValuesInv(i, i) = Scalar{0};
+            }
+        }
+        return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
+    }
+
     std::vector<std::vector<std::string>> get_types(const std::string& input, const std::string& output)
     {
         std::vector<std::vector<std::string>> result(2);
@@ -308,6 +327,25 @@ namespace iiwa_control {
             }
         }
 
+        null_space_control_ = false;
+        if (operation_space_ == "task") {
+            std::vector<double> joints;
+            n.getParam("params/null_space/joints", joints);
+            null_space_control_ = (joints.size() == n_joints_);
+
+            if (null_space_control_) {
+                null_space_joint_config_ = Eigen::VectorXd::Map(joints.data(), joints.size());
+
+                null_space_Kp_ = 20.;
+                null_space_Kd_ = 0.1;
+                null_space_max_torque_ = 10.;
+
+                n.getParam("params/null_space/Kp", null_space_Kp_);
+                n.getParam("params/null_space/Kp", null_space_Kd_);
+                n.getParam("params/null_space/max_torque", null_space_max_torque_);
+            }
+        }
+
         unsigned int ctrl_size = ctrl_names.size();
 
         if (ctrl_size == 0) {
@@ -451,7 +489,7 @@ namespace iiwa_control {
 
         cmd = Eigen::VectorXd::Map(commands.data(), commands.size());
 
-        robot_controllers::RobotState curr_state;
+        robot_controllers::RobotState curr_state, robot_state;
         curr_state.position_ = Eigen::VectorXd::Zero(n_joints_);
         curr_state.velocity_ = Eigen::VectorXd::Zero(n_joints_);
         curr_state.acceleration_ = Eigen::VectorXd::Zero(n_joints_);
@@ -466,6 +504,9 @@ namespace iiwa_control {
         }
 
         if (operation_space_ == "task") {
+            if (null_space_control_)
+                robot_state = curr_state;
+
             Eigen::VectorXd pos = eef;
             Eigen::VectorXd vel = jac * curr_state.velocity_;
             Eigen::VectorXd acc = jac * curr_state.acceleration_;
@@ -540,6 +581,21 @@ namespace iiwa_control {
         if (operation_space_ == "task") {
             // output.head(3) = Eigen::VectorXd::Zero(3);
             output = jac.transpose() * output;
+
+            // Add null-space signal if wanted
+            if (null_space_control_) {
+                Eigen::MatrixXd jac_t_pinv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
+
+                Eigen::VectorXd null_space_signal = null_space_Kp_ * (null_space_joint_config_ - robot_state.position_) - null_space_Kd_ * robot_state.velocity_;
+                Eigen::VectorXd null_space_force = (Eigen::MatrixXd::Identity(n_joints_, n_joints_) - jac.transpose() * jac_t_pinv) * null_space_signal;
+                for (int i = 0; i < null_space_force.size(); i++) {
+                    if (null_space_force(i) > null_space_max_torque_)
+                        null_space_force(i) = null_space_max_torque_;
+                    else if (null_space_force(i) < -null_space_max_torque_)
+                        null_space_force(i) = -null_space_max_torque_;
+                }
+                output = output + null_space_force;
+            }
         }
 
         // ROS_INFO_STREAM("Effort: " << output.transpose());

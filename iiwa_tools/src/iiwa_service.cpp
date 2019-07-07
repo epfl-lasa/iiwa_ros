@@ -92,7 +92,7 @@ namespace iiwa_tools {
     bool IiwaService::perform_ik(iiwa_tools::GetIK::Request& request,
         iiwa_tools::GetIK::Response& response)
     {
-        // bool seeds_provided = request.seed_angles.layout.dim.size() == 2 && (request.seed_angles.layout.dim[0].size == request.poses.size());
+        bool seeds_provided = request.seed_angles.layout.dim.size() == 2 && (request.seed_angles.layout.dim[0].size == request.poses.size());
         // // copy RBDyn for thread-safety
         // // TO-DO: Check if it takes time
         // mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
@@ -139,6 +139,14 @@ namespace iiwa_tools {
         response.joints.data.resize(request.poses.size() * _n_joints);
 
         for (size_t point = 0; point < request.poses.size(); ++point) {
+            iiwa_tools::RobotState seed_state;
+            if (seeds_provided) {
+                seed_state.position.resize(_n_joints);
+                for (size_t i = 0; i < _n_joints; i++) {
+                    seed_state.position(i) = get_multi_array(request.seed_angles, point, i);
+                }
+            }
+
             iiwa_tools::EefState ee_state;
             ee_state.translation = {request.poses[point].position.x, request.poses[point].position.y, request.poses[point].position.z};
             ee_state.orientation = Eigen::Quaterniond(request.poses[point].orientation.w,
@@ -146,7 +154,7 @@ namespace iiwa_tools {
                 request.poses[point].orientation.y,
                 request.poses[point].orientation.z);
 
-            Eigen::VectorXd q_best = _tools.perform_ik(ee_state);
+            Eigen::VectorXd q_best = _tools.perform_ik(ee_state, seed_state);
 
             for (size_t joint = 0; joint < _n_joints; ++joint) {
                 set_multi_array(response.joints, point, joint, q_best[joint]);
