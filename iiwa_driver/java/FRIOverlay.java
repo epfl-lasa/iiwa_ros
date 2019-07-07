@@ -13,6 +13,8 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.motionModel.PositionHold;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.JointImpedanceControlMode;
 import com.kuka.roboticsAPI.uiModel.ApplicationDialogType;
+import com.kuka.roboticsAPI.executionModel.CommandInvalidException;
+
 
 /**
  * Moves the LBR in a start position, creates an FRI-Session and executes a
@@ -122,9 +124,15 @@ public class FRIOverlay extends RoboticsAPIApplication
         JointImpedanceControlMode ctrMode = new JointImpedanceControlMode(stiffness, stiffness, stiffness, stiffness, stiffness, stiffness, stiffness);
         if (mode == ClientCommandMode.TORQUE)
         	ctrMode.setDampingForAllJoints(0.);
-        PositionHold posHold = new PositionHold(ctrMode, -1, TimeUnit.SECONDS);
-
-        _lbr.move(posHold.addMotionOverlay(jointOverlay));
+        
+        try {
+            PositionHold posHold = new PositionHold(ctrMode, -1, TimeUnit.SECONDS);
+            getLogger().info("Robot is ready for ROS control.");
+            _lbr.move(posHold.addMotionOverlay(jointOverlay));
+        }
+        catch(final CommandInvalidException e) {
+            getLogger().error("ROS has been disconnected.");
+        }
 
         // done
         friSession.close();
