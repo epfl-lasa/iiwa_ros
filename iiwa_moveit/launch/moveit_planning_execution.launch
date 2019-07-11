@@ -11,7 +11,7 @@
     <!-- The is gonna have its nodes/topics under a namespace with the same name. -->
     <arg name="robot_name" default="iiwa"/>
     <!-- Model of the iiwa to use : iiwa7, iiwa14 -->
-    <arg name="model" default="iiwa7"/>
+    <arg name="model" default="iiwa14"/>
     <arg name="rviz" default="true" />
     
     <remap from="/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" 

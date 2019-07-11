@@ -3,7 +3,7 @@
   
   <arg name="hardware_interface" default="PositionJointInterface"/>
   <arg name="robot_name" default="iiwa"/>
-  <arg name="model" default="iiwa7"/>
+  <arg name="model" default="iiwa14"/>
 
   <include file="$(find iiwa_moveit)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true"/>

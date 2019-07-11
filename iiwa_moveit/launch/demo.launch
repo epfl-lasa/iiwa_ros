@@ -14,7 +14,7 @@
     <!-- name of the iiwa to use, useful in case of multiple robots. Every robot is gonna have its nodees/topics under a namespace with the same name. -->
     <arg name="robot_name" default="iiwa"/>
     <!-- Model of the iiwa to use : iiwa7, iiwa14 -->
-    <arg name="model" default="iiwa7"/>
+    <arg name="model" default="iiwa14"/>
     
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />

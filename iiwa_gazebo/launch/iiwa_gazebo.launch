@@ -33,7 +33,7 @@
 
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
-    <arg name="model" default="7" />
+    <arg name="model" default="14" />
 
     <!-- Select the controller -->
     <arg name="controller" default="PositionTrajectoryController"/>
