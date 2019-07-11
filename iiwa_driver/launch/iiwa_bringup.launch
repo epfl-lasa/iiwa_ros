@@ -28,7 +28,7 @@
   <arg name="model" default="14" />
 
   <!-- Select the controller -->
-  <arg name="controller" default="PositionTrajectoryController"/>
+  <arg name="controller" default="TorqueController"/>
 
   <!-- Setup iiwa -->
   <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
