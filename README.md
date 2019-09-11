@@ -124,7 +124,7 @@ Basic Usage
 
 **Control IIWA with FRI**
 
-1. Make sure your Linux/ROS laptop is connected on the KONI Ethernet port and has IP `192.170.10.100` mask `255.255.255.0`.
+1. Make sure your Linux/ROS laptop is connected on the KONI Ethernet port and has IP `192.170.10.1` mask `255.255.255.0`.
 2. On the Smartpad tablet:
 
 * Activate `AUT` mode (turn key right > AUT > key left)
