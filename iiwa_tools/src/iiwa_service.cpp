@@ -54,6 +54,9 @@ namespace iiwa_tools {
         _jacobian_server = _nh.advertiseService(_jacobian_service_name, &IiwaService::get_jacobian, this);
         ROS_INFO_STREAM("Started Iiwa Jacobian server..");
 
+        _jacobian_deriv_server = _nh.advertiseService(_jacobian_deriv_service_name, &IiwaService::get_jacobian_deriv, this);
+        ROS_INFO_STREAM("Started Iiwa Jacobian Derivative server..");
+
         _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaService::get_gravity, this);
         ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
     }
@@ -206,6 +209,42 @@ namespace iiwa_tools {
         return true;
     }
 
+    bool IiwaService::get_jacobian_deriv(iiwa_tools::GetJacobian::Request& request,
+        iiwa_tools::GetJacobian::Response& response)
+    {
+        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size()) {
+            ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
+            return false;
+        }
+
+        RobotState robot_state;
+        robot_state.position.resize(_n_joints);
+        robot_state.velocity.resize(_n_joints);
+        for (size_t i = 0; i < _n_joints; i++) {
+            robot_state.position[i] = request.joint_angles[i];
+            robot_state.velocity[i] = request.joint_velocities[i];
+        }
+
+        Eigen::MatrixXd jac_deriv_mat = _tools.jacobian_deriv(robot_state);
+
+        // Fill response
+        response.jacobian.layout.dim.resize(2);
+        response.jacobian.layout.data_offset = 0;
+        response.jacobian.layout.dim[0].size = jac_deriv_mat.rows();
+        response.jacobian.layout.dim[0].stride = jac_deriv_mat.cols();
+        response.jacobian.layout.dim[1].size = jac_deriv_mat.cols();
+        response.jacobian.layout.dim[1].stride = 0;
+        response.jacobian.data.resize(jac_deriv_mat.rows() * jac_deriv_mat.cols());
+
+        for (int i = 0; i < jac_deriv_mat.rows(); i++) {
+            for (int j = 0; j < jac_deriv_mat.cols(); j++) {
+                set_multi_array(response.jacobian, i, j, jac_deriv_mat(i, j));
+            }
+        }
+
+        return true;
+    }
+
     bool IiwaService::get_gravity(iiwa_tools::GetGravity::Request& request,
         iiwa_tools::GetGravity::Response& response)
     {
@@ -255,6 +294,7 @@ namespace iiwa_tools {
         n_p.param<std::string>("service/fk_service_name", _fk_service_name, "iiwa_fk_server");
         n_p.param<std::string>("service/ik_service_name", _ik_service_name, "iiwa_ik_server");
         n_p.param<std::string>("service/jacobian_service_name", _jacobian_service_name, "iiwa_jacobian_server");
+        n_p.param<std::string>("service/jacobian_deriv_service_name", _jacobian_deriv_service_name, "iiwa_jacobian_deriv_server");
         n_p.param<std::string>("service/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
     }
 

@@ -55,6 +55,9 @@ namespace iiwa_tools {
         bool get_jacobian(iiwa_tools::GetJacobian::Request& request,
             iiwa_tools::GetJacobian::Response& response);
 
+        bool get_jacobian_deriv(iiwa_tools::GetJacobian::Request& request,
+            iiwa_tools::GetJacobian::Response& response);
+
         bool get_gravity(iiwa_tools::GetGravity::Request& request,
             iiwa_tools::GetGravity::Response& response);
 
@@ -63,8 +66,8 @@ namespace iiwa_tools {
 
         // ROS related
         ros::NodeHandle _nh;
-        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _gravity_service_name;
-        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _gravity_server;
+        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _jacobian_deriv_service_name, _gravity_service_name;
+        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _jacobian_deriv_server, _gravity_server;
 
         // Robot
         unsigned int _n_joints;

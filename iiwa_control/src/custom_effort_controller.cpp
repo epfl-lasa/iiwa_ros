@@ -466,6 +466,8 @@ namespace iiwa_control {
         std::vector<double>& commands = *commands_buffer_.readFromRT();
 
         Eigen::MatrixXd jac(6, n_joints_);
+        Eigen::MatrixXd jac_deriv(6, n_joints_);
+        Eigen::MatrixXd jac_t_pinv(n_joints_, 6);
         Eigen::VectorXd eef(6);
 
         if (operation_space_ == "task") {
@@ -478,7 +480,8 @@ namespace iiwa_control {
                 robot_state.velocity[i] = joints_[i].getVelocity();
             }
 
-            jac = tools_.jacobian(robot_state);
+            std::tie(jac, jac_deriv) = tools_.jacobians(robot_state);
+            jac_t_pinv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
             auto ee_state = tools_.perform_fk(robot_state);
             Eigen::AngleAxisd aa(ee_state.orientation);
             eef.head(3) = aa.axis() * aa.angle();
@@ -509,8 +512,8 @@ namespace iiwa_control {
 
             Eigen::VectorXd pos = eef;
             Eigen::VectorXd vel = jac * curr_state.velocity_;
-            Eigen::VectorXd acc = jac * curr_state.acceleration_;
-            Eigen::VectorXd f = jac * curr_state.force_;
+            Eigen::VectorXd acc = jac * curr_state.acceleration_ + jac_deriv * curr_state.velocity_;
+            Eigen::VectorXd f = jac_t_pinv * curr_state.force_; // TO-DO: This is not perfect, but should be enough
 
             curr_state.position_ = pos.tail(3);
             curr_state.velocity_ = vel.tail(3);
@@ -584,8 +587,6 @@ namespace iiwa_control {
 
             // Add null-space signal if wanted
             if (null_space_control_) {
-                Eigen::MatrixXd jac_t_pinv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
-
                 Eigen::VectorXd null_space_signal = null_space_Kp_ * (null_space_joint_config_ - robot_state.position_) - null_space_Kd_ * robot_state.velocity_;
                 Eigen::VectorXd null_space_force = (Eigen::MatrixXd::Identity(n_joints_, n_joints_) - jac.transpose() * jac_t_pinv) * null_space_signal;
                 for (int i = 0; i < null_space_force.size(); i++) {

@@ -4,4 +4,5 @@ service:
   fk_service_name: iiwa_fk_server
   ik_service_name: iiwa_ik_server
   jacobian_service_name: iiwa_jacobian_server
+  jacobian_deriv_service_name: iiwa_jacobian_deriv_server
   gravity_service_name: iiwa_gravity_server
