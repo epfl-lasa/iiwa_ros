@@ -302,6 +302,46 @@ namespace iiwa_tools {
         return jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc);
     }
 
+    Eigen::MatrixXd IiwaTools::jacobian_deriv(const RobotState& robot_state)
+    {
+        // copy RBDyn for thread-safety
+        // TO-DO: Check if it takes time
+        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
+
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+
+        _update_urdf_state(rbdyn_urdf, robot_state);
+
+        // Compute jacobian
+        rbd::Jacobian jac(rbdyn_urdf.mb, rbdyn_urdf.mb.body(_ef_index).name());
+
+        // TO-DO: Check if we need this
+        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+
+        return jac.jacobianDot(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+    }
+
+    std::pair<Eigen::MatrixXd, Eigen::MatrixXd> IiwaTools::jacobians(const RobotState& robot_state)
+    {
+        // copy RBDyn for thread-safety
+        // TO-DO: Check if it takes time
+        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
+
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+
+        _update_urdf_state(rbdyn_urdf, robot_state);
+
+        // Compute jacobian
+        rbd::Jacobian jac(rbdyn_urdf.mb, rbdyn_urdf.mb.body(_ef_index).name());
+
+        // TO-DO: Check if we need this
+        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+
+        return std::make_pair(jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc), jac.jacobianDot(rbdyn_urdf.mb, rbdyn_urdf.mbc));
+    }
+
     void IiwaTools::init_rbdyn(const std::string& urdf_string, const std::string& end_effector)
     {
         // Convert URDF to RBDyn

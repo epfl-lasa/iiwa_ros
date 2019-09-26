@@ -50,6 +50,7 @@ add_service_files(
   GetFK.srv
   GetIK.srv
   GetJacobian.srv
+  GetJacobians.srv
   GetGravity.srv
 )
 

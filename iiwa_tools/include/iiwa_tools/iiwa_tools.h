@@ -55,6 +55,8 @@ namespace iiwa_tools {
         EefState perform_fk(const RobotState& robot_state);
         Eigen::VectorXd perform_ik(const EefState& ee_state, const RobotState& seed_state = RobotState());
         Eigen::MatrixXd jacobian(const RobotState& robot_state);
+        Eigen::MatrixXd jacobian_deriv(const RobotState& robot_state);
+        std::pair<Eigen::MatrixXd, Eigen::MatrixXd> jacobians(const RobotState& robot_state);
         Eigen::VectorXd gravity(const std::vector<double>& gravity, const RobotState& robot_state);
 
     protected:
