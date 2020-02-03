@@ -183,6 +183,13 @@ namespace iiwa_ros {
         registerInterface(&_position_joint_interface);
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
+
+        _external_torque_pub.init(_nh, "external_torque", 20);
+        _external_torque_pub.msg_.external_torques.layout.dim.resize(1);
+        _external_torque_pub.msg_.external_torques.layout.data_offset = 0;
+        _external_torque_pub.msg_.external_torques.layout.dim[0].size = _num_joints;
+        _external_torque_pub.msg_.external_torques.layout.dim[0].stride = 0;
+        _external_torque_pub.msg_.external_torques.data.resize(_num_joints);
     }
 
     void Iiwa::_ctrl_loop()
@@ -197,6 +204,15 @@ namespace iiwa_ros {
             _read(elapsed_time);
             _controller_manager->update(ros::Time::now(), elapsed_time);
             _write(elapsed_time);
+
+            // try to publish
+            if (_external_torque_pub.trylock()) {
+                _external_torque_pub.msg_.header.stamp = ros::Time::now();
+                for (unsigned i = 0; i < _num_joints; i++) {
+                    _external_torque_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
+                }
+                _external_torque_pub.unlockAndPublish();
+            }
 
             rate.sleep();
         }

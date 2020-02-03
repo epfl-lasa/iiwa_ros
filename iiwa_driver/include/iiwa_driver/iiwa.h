@@ -26,6 +26,11 @@
 // ROS Headers
 #include <ros/ros.h>
 
+#include <realtime_tools/realtime_publisher.h>
+
+#include <iiwa_driver/ExternalTorques.h>
+#include <std_msgs/Float64MultiArray.h>
+
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -86,6 +91,9 @@ namespace iiwa_ros {
         bool _read_fri(kuka::fri::ESessionState& current_state);
         bool _write_fri();
         void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
+
+        // External torque publisher
+        realtime_tools::RealtimePublisher<iiwa_driver::ExternalTorques> _external_torque_pub;
 
         // Interfaces
         hardware_interface::JointStateInterface _joint_state_interface;
