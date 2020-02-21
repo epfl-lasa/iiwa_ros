@@ -5,8 +5,8 @@
   <description>
 	  A package with all the configuration and launch files for using the KUKA LBR IIWA with the MoveIt Motion Planning Framework
   </description>
-  <author email="salvo.virga@tum.de">Salvo Virga</author>
-  <maintainer email="salvo.virga@tum.de">Salvo Virga</maintainer>
+  <author email="yoan@aubrune.eu">Yoan Mollard</author>
+  <maintainer email="konstantinos.chatzilygeroudis@epfl.ch">Konstantinos Chatzilygeroudis</maintainer>
 
   <license>BSD</license>
 

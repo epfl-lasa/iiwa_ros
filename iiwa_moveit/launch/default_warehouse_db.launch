@@ -3,7 +3,7 @@
 
   <arg name="reset" default="false"/>
 
-  <!-- Launch the warehouse with a default database location -->  
+  <!-- Launch the warehouse with a default database location -->
   <include file="$(find iiwa_moveit)/launch/warehouse.launch">
     <arg name="moveit_warehouse_database_path" value="$(find iiwa_moveit)/default_warehouse_mongo_db" />
   </include>

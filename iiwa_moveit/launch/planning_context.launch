@@ -2,7 +2,7 @@
 <launch>
   <!-- By default we do not overwrite the URDF. Change the following to true to change the default behavior -->
   <arg name="load_robot_description" default="false"/>
-  
+
   <arg name="hardware_interface" default="PositionJointInterface"/>
   <arg name="robot_name" default="iiwa"/>
   <arg name="model" default="iiwa14"/>
@@ -20,7 +20,7 @@
 
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find iiwa_moveit)/config/$(arg model).srdf" />
-  
+
   <!-- Load updated joint limits (override information from URDF) -->
   <group ns="$(arg robot_description)_planning">
     <rosparam command="load" file="$(find iiwa_moveit)/config/joint_limits.yaml"/>
@@ -30,5 +30,5 @@
   <group ns="$(arg robot_description)_kinematics">
     <rosparam command="load" file="$(find iiwa_moveit)/config/kinematics.yaml"/>
   </group>
-  
+
 </launch>
