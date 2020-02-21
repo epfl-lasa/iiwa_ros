@@ -13,6 +13,8 @@ import com.kuka.roboticsAPI.deviceModel.LBR;
 import com.kuka.roboticsAPI.motionModel.PositionHold;
 import com.kuka.roboticsAPI.motionModel.controlModeModel.JointImpedanceControlMode;
 import com.kuka.roboticsAPI.uiModel.ApplicationDialogType;
+import com.kuka.roboticsAPI.executionModel.CommandInvalidException;
+
 
 /**
  * Moves the LBR in a start position, creates an FRI-Session and executes a
@@ -64,67 +66,73 @@ public class FRIOverlay extends RoboticsAPIApplication
         }
 
         getLogger().info("FRI connection established.");
-        
+
         int modeChoice = getApplicationUI().displayModalDialog(ApplicationDialogType.QUESTION, "Choose control mode", "Torque", "Position", "Wrench");
 
         ClientCommandMode mode = ClientCommandMode.TORQUE;
         if (modeChoice == 0) {
-        	getLogger().info("Torque control mode chosen");
-        	mode = ClientCommandMode.TORQUE;
+            getLogger().info("Torque control mode chosen");
+            mode = ClientCommandMode.TORQUE;
         }
         else if (modeChoice == 1) {
-        	getLogger().info("Position control mode chosen");
-        	mode = ClientCommandMode.POSITION;
+            getLogger().info("Position control mode chosen");
+            mode = ClientCommandMode.POSITION;
         }
         else if (modeChoice == 2) {
-        	getLogger().warn("Wrench control mode not supported yet. Using position control mode instead");
-        	mode = ClientCommandMode.POSITION;
+            getLogger().warn("Wrench control mode not supported yet. Using position control mode instead");
+            mode = ClientCommandMode.POSITION;
         }
         else {
-        	getLogger().warn("Invalid choice: using position control mode");
-        	mode = ClientCommandMode.POSITION;
+            getLogger().warn("Invalid choice: using position control mode");
+            mode = ClientCommandMode.POSITION;
         }
         FRIJointOverlay jointOverlay = new FRIJointOverlay(friSession, mode);
-        
+
         int choice = getApplicationUI().displayModalDialog(ApplicationDialogType.QUESTION, "Choose stiffness for actuators", "0", "20", "50", "150", "300", "500");
 
         double stiffness = 0.;
         if (choice == 0) {
-        	getLogger().info("Stiffness of '0' chosen");
-        	stiffness = 0.;
+            getLogger().info("Stiffness of '0' chosen");
+            stiffness = 0.;
         }
         else if (choice == 1) {
-        	getLogger().info("Stiffness of '20' chosen");
-        	stiffness = 20.;
+            getLogger().info("Stiffness of '20' chosen");
+            stiffness = 20.;
         }
         else if (choice == 2) {
-        	getLogger().info("Stiffness of '50' chosen");
-        	stiffness = 50.;
+            getLogger().info("Stiffness of '50' chosen");
+            stiffness = 50.;
         }
         else if (choice == 3) {
-        	getLogger().info("Stiffness of '150' chosen");
-        	stiffness = 150.;
+            getLogger().info("Stiffness of '150' chosen");
+            stiffness = 150.;
         }
         else if (choice == 4) {
-        	getLogger().info("Stiffness of '300' chosen");
-        	stiffness = 30.;
+            getLogger().info("Stiffness of '300' chosen");
+            stiffness = 300.;
         }
         else if (choice == 5) {
-        	getLogger().info("Stiffness of '500' chosen");
-        	stiffness = 500.;
+            getLogger().info("Stiffness of '500' chosen");
+            stiffness = 500.;
         }
         else {
-        	getLogger().warn("Invalid choice: setting stiffness to '20'");
-        	stiffness = 20.;
+            getLogger().warn("Invalid choice: setting stiffness to '20'");
+            stiffness = 20.;
         }
 
         // start PositionHold with overlay
         JointImpedanceControlMode ctrMode = new JointImpedanceControlMode(stiffness, stiffness, stiffness, stiffness, stiffness, stiffness, stiffness);
         if (mode == ClientCommandMode.TORQUE)
-        	ctrMode.setDampingForAllJoints(0.);
-        PositionHold posHold = new PositionHold(ctrMode, -1, TimeUnit.SECONDS);
+            ctrMode.setDampingForAllJoints(0.);
 
-        _lbr.move(posHold.addMotionOverlay(jointOverlay));
+        try {
+            PositionHold posHold = new PositionHold(ctrMode, -1, TimeUnit.SECONDS);
+            getLogger().info("Robot is ready for ROS control.");
+            _lbr.move(posHold.addMotionOverlay(jointOverlay));
+        }
+        catch(final CommandInvalidException e) {
+            getLogger().error("ROS has been disconnected.");
+        }
 
         // done
         friSession.close();
@@ -132,7 +140,7 @@ public class FRIOverlay extends RoboticsAPIApplication
 
     /**
      * main.
-     * 
+     *
      * @param args
      *            args
      */
