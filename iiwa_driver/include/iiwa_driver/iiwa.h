@@ -25,7 +25,7 @@
 
 // ROS Headers
 #include <ros/ros.h>
-#include "std_msgs/Bool.h"
+#include <std_msgs/Bool.h>
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
@@ -123,8 +123,7 @@ namespace iiwa_ros {
         kuka::fri::DummyState _robot_state; //!< wrapper class for the FRI monitoring message
         kuka::fri::DummyCommand _robot_command; //!< wrapper class for the FRI command message
         int _message_size;
-        bool _idle;
-        bool _commanding;
+        bool _idle, _commanding;
 
         int _port;
         std::string _remote_host;
