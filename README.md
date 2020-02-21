@@ -146,7 +146,7 @@ In case of a hard failure, unload the app by unchecking it in [Application] befo
 roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
-Both of the above commands will launch IIWA in **position-control mode**. To change the control mode (e.g., torque with gravity compensation), please edit the launch files to select the appropriate controller.
+Both of the above commands will launch IIWA in **torque-control mode**. To change the control mode (e.g., position-control), please edit the launch files to select the appropriate controller.
 
 ### MoveIt planning
 
