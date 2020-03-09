@@ -28,7 +28,7 @@
 
 #include <realtime_tools/realtime_publisher.h>
 
-#include <iiwa_driver/ExternalTorques.h>
+#include <iiwa_driver/AdditionalOutputs.h>
 #include <std_msgs/Float64MultiArray.h>
 
 #include <hardware_interface/joint_command_interface.h>
@@ -93,7 +93,7 @@ namespace iiwa_ros {
         void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
 
         // External torque publisher
-        realtime_tools::RealtimePublisher<iiwa_driver::ExternalTorques> _external_torque_pub;
+        realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
 
         // Interfaces
         hardware_interface::JointStateInterface _joint_state_interface;

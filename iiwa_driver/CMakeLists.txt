@@ -48,7 +48,7 @@ find_package(FRI REQUIRED COMPONENTS
 # Message files
 add_message_files(
   FILES
-  ExternalTorques.msg
+  AdditionalOutputs.msg
 )
 
 generate_messages(
