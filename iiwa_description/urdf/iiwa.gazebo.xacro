@@ -92,6 +92,27 @@
       <mu2>0.2</mu2>
     </gazebo>
 
+
+    <gazebo reference="${robot_name}_joint_7">
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+      <sensor name="ft_sensor" type="force_torque">
+        <force_torque>
+          <frame>child</frame>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+        <visualize>true</visualize>
+      </sensor>
+    </gazebo>
+    <gazebo>
+        <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+            <updateRate>50.0</updateRate>
+            <topicName>ft_sensor</topicName>
+            <jointName>${robot_name}_joint_7</jointName>
+        </plugin>
+    </gazebo>
+
+
+
   </xacro:macro>
 
 </robot>
