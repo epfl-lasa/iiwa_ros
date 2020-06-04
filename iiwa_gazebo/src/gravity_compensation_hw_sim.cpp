@@ -41,7 +41,7 @@ namespace iiwa_gazebo {
         if (!DefaultRobotHWSim::initSim(robot_namespace, model_nh, parent_model, urdf_model, transmissions))
             return false;
 
-        _iiwa_gravity_client = model_nh.serviceClient<iiwa_tools::GetGravity>("/iiwa/iiwa_gravity_server");
+        _iiwa_gravity_client = model_nh.serviceClient<iiwa_tools::GetGravity>("/iiwa1/iiwa_gravity_server");
 
         // Initialize service message
         auto gravity = parent_model->GetWorld()->Gravity();

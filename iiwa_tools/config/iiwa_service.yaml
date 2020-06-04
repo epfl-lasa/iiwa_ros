@@ -1,5 +1,5 @@
 service:
-  robot_description: /robot_description
+  robot_description: $(arg namespace)/robot_description
   end_effector: iiwa_link_ee
   fk_service_name: iiwa_fk_server
   ik_service_name: iiwa_ik_server

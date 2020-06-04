@@ -29,6 +29,8 @@
 #include <robot_controllers/CascadeController.hpp>
 #include <robot_controllers/SumController.hpp>
 
+#include <iostream>
+
 namespace iiwa_control {
     template <class MatT>
     Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> pseudo_inverse(const MatT& mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4}) // choose appropriately
@@ -171,6 +173,7 @@ namespace iiwa_control {
 
     bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n)
     {
+        //std::cout << "namespace: " << n.getNamespace().substr(0,6) << std::endl;
         // List of controlled joints
         std::string param_name = "joints";
         if (!n.getParam(param_name, joint_names_)) {
@@ -186,7 +189,7 @@ namespace iiwa_control {
 
         // Get URDF
         urdf::Model urdf;
-        if (!urdf.initParam("robot_description")) {
+        if (!urdf.initParam(n.getNamespace().substr(0,6) + "/robot_description")) {
             ROS_ERROR("Failed to parse urdf file");
             return false;
         }
@@ -222,7 +225,7 @@ namespace iiwa_control {
             ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
 
             // Get the end-effector
-            n.param<std::string>("params/end_effector", end_effector, "iiwa_link_ee");
+            n.param<std::string>("params/end_effector", end_effector, n.getNamespace().substr(1,5) + "_link_ee");
 
             // Initialize iiwa tools
             tools_.init_rbdyn(urdf_string, end_effector);
@@ -532,37 +535,46 @@ namespace iiwa_control {
         robot_controllers::RobotState desired_state;
         unsigned int size = curr_state.position_.size();
         unsigned int index = 0;
+
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation) {
             desired_state.orientation_ = cmd.segment(index, 3);
             index += 3;
+            // std::cout << "Orientation" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
             desired_state.position_ = cmd.segment(index, size);
             index += size;
+            // std::cout << "Position" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity) {
             desired_state.angular_velocity_ = cmd.segment(index, 3);
             index += 3;
+            std::cout << "Ang velocity" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
             desired_state.velocity_ = cmd.segment(index, size);
             index += size;
+            std::cout << "Velocity" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration) {
             desired_state.angular_acceleration_ = cmd.segment(index, 3);
             index += 3;
+            // std::cout << "Ang acc" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
             desired_state.acceleration_ = cmd.segment(index, size);
             index += size;
+            // std::cout << "Acc" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Torque) {
             desired_state.torque_ = cmd.segment(index, 3);
             index += 3;
+            // std::cout << "Torque" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
             desired_state.force_ = cmd.segment(index, size);
             // index += size;
+            // std::cout << "Force" << std::endl;
         }
 
         controller_->SetInput(desired_state);

@@ -21,6 +21,7 @@
 //|    GNU General Public License for more details.
 //|
 #include <iiwa_tools/iiwa_service.h>
+#include <iostream>
 
 namespace iiwa_tools {
     double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
@@ -62,6 +63,7 @@ namespace iiwa_tools {
 
         _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaService::get_gravity, this);
         ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
+
     }
 
     bool IiwaService::perform_fk(iiwa_tools::GetFK::Request& request,
@@ -337,7 +339,7 @@ namespace iiwa_tools {
 
     void IiwaService::_load_params()
     {
-        ros::NodeHandle n_p("~");
+        ros::NodeHandle n_p("/iiwa1/");
 
         n_p.param<std::string>("service/robot_description", _robot_description, "/robot_description");
         n_p.param<std::string>("service/end_effector", _end_effector, "iiwa_link_ee");
@@ -356,13 +358,14 @@ namespace iiwa_tools {
 
         // search and wait for robot_description on param server
         while (urdf_string.empty()) {
+
             ROS_INFO_ONCE_NAMED("IiwaService", "IiwaService is waiting for model"
                                                " URDF in parameter [%s] on the ROS param server.",
                 _robot_description.c_str());
 
             _nh.getParam(_robot_description, urdf_string);
+            usleep(100000); 
 
-            usleep(100000);
         }
         ROS_INFO_STREAM_NAMED("IiwaService", "Received urdf from param server, parsing...");
 
