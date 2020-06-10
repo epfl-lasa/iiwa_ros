@@ -27,6 +27,7 @@
     <arg name="robot_name" default="iiwa"/>
     <arg name="model" default="14" />
     <arg name="namespace" default="/iiwa"/>
+    <arg name="origin_xyz" default="0 0 0"/>
 
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
@@ -43,6 +44,7 @@
     <include file="$(find iiwa_description)/launch/iiwa$(arg model)_upload.launch">
     <arg name="hardware_interface" value="$(arg hardware_interface)"/>
     <arg name="robot_name" value="$(arg robot_name)"/>
+    <arg name="origin_xyz" value="$(arg origin_xyz)"/>
     </include>
 
     <!-- Spawn iiwa service -->
