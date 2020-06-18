@@ -190,6 +190,7 @@ namespace iiwa_control {
         // Get URDF
         urdf::Model urdf;
         if (!urdf.initParam(n.getNamespace().substr(0,6) + "/robot_description")) {
+        // if (!urdf.initParam("/robot_description")) {
             ROS_ERROR("Failed to parse urdf file");
             return false;
         }
@@ -539,42 +540,34 @@ namespace iiwa_control {
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation) {
             desired_state.orientation_ = cmd.segment(index, 3);
             index += 3;
-            // std::cout << "Orientation" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Position) {
             desired_state.position_ = cmd.segment(index, size);
             index += size;
-            // std::cout << "Position" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity) {
             desired_state.angular_velocity_ = cmd.segment(index, 3);
             index += 3;
-            std::cout << "Ang velocity" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Velocity) {
             desired_state.velocity_ = cmd.segment(index, size);
             index += size;
-            std::cout << "Velocity" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration) {
             desired_state.angular_acceleration_ = cmd.segment(index, 3);
             index += 3;
-            // std::cout << "Ang acc" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration) {
             desired_state.acceleration_ = cmd.segment(index, size);
             index += size;
-            // std::cout << "Acc" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Torque) {
             desired_state.torque_ = cmd.segment(index, 3);
             index += 3;
-            // std::cout << "Torque" << std::endl;
         }
         if (controller_->GetInput().GetType() & robot_controllers::IOType::Force) {
             desired_state.force_ = cmd.segment(index, size);
             // index += size;
-            // std::cout << "Force" << std::endl;
         }
 
         controller_->SetInput(desired_state);

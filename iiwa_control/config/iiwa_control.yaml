@@ -36,9 +36,9 @@ PositionTorqueController:
   $(arg robot_name)_joint_5:
     pid: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
   $(arg robot_name)_joint_6:
-    pid: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    pid: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000} #p = 50, i = 1, d = 1.0
   $(arg robot_name)_joint_7:
-    pid: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    pid: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000} #p = 10, i = 0.1, d = 1.0
 
 PositionController:
   type: position_controllers/JointGroupPositionController
@@ -73,18 +73,33 @@ CustomControllers:
       Kd: 0.1 #0.1 
       max_torque: 10.
   controllers:
-    #LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     # ForceDS: {type: "ForceModDSController", params: [200]}
+    # #PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"} #20, 2
+    
     PassiveDS: {type: "PassiveDSController", params: [200, 200]} #200, 200
-    #PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"} #20, 2
-    PD: {type: "PidController", params: [20., 2.], input: "AngularVelocity", output: "Torque"} #20, 2
-  #structure:
-    # AddCtrl:
-    #   - LinearDS
-    #   - ForceDS
-    #CascadeCtrl:
-    #  - LinearDS
-    #  - PassiveDS
+    PD: {type: "PidController", params: [80., 2.], input: "Orientation|AngularVelocity", output: "Torque"} #20, 2 // 80, 2
+    #PD: {type: "PidController", params: [20., 2.], input: "AngularVelocity", output: "Torque"} #20, 2
+
+     # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+     # PDPosition: {type: "PidController", params: [20., 2.], input: "Position|Velocity", output: "Force"}
+     # PDOrientation: {type: "PidController", params: [20., 2.], input: "Orientation|AngularVelocity", output: "Torque"}
+  # structure:
+  #   AddCtrl:
+  #     - PDPosition
+  #     - PDOrientation
+
+  # structure:
+  #   AddCtrl:
+  #     - PDPosition
+  #     - PDOrientation
+
+  # structure:
+  #    AddCtrl:
+  #      - LinearDS
+  #      - ForceDS
+  #   CascadeCtrl:
+  #     - LinearDS
+  #     - PassiveDS
 
 PositionTrajectoryController:
   type: position_controllers/JointTrajectoryController
