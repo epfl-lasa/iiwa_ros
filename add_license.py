@@ -5,10 +5,12 @@
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 #|              Bernardo Fichera
 #|              Walid Amanhoud
-#|    email:   konstantinos.chatzilygeroudis@epfl.ch
-#|             bernardo.fichera@epfl.ch
-#|             walid.amanhoud@epfl.ch
-#|    website: lasa.epfl.ch
+#|    email:    costashatz@gmail.com
+#|              bernardo.fichera@epfl.ch
+#|              walid.amanhoud@epfl.ch
+#|    Other contributors:
+#|              Yoan Mollard (yoan@aubrune.eu)
+#|    website:  lasa.epfl.ch
 #|
 #|    This file is part of iiwa_ros.
 #|
@@ -29,10 +31,12 @@ license = '''Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL
 Authors:  Konstantinos Chatzilygeroudis (maintainer)
           Bernardo Fichera
           Walid Amanhoud
-email:   konstantinos.chatzilygeroudis@epfl.ch
-         bernardo.fichera@epfl.ch
-         walid.amanhoud@epfl.ch
-website: lasa.epfl.ch
+email:    costashatz@gmail.com
+          bernardo.fichera@epfl.ch
+          walid.amanhoud@epfl.ch
+Other contributors:
+          Yoan Mollard (yoan@aubrune.eu)
+website:  lasa.epfl.ch
 
 This file is part of iiwa_ros.
 
