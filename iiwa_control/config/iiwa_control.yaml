@@ -74,33 +74,37 @@ iiwa:
         Kd: 0.1
         max_torque: 10.
     controllers:
-      LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+      # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
       # ForceDS: {type: "ForceModDSController", params: [200]}
-      PassiveDS: {type: "PassiveDSController", params: [200, 200]}
+      # PassiveDS: {type: "PassiveDSController", params: [90, 50]} # Use for real robot
+      PassiveDS: {type: "PassiveDSController", params: [130, 70]} # Test to make it follow trajectory better
+      # PassiveDS: {type: "PassiveDSController", params: [200, 200]} # Use for simulation
+    #  PD: {type: "PidController", params: [15., 2.], input: "Orientation", output: "Torque"}
       PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
-    structure:
+      # PD: {type: "PidController", params: [10., 2.], input: "AngularVelocity", output: "Torque"}
+    # structure:
       # AddCtrl:
       #   - LinearDS
       #   - ForceDS
-      CascadeCtrl:
-        - LinearDS
-        - PassiveDS
+      # CascadeCtrl:
+      #   - LinearDS
+      #   - PassiveDS
 
-  PositionTrajectoryController:
-    type: position_controllers/JointTrajectoryController
-    joints: 
-      - iiwa_joint_1
-      - iiwa_joint_2
-      - iiwa_joint_3
-      - iiwa_joint_4
-      - iiwa_joint_5
-      - iiwa_joint_6
-      - iiwa_joint_7
+  #PositionTrajectoryController:
+   # type: position_controllers/JointTrajectoryController
+    #joints: 
+     # - iiwa_joint_1
+      #- iiwa_joint_2
+      #- iiwa_joint_3
+      #- iiwa_joint_4
+      #- iiwa_joint_5
+      #- iiwa_joint_6
+      #- iiwa_joint_7
 
-    constraints:
-      goal_time: 0.5                   # Override default
+   # constraints:
+   #   goal_time: 0.5                   # Override default
 
-    state_publish_rate:  25            # Override default
-    action_monitor_rate: 30            # Override default
-    stop_trajectory_duration: 0        # Override default
+   # state_publish_rate:  25            # Override default
+   # action_monitor_rate: 30            # Override default
+   # stop_trajectory_duration: 0        # Override default
 

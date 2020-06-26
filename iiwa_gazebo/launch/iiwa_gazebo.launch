@@ -26,17 +26,17 @@
     <!-- These are the arguments you can pass this launch file, for example paused:=true -->
     <arg name="paused" default="false"/>
     <arg name="use_sim_time" default="true"/>
-    <arg name="gui" default="true"/>
+    <arg name="gui" default="false"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
 
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
-    <arg name="model" default="14" />
+    <arg name="model" default="7" />
 
     <!-- Select the controller -->
-    <arg name="controller" default="TorqueController"/>
+    <arg name="controller" default="CustomControllers"/>
 
     <!-- Setup iiwa -->
     <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
@@ -66,3 +66,4 @@
     </include>
 </launch>
 
+    
