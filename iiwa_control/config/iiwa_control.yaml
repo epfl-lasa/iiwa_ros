@@ -75,14 +75,14 @@ CustomControllers:
   controllers:
     # ForceDS: {type: "ForceModDSController", params: [200]}
     # #PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"} #20, 2
-    
+    LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     PassiveDS: {type: "PassiveDSController", params: [200, 200]} #200, 200
     PD: {type: "PidController", params: [80., 2.], input: "Orientation|AngularVelocity", output: "Torque"} #20, 2 // 80, 2
     #PD: {type: "PidController", params: [20., 2.], input: "AngularVelocity", output: "Torque"} #20, 2
 
      # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
-     # PDPosition: {type: "PidController", params: [20., 2.], input: "Position|Velocity", output: "Force"}
-     # PDOrientation: {type: "PidController", params: [20., 2.], input: "Orientation|AngularVelocity", output: "Torque"}
+  #     PDPosition: {type: "PidController", params: [20., 2.], input: "Position|Velocity", output: "Force"}
+  #     PDOrientation: {type: "PidController", params: [20., 2.], input: "Orientation|AngularVelocity", output: "Torque"}
   # structure:
   #   AddCtrl:
   #     - PDPosition

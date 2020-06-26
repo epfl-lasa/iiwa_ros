@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Bernardo Fichera
+              Walid Amanhoud
+    email:   konstantinos.chatzilygeroudis@epfl.ch
+             bernardo.fichera@epfl.ch
+             walid.amanhoud@epfl.ch
+    website: lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+    <!-- These are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find iiwa_description)/urdf/conveyor_belt.urdf -urdf -model conveyor" />
+    <param name="robot_description" textfile="$(find iiwa_description)/urdf/conveyor_belt.urdf" />
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find iiwa_description)/config/config_conveyor_alone.rviz" required="true" />
+
+    <!-- Loads the Gazebo world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/> 
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+</launch>
