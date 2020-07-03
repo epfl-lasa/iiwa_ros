@@ -73,14 +73,14 @@ CustomControllers:
       Kd: 0.1
       max_torque: 10.
   controllers:
-    LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+    # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     # ForceDS: {type: "ForceModDSController", params: [200]}
-    PassiveDS: {type: "PassiveDSController", params: [200, 200]}
+    PassiveDS: {type: "PassiveDSController", params: [80, 20]}
     PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
-  structure:
+  # structure:
     # AddCtrl:
     #   - LinearDS
     #   - ForceDS
-    CascadeCtrl:
-      - LinearDS
-      - PassiveDS
+    # CascadeCtrl:
+    #   - LinearDS
+    #   - PassiveDS
