@@ -75,9 +75,9 @@ CustomControllers:
   controllers:
     # ForceDS: {type: "ForceModDSController", params: [200]}
     # #PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"} #20, 2
-    LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
+    # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     PassiveDS: {type: "PassiveDSController", params: [200, 200]} #200, 200
-    PD: {type: "PidController", params: [80., 2.], input: "Orientation|AngularVelocity", output: "Torque"} #20, 2 // 80, 2
+    PD: {type: "PidController", params: [80., 2.], input: "Orientation", output: "Torque"} #20, 2 // 80, 2
     #PD: {type: "PidController", params: [20., 2.], input: "AngularVelocity", output: "Torque"} #20, 2
 
      # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
@@ -94,28 +94,28 @@ CustomControllers:
   #     - PDOrientation
 
   # structure:
-  #    AddCtrl:
-  #      - LinearDS
-  #      - ForceDS
-  #   CascadeCtrl:
-  #     - LinearDS
-  #     - PassiveDS
+    #  AddCtrl:
+    #    - LinearDS
+    #    - ForceDS
+    # CascadeCtrl:
+    #   - LinearDS
+    #   - PassiveDS
 
-PositionTrajectoryController:
-  type: position_controllers/JointTrajectoryController
-  joints: 
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
+# PositionTrajectoryController:
+#   type: position_controllers/JointTrajectoryController
+#   joints: 
+#     - $(arg robot_name)_joint_1
+#     - $(arg robot_name)_joint_2
+#     - $(arg robot_name)_joint_3
+#     - $(arg robot_name)_joint_4
+#     - $(arg robot_name)_joint_5
+#     - $(arg robot_name)_joint_6
+#     - $(arg robot_name)_joint_7
 
-  constraints:
-    goal_time: 0.5                   # Override default
+#   constraints:
+#     goal_time: 0.5                   # Override default
 
-  state_publish_rate:  25            # Override default
-  action_monitor_rate: 30            # Override default
-  stop_trajectory_duration: 0        # Override default
+#   state_publish_rate:  25            # Override default
+#   action_monitor_rate: 30            # Override default
+#   stop_trajectory_duration: 0        # Override default
 

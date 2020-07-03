@@ -25,61 +25,11 @@
 <launch>
     <!-- These are the arguments you can pass this launch file, for example paused:=true -->
     <arg name="paused" default="false"/>
-    <arg name="use_sim_time" default="true"/>
-    <arg name="gui" default="true"/>
+    <arg name="use_sim_time" default="false"/>
+    <arg name="gui" default="false"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
-
-    <group ns="/iiwa1">
-
-        <!-- Setup iiwa -->
-        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-            <arg name="robot_name" value="iiwa1"/>
-            <arg name="model" value="7"/>
-            <arg name="namespace" value="/iiwa1"/>
-            <arg name="controller" value="CustomControllers"/> <!--TorqueController-->
-            <arg name="origin_xyz" value="0.5 -0.35 0.4"/>
-        </include>
-
-        <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
-        <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -model iiwa1 -param robot_description"/>
-
-        <!-- Spawn controller -->
-        <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="/iiwa1"/> 
-        <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-           <arg name="namespace" value="/iiwa1"/>
-           <arg name="controller" value="CustomControllers"/>
-           <arg name="robot_name" value="iiwa1"/>
-        </include>
-
-    </group>
-
-    <group ns="/iiwa2">
-
-        <!-- Setup iiwa -->
-        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-            <arg name="robot_name" value="iiwa2"/>
-            <arg name="model" value="7"/>
-            <arg name="namespace" value="/iiwa2"/>
-            <arg name="controller" value="CustomControllers"/>
-            <arg name="origin_xyz" value="0.5 1.35 0.4"/>
-        </include>
-
-        <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
-        <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -model iiwa2 -param robot_description"/>
-
-        <!-- Spawn controller -->
-        <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="/iiwa2"/> 
-        <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-           <arg name="namespace" value="/iiwa2"/>
-           <arg name="controller" value="CustomControllers"/>
-           <arg name="robot_name" value="iiwa2"/>
-        </include>
-
-    </group>
 
     <group ns="/conveyor">
         <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-file $(find iiwa_description)/urdf/conveyor_belt.urdf -urdf -model conveyor" />
