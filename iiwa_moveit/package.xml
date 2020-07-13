@@ -33,7 +33,7 @@
   <author email="yoan@aubrune.eu">Yoan Mollard</author>
   <maintainer email="konstantinos.chatzilygeroudis@epfl.ch">Konstantinos Chatzilygeroudis</maintainer>
 
-  <license>BSD</license>
+  <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 

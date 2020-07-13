@@ -31,7 +31,7 @@
   <author email="salvo.virga@tum.de">Salvo Virga</author>
   <maintainer email="salvo.virga@tum.de">Salvo Virga</maintainer>
 
-  <license>BSD</license>
+  <license>GPLv3</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
