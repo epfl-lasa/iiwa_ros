@@ -7,6 +7,7 @@ import com.kuka.connectivity.fastRobotInterface.ClientCommandMode;
 import com.kuka.connectivity.fastRobotInterface.FRIConfiguration;
 import com.kuka.connectivity.fastRobotInterface.FRIJointOverlay;
 import com.kuka.connectivity.fastRobotInterface.FRISession;
+//import com.kuka.generated.ioAccess.MediaFlangeIOGroup;
 import com.kuka.roboticsAPI.applicationModel.RoboticsAPIApplication;
 import com.kuka.roboticsAPI.controllerModel.Controller;
 import com.kuka.roboticsAPI.deviceModel.LBR;
@@ -26,6 +27,7 @@ public class FRIOverlay extends RoboticsAPIApplication
     private Controller _lbrController;
     private LBR _lbr;
     private String _clientName;
+    //private MediaFlangeIOGroup _mediaFlange;
 
     @Override
     public void initialize()
@@ -36,6 +38,12 @@ public class FRIOverlay extends RoboticsAPIApplication
         // *** change next line to the FRIClient's IP address                 ***
         // **********************************************************************
         _clientName = "192.170.10.1";
+        
+     	// **********************************************************************
+        // *** Un-comment the next line to add a media flange                 ***
+        // *** Select signals further down									  ***
+        // **********************************************************************
+        //_mediaFlange = new MediaFlangeIOGroup(_lbr.getController());
     }
 
     @Override
@@ -46,6 +54,27 @@ public class FRIOverlay extends RoboticsAPIApplication
         // for torque mode, there has to be a command value at least all 5ms
         friConfiguration.setSendPeriodMilliSec(5);
         friConfiguration.setReceiveMultiplier(1);
+        
+        // **********************************************************************
+        // *** Un-comment the following lines you wish to add to FRI 		  ***
+        // *** There`s not room for all of them though. 					  ***
+        // **********************************************************************
+        // Touch electric/pneumatic
+        //friConfiguration.registerIO(_mediaFlange.getInput("UserButton"));
+        //friConfiguration.registerIO(_mediaFlange.getOutput("LEDBlue")); // setLEDBlue
+        
+        // IO electric, IO pneumatic, Touch electric, Touch pneumatic, IO valve pneumatic
+        //friConfiguration.registerIO(_mediaFlange.getInput("InputX3Pin3"));
+        //friConfiguration.registerIO(_mediaFlange.getInput("InputX3Pin4"));
+        //friConfiguration.registerIO(_mediaFlange.getInput("InputX3Pin10"));
+        //friConfiguration.registerIO(_mediaFlange.getInput("InputX3Pin13"));
+        //friConfiguration.registerIO(_mediaFlange.getInput("InputX3Pin16"));
+
+        //friConfiguration.registerIO(_mediaFlange.getOutput("SwitchOffX3Voltage"));
+        //friConfiguration.registerIO(_mediaFlange.getOutput("OutputX3Pin1"));
+        //friConfiguration.registerIO(_mediaFlange.getOutput("OutputX3Pin2"));
+        //friConfiguration.registerIO(_mediaFlange.getOutput("OutputX3Pin11"));
+        //friConfiguration.registerIO(_mediaFlange.getOutput("OutputX3Pin12"));
 
         getLogger().info("Creating FRI connection to " + friConfiguration.getHostName());
         getLogger().info("SendPeriod: " + friConfiguration.getSendPeriodMilliSec() + "ms |"
