@@ -55,7 +55,7 @@ find_package(Corrade REQUIRED Utility PluginManager)
 ##Needed for ros packages
 catkin_package(
   CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
-  DEPENDS RobotControllers CorradeUtility CorradePluginManager
+  DEPENDS RobotControllers
   LIBRARIES CustomEffortController
 )
 

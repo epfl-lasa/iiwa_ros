@@ -28,6 +28,8 @@
 
 #include <iiwa_control/custom_effort_controller.hpp>
 
+#include <Corrade/Containers/PointerStl.h>
+
 #include <robot_controllers/CascadeController.hpp>
 #include <robot_controllers/SumController.hpp>
 
