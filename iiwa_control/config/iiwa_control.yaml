@@ -76,11 +76,11 @@ iiwa:
     controllers:
       # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
       # ForceDS: {type: "ForceModDSController", params: [200]}
-      # PassiveDS: {type: "PassiveDSController", params: [90, 50]} # Use for real robot
-      PassiveDS: {type: "PassiveDSController", params: [130, 70]} # Test to make it follow trajectory better
-      # PassiveDS: {type: "PassiveDSController", params: [200, 200]} # Use for simulation
+      # # PassiveDS: {type: "PassiveDSController", params: [90, 50]} # Use for real robot
+      # PassiveDS: {type: "PassiveDSController", params: [130, 70]} # Test to make it follow trajectory better
+      PassiveDS: {type: "PassiveDSController", params: [400, 400]} # Use for simulation
     #  PD: {type: "PidController", params: [15., 2.], input: "Orientation", output: "Torque"}
-      PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
+      PD: {type: "PidController", params: [16., 2.], input: "Orientation", output: "Torque"}
       # PD: {type: "PidController", params: [10., 2.], input: "AngularVelocity", output: "Torque"}
     # structure:
       # AddCtrl:
