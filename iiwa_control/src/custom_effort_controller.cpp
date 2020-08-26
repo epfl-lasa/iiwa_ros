@@ -3,10 +3,12 @@
 //|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 //|              Bernardo Fichera
 //|              Walid Amanhoud
-//|    email:   konstantinos.chatzilygeroudis@epfl.ch
-//|             bernardo.fichera@epfl.ch
-//|             walid.amanhoud@epfl.ch
-//|    website: lasa.epfl.ch
+//|    email:    costashatz@gmail.com
+//|              bernardo.fichera@epfl.ch
+//|              walid.amanhoud@epfl.ch
+//|    Other contributors:
+//|              Yoan Mollard (yoan@aubrune.eu)
+//|    website:  lasa.epfl.ch
 //|
 //|    This file is part of iiwa_ros.
 //|
@@ -25,6 +27,8 @@
 #include <pluginlib/class_list_macros.hpp>
 
 #include <iiwa_control/custom_effort_controller.hpp>
+
+#include <Corrade/Containers/PointerStl.h>
 
 #include <robot_controllers/CascadeController.hpp>
 #include <robot_controllers/SumController.hpp>
