@@ -4,10 +4,12 @@
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
               Bernardo Fichera
               Walid Amanhoud
-    email:   konstantinos.chatzilygeroudis@epfl.ch
-             bernardo.fichera@epfl.ch
-             walid.amanhoud@epfl.ch
-    website: lasa.epfl.ch
+    email:    costashatz@gmail.com
+              bernardo.fichera@epfl.ch
+              walid.amanhoud@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+    website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
 
@@ -41,6 +43,7 @@
   <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
     <remap from="/joint_states" to="/iiwa/joint_states"/>
     <remap from="/controller_manager" to="/iiwa/controller_manager"/>
+    <remap from="/commanding_status" to="/iiwa/commanding_status"/>
     <!-- Load configurations from YAML file to parameter server -->
     <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load"/>
   </node>

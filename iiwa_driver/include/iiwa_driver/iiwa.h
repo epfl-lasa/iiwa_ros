@@ -3,10 +3,12 @@
 //|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 //|              Bernardo Fichera
 //|              Walid Amanhoud
-//|    email:   konstantinos.chatzilygeroudis@epfl.ch
-//|             bernardo.fichera@epfl.ch
-//|             walid.amanhoud@epfl.ch
-//|    website: lasa.epfl.ch
+//|    email:    costashatz@gmail.com
+//|              bernardo.fichera@epfl.ch
+//|              walid.amanhoud@epfl.ch
+//|    Other contributors:
+//|              Yoan Mollard (yoan@aubrune.eu)
+//|    website:  lasa.epfl.ch
 //|
 //|    This file is part of iiwa_ros.
 //|
@@ -25,6 +27,7 @@
 
 // ROS Headers
 #include <ros/ros.h>
+#include <std_msgs/Bool.h>
 
 #include <realtime_tools/realtime_publisher.h>
 
@@ -90,6 +93,7 @@ namespace iiwa_ros {
         void _disconnect_fri();
         bool _read_fri(kuka::fri::ESessionState& current_state);
         bool _write_fri();
+        void _publish();
         void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
 
         // External torque publisher
@@ -129,7 +133,7 @@ namespace iiwa_ros {
         kuka::fri::DummyState _robot_state; //!< wrapper class for the FRI monitoring message
         kuka::fri::DummyCommand _robot_command; //!< wrapper class for the FRI command message
         int _message_size;
-        bool _idle;
+        bool _idle, _commanding;
 
         int _port;
         std::string _remote_host;
@@ -138,6 +142,7 @@ namespace iiwa_ros {
         ros::NodeHandle _nh;
         std::string _robot_description;
         ros::Duration _control_period;
+        ros::Publisher _commanding_status_pub;
         double _control_freq;
         bool _initialized;
     };

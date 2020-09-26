@@ -106,6 +106,17 @@ cd /path/to/ros_workspace
 catkin_make
 ```
 
+Sunrise Robot Application upload
+------------
+You need a specific application to run on the robot side.
+0. Make sure a Windows laptop is connected on the X66 Ethernet port and has IP `172.31.1.42` mask `255.255.0.0`
+1. Create a new Sunrise project with Sunrise Workbench and setup an empty RobotApplication template 
+2. Setup the safety configuration in `SafetyConfiguration.sconf` ([example](https://github.com/IFL-CAMP/iiwa_stack/wiki/safetyconf))
+3. Replace the empty template with the [online app](https://github.com/epfl-lasa/iiwa_ros/blob/master/iiwa_driver/java/FRIOverlay.java)
+4. In `StationSetup.cat`, tab `Software`, active the FRI extension, push it to the robot with `Installation` and accept the reboot question
+5. Synchronise your new Sunrise project to the robot with icon `Synchronize project`
+6. On the Smartpad tablet, your app must be listed in [Applications] and you must also see a new [FRI] tab
+
 Basic Usage
 --------------
 
@@ -113,11 +124,19 @@ Basic Usage
 
 **Control IIWA with FRI**
 
-```sh
-roslaunch iiwa_driver iiwa_bringup.launch
-```
+1. Make sure your Linux/ROS laptop is connected on the KONI Ethernet port and has IP `192.170.10.1` mask `255.255.255.0`.
+2. On the Smartpad tablet:
 
-This will connect to IIWA robot using FRI.
+* Activate `AUT` mode (turn key right > AUT > key left)
+* In `[Application]`, check yours in order to select it
+* Press the mechanical `Play` button ▶
+
+3. Within 10 seconds before the timeout, launch: `roslaunch iiwa_driver iiwa_bringup.launch`. This will connect to IIWA robot using FRI.
+4 The Smartpad lets you select control mode and stiffness
+5. Check that everything works if `/iiwa/joint_states` is being published and reflects the actual robot state.
+6. The Smarpad'd [Application] tab must remain green. Otherwise you can press `Play ▶` again to reconnect.
+
+In case of a hard failure, unload the app by unchecking it in [Application] before retrying.
 
 ### Gazebo Simulation
 
@@ -127,7 +146,11 @@ This will connect to IIWA robot using FRI.
 roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
-**Both of the above commands will launch IIWA in torque-control mode (with gravity compensation enabled)! To change the control mode (e.g., position), please edit the launch files to select the appropriate controller.**
+Both of the above commands will launch IIWA in **torque-control mode**. To change the control mode (e.g., position-control), please edit the launch files to select the appropriate controller.
+
+### MoveIt planning
+
+If everything looks in simulation or with the FRI driver, a next step might be to try out your robot with [MoveIt](/iiwa_moveit).
 
 Documentation
 ---------------------
@@ -146,9 +169,13 @@ The URDF description files are copied and refactored from [iiwa_stack] (by Salva
 Authors/Maintainers
 ---------------------
 
-- Konstantinos Chatzilygeroudis (konstantinos.chatzilygeroudis@epfl.ch)
+- Konstantinos Chatzilygeroudis (costashatz@gmail.com)
 - Bernardo Fichera (bernardo.fichera@epfl.ch)
 - Walid Amanhoud (walid.amanhoud@epfl.ch)
+
+### Other Contributors
+
+- Yoan Mollard (yoan@aubrune.eu)
 
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/

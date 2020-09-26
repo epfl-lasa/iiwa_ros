@@ -4,10 +4,12 @@
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
               Bernardo Fichera
               Walid Amanhoud
-    email:   konstantinos.chatzilygeroudis@epfl.ch
-             bernardo.fichera@epfl.ch
-             walid.amanhoud@epfl.ch
-    website: lasa.epfl.ch
+    email:    costashatz@gmail.com
+              bernardo.fichera@epfl.ch
+              walid.amanhoud@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+    website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
 
@@ -29,6 +31,7 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
+    <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
 
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
@@ -46,7 +49,7 @@
 
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(find iiwa_gazebo)/world/iiwa.world"/>
+        <arg name="world_name" value="$(arg world_name)"/> 
         <arg name="debug" value="$(arg debug)" />
         <arg name="gui" value="$(arg gui)" />
         <arg name="paused" value="$(arg paused)"/>
@@ -59,9 +62,9 @@
         args="-urdf -model iiwa -param robot_description"/>
 
     <!-- Spawn controller -->
+    <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="$(arg robot_name)"/> 
     <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-        <arg name="controller" value="$(arg controller)"/>
+       <arg name="controller" value="$(arg controller)"/>
     </include>
-
 </launch>
 

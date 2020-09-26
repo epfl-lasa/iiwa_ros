@@ -4,10 +4,12 @@
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
               Bernardo Fichera
               Walid Amanhoud
-    email:   konstantinos.chatzilygeroudis@epfl.ch
-             bernardo.fichera@epfl.ch
-             walid.amanhoud@epfl.ch
-    website: lasa.epfl.ch
+    email:    costashatz@gmail.com
+              bernardo.fichera@epfl.ch
+              walid.amanhoud@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+    website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
 
@@ -34,8 +36,9 @@
     <arg if="$(eval controller == 'TorqueController')" name="hardware_interface" value="EffortJointInterface"/>
     <arg if="$(eval controller == 'PositionTorqueController')" name="hardware_interface" value="EffortJointInterface"/>
     <arg if="$(eval controller == 'PositionController')" name="hardware_interface" value="PositionJointInterface"/>
+    <arg if="$(eval controller == 'PositionTrajectoryController')" name="hardware_interface" value="PositionJointInterface"/>
     <!-- By default assume EffortJointInterface -->
-    <arg unless="$(eval (controller == 'PositionController') or (controller == 'PositionTorqueController') or (controller == 'TorqueController'))" name="hardware_interface" value="EffortJointInterface"/>
+    <arg unless="$(eval (controller == 'PositionController') or (controller == 'PositionTorqueController') or (controller == 'TorqueController') or (controller == 'PositionTrajectoryController'))" name="hardware_interface" value="EffortJointInterface"/>
 
     <!-- Upload iiwa URDF -->
     <include file="$(find iiwa_description)/launch/iiwa$(arg model)_upload.launch">
