@@ -69,19 +69,23 @@ iiwa:
       # end_effector is only needed in task space
       end_effector: iiwa_link_ee
       null_space:
-        joints: [0.044752691045324394, 0.6951627023357917, -0.01416978801753847, -1.0922311725109015, -0.0050429618456282, 1.1717338014778385, -0.01502630060305613]
-        Kp: 20.
+        joints: [0, 1.117292763320084, 0, -1.0288624261633457, 0, 1.044262634542543, 0.21714582621935055] # Polishing
+        # joints: [0.1894188838773362, -0.4866597834880635, -0.3064704263424962, -1.7716632613502106, -1.6748767315067024, -1.6249320068372946, 0.062200284410761454] # watch demo
+        # joints: [1.3995240162138116, 1.0846063891505453, 0.2504069039321491, -1.444339864179781, -0.10236876973915293, -1.0722517318831915, -0.14758878571621833] # Tube opening
+        Kp: 10.
         Kd: 0.1
         max_torque: 10.
     controllers:
       # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
       # ForceDS: {type: "ForceModDSController", params: [200]}
-      # # PassiveDS: {type: "PassiveDSController", params: [90, 50]} # Use for real robot
-      # PassiveDS: {type: "PassiveDSController", params: [130, 70]} # Test to make it follow trajectory better
-      PassiveDS: {type: "PassiveDSController", params: [400, 400]} # Use for simulation
+      # PassiveDS: {type: "PassiveDSController", params: [90, 50]} # Use for real robot
+      PassiveDS: {type: "PassiveDSController", params: [290, 230]} # Watch polish
+      # PassiveDS: {type: "PassiveDSController", params: [250, 130]} # Test to make it follow trajectory better
+      # PassiveDS: {type: "PassiveDSController", params: [210, 140]} # Test to make it follow trajectory better
+      # PassiveDS: {type: "PassiveDSController", params: [400, 400]} # Use for simulation
     #  PD: {type: "PidController", params: [15., 2.], input: "Orientation", output: "Torque"}
-      PD: {type: "PidController", params: [16., 2.], input: "Orientation", output: "Torque"}
-      # PD: {type: "PidController", params: [10., 2.], input: "AngularVelocity", output: "Torque"}
+      PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"} # Watch polish
+      # PD: {type: "PidController", params: [18., 2.], input: "Orientation", output: "Torque"} # Lab automation
     # structure:
       # AddCtrl:
       #   - LinearDS

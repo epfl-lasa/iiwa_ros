@@ -31,6 +31,7 @@
 
   <!-- Select the controller -->
   <arg name="controller" default="CustomControllers"/>
+  <!-- <arg name="controller" default="PositionController"/> -->
 
   <!-- Setup iiwa -->
   <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
