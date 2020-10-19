@@ -13,9 +13,9 @@ Requirements
 
 iiwa_ros requires several packages to be installed in order to work properly:
 
-* [ROS] - ROS: tested in **Melodic** and **Kinetic**; *Indigo* should work also
+* [ROS] - ROS: tested in **Melodic** and **Kinetic**; *Indigo* should work also (Currently trial working in **Noetic**)
 * [KUKA FRI] - This is a modified version of the C++ FRI library provided by KUKA: unfortunately, we cannot release this code, but if you own a KUKA manipulator please contact us in order to acquire this modified library.
-* [ROS Control]
+* [ROS Control] - For the version **Noetic**, the ROS Control is still being updated, so there may be issues. (Being checked)
 * [Gazebo] and gazebo-ros-pkgs
 * [SpaceVecAlg]
 * [RBDyn]
@@ -36,6 +36,8 @@ cd kuka_fri
 ./waf
 sudo ./waf install
 ```
+
+In a new install of ubuntu 20.04, before the command ``` ./waf configure ```, run ``` sudo apt-get install python-is-python3```
 
 ### SpaceVecAlg
 

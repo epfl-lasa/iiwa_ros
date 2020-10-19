@@ -25,6 +25,13 @@
 
 |-->
 <robot name="iiwa14" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <mujoco>
+        <compiler
+        meshdir="../meshes/iiwa14/visual/"
+        balanceinertia="true"
+        discardvisual="false" />
+  </mujoco>
   <!-- Import Rviz colors -->
   <xacro:include filename="$(find iiwa_description)/urdf/materials.xacro" />
   <!--Import the lbr iiwa macro -->
