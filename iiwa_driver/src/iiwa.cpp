@@ -221,7 +221,7 @@ namespace iiwa_ros {
         n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
         n_p.param<std::string>("fri/robot_description", _robot_description, "/robot_description");
 
-        n_p.param("hardware_interface/control_freq", _control_freq, 50.);
+        n_p.param("hardware_interface/control_freq", _control_freq, 200.);
         n_p.getParam("hardware_interface/joints", _joint_names);
     }
 
