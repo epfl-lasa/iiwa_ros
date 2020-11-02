@@ -58,8 +58,14 @@ namespace iiwa_tools {
         // TO-DO: Check if it takes time
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 
+        std::cout << "wtf_fk1" << std::endl;
+
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
+        std::cout << "wtf_fk2" << std::endl;
+
         Eigen::VectorXd q_high = q_low;
+
+        std::cout << "wtf_fk3" << std::endl;
 
         for (size_t i = 0; i < _rbd_indices.size(); i++) {
             size_t index = _rbd_indices[i];
@@ -67,7 +73,13 @@ namespace iiwa_tools {
             q_high(i) = rbdyn_urdf.limits.upper[rbdyn_urdf.mb.joint(index).name()][0];
         }
 
+        std::cout << "wtf_fk4" << std::endl;
+
+
         rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+
+        std::cout << "wtf_fk5" << std::endl;
+
 
         for (size_t i = 0; i < _rbd_indices.size(); i++) {
             size_t rbd_index = _rbd_indices[i];
@@ -83,6 +95,9 @@ namespace iiwa_tools {
             rbdyn_urdf.mbc.q[rbd_index][0] = jt;
         }
 
+        std::cout << "wtf_fk6" << std::endl;
+
+
         rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
 
         sva::PTransformd tf = rbdyn_urdf.mbc.bodyPosW[_ef_index];
@@ -92,7 +107,18 @@ namespace iiwa_tools {
         Eigen::Matrix3d rot_mat = eig_tf.block(0, 0, 3, 3);
         Eigen::Quaterniond quat = Eigen::Quaterniond(rot_mat).normalized();
 
-        return {trans, quat};
+        std::cout << "wtf_fk7" << std::endl;
+
+        iiwa_tools::EefState forward_kin;
+
+        forward_kin.translation = trans;
+        forward_kin.orientation = quat;
+
+        std::cout << trans.transpose() << std::endl;
+        std::cout << quat.w() << " " << quat.vec() << std::endl;
+
+
+        return forward_kin;
     }
 
     Eigen::VectorXd IiwaTools::perform_ik(const EefState& ee_state, const RobotState& seed_state)

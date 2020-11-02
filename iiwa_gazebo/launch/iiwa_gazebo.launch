@@ -38,9 +38,9 @@
     <arg name="model" default="14" />
 
     <!-- Select the controller -->
-    <arg name="controller" default="CustomController"/>
+    <arg name="controller" default="TorqueController"/>
 
-    <!-- Setup iiwa -->
+   <!-- Setup iiwa -->
     
     <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
         <arg name="robot_name" value="$(arg robot_name)"/>

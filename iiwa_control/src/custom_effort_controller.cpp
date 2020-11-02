@@ -181,12 +181,14 @@ namespace iiwa_control {
             ROS_ERROR_STREAM("Failed to getParam '" << param_name << "' (namespace: " << n.getNamespace() << ").");
             return false;
         }
+        std::cout << "wtf_1" << std::endl;
         n_joints_ = joint_names_.size();
 
         if (n_joints_ == 0) {
             ROS_ERROR_STREAM("List of joint names is empty.");
             return false;
         }
+        std::cout << "wtf_2" << std::endl;
 
         // Get URDF
         urdf::Model urdf;
@@ -194,6 +196,8 @@ namespace iiwa_control {
             ROS_ERROR("Failed to parse urdf file");
             return false;
         }
+
+        std::cout << "wtf_3" << std::endl;
 
         // Get basic parameters
         n.param<std::string>("params/space", operation_space_, "joint"); // Default operation space is task-space
@@ -212,6 +216,7 @@ namespace iiwa_control {
                 ROS_ERROR("Could not find parameter %s on parameter server", robot_description.c_str());
                 return false;
             }
+            std::cout << "wtf_4" << std::endl;
 
             // search and wait for robot_description on param server
             while (urdf_string.empty()) {
@@ -223,6 +228,8 @@ namespace iiwa_control {
 
                 usleep(100000);
             }
+
+            std::cout << "wtf_5" << std::endl;
             ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
 
             // Get the end-effector
@@ -243,6 +250,7 @@ namespace iiwa_control {
         n.getParam("controllers", symbols);
 
         assert(symbols.getType() == XmlRpc::XmlRpcValue::TypeStruct);
+        std::cout << "wtf_6" << std::endl;
         for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end(); ++i) {
             // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
             std::string name = i->first;
@@ -285,10 +293,13 @@ namespace iiwa_control {
             }
         }
 
+        std::cout << "wtf_7" << std::endl;
+
         XmlRpc::XmlRpcValue symbols_structure;
         n.getParam("structure", symbols_structure);
 
         if (symbols_structure.getType() == XmlRpc::XmlRpcValue::TypeStruct) {
+            std::cout << "wtf_8" << std::endl;
             for (XmlRpc::XmlRpcValue::iterator i = symbols_structure.begin(); i != symbols_structure.end(); ++i) {
                 // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
                 std::string name = i->first;
@@ -306,6 +317,7 @@ namespace iiwa_control {
                     ROS_WARN_STREAM("Cannot identify the type of the controller by the name: '" << name << "'. Ignoring!");
                     continue;
                 }
+
                 // std::cout << sub.size() << std::endl;
                 for (size_t k = 0; k < sub.size(); k++) {
                     // ROS_WARN_STREAM("    " << sub[k]);
@@ -316,6 +328,7 @@ namespace iiwa_control {
                     ctrl_names.erase(std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]), ctrl_names.end());
                     controllers.erase(sub[k]);
                 }
+
 
                 // Initialize parameters
                 robot_controllers::RobotParams params;
@@ -329,16 +342,28 @@ namespace iiwa_control {
 
                 ctrl_names.push_back(name);
             }
+            std::cout << "wtf_9" << std::endl;
         }
 
         null_space_control_ = false;
         if (operation_space_ == "task") {
+
+            std::cout << "wtf_if_1" << std::endl;
             std::vector<double> joints;
             n.getParam("params/null_space/joints", joints);
             null_space_control_ = (joints.size() == n_joints_);
 
             if (null_space_control_) {
-                null_space_joint_config_ = Eigen::VectorXd::Map(joints.data(), joints.size());
+                std::cout << "wtf_if_2" << std::endl;
+                //null_space_joint_config_ = Eigen::VectorXd::Map(joints.data(), joints.size());
+                null_space_joint_config_.resize(joints.size());
+                for (int i = 0; i < joints.size(); i++){
+
+                    null_space_joint_config_(i) = joints[i];
+
+                }
+                
+                std::cout << "wtf_if_3" << std::endl;
 
                 null_space_Kp_ = 20.;
                 null_space_Kd_ = 0.1;
@@ -347,8 +372,12 @@ namespace iiwa_control {
                 n.getParam("params/null_space/Kp", null_space_Kp_);
                 n.getParam("params/null_space/Kp", null_space_Kd_);
                 n.getParam("params/null_space/max_torque", null_space_max_torque_);
+
+                std::cout << "wtf_if_4" << std::endl;
             }
         }
+
+        std::cout << "wtf_10" << std::endl;
 
         unsigned int ctrl_size = ctrl_names.size();
 
@@ -371,11 +400,15 @@ namespace iiwa_control {
             set_input_space(controller_, space_dim_);
         }
 
+        std::cout << "wtf_11" << std::endl;
+
         // Initialize the controller(s)
         if (!controller_->Init()) {
             ROS_ERROR("Controllers could not be initialized! Exiting!");
             return false;
         }
+
+        std::cout << "wtf_12" << std::endl;
 
         for (unsigned int i = 0; i < n_joints_; i++) {
             try {
@@ -393,6 +426,8 @@ namespace iiwa_control {
             }
             joint_urdfs_.push_back(joint_urdf);
         }
+
+        std::cout << "wtf_12" << std::endl;
 
         // Get controller command size
         cmd_dim_ = 0;
@@ -422,39 +457,56 @@ namespace iiwa_control {
             cmd_dim_ += 3; // This is fixed to 3D
         }
 
+        std::cout << "wtf_13" << std::endl;
+
         std::vector<double> init_cmd(cmd_dim_, 0.0);
         has_orientation_ = false;
         if (operation_space_ == "task") {
+            std::cout << "wtf_13.1" << std::endl;
             has_orientation_ = ((controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)) ? true : false;
             bool has_position = ((controller_->GetInput().GetType() & robot_controllers::IOType::Position)) ? true : false;
+            std::cout << "wtf_13.2" << std::endl;
             if (has_position || has_orientation_) {
                 // if task space, we need to alter the initial command
                 iiwa_tools::RobotState robot_state;
                 robot_state.position.resize(n_joints_);
                 robot_state.velocity.resize(n_joints_);
+                std::cout << "wtf_13.3" << std::endl;
 
                 for (size_t i = 0; i < n_joints_; i++) {
                     robot_state.position[i] = joints_[i].getPosition();
                     robot_state.velocity[i] = joints_[i].getVelocity();
                 }
 
-                auto ee_state = tools_.perform_fk(robot_state);
+                std::cout << "wtf_13.4" << std::endl;
+                iiwa_tools::EefState ee_state;
+                ee_state.translation << 0.0, 0.0, 1.306; 
+                ee_state.orientation = Eigen::Quaterniond::Identity();
+                /*auto*/ //ee_state = tools_.perform_fk(robot_state);
+                std::cout << "wtf_13.5" << std::endl;
                 Eigen::AngleAxisd aa(ee_state.orientation);
+                std::cout << "wtf_13.6" << std::endl;
                 Eigen::VectorXd o = aa.axis() * aa.angle();
+                std::cout << "wtf_13.7" << std::endl;
                 Eigen::VectorXd p = ee_state.translation;
-
+                std::cout << "wtf_13.8" << std::endl;
                 size_t offset = 0;
+                std::cout << "wtf_13.9" << std::endl;
                 if (has_orientation_)
                     offset = 3;
 
+                std::cout << "wtf_13.10" << std::endl;
                 for (size_t i = 0; i < 3; i++) {
                     if (has_orientation_)
                         init_cmd[i] = o(i);
                     if (has_position)
                         init_cmd[i + offset] = p(i);
                 }
+                std::cout << "wtf_13.11" << std::endl;
             }
         }
+
+        std::cout << "wtf_14" << std::endl;
 
         ROS_INFO_STREAM("Initial command: " << Eigen::VectorXd::Map(init_cmd.data(), init_cmd.size()).transpose());
 
@@ -462,6 +514,7 @@ namespace iiwa_control {
 
         sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
 
+        std::cout << "wtf_15" << std::endl;
         return true;
     }
 

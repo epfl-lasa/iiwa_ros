@@ -59,6 +59,8 @@ catkin_package(
   LIBRARIES CustomEffortController
 )
 
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wconversion -pedantic")
+
 set(iiwa_control_SOURCES
   src/custom_effort_controller.cpp
 )
