@@ -32,6 +32,7 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+    <arg name="gzclient" default="false"/>
 
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
@@ -48,7 +49,8 @@
     </include>
 
     <!-- Loads the Gazebo world -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <include unless="$(arg gzclient)"
+        file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/> 
         <arg name="debug" value="$(arg debug)" />
         <arg name="gui" value="$(arg gui)" />
