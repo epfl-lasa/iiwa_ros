@@ -53,7 +53,7 @@ set_property(TARGET iiwa_gazebo_gravity_compensation_hw_sim PROPERTY CXX_STANDAR
 target_include_directories(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})
 
-add_dependencies(iiwa_gazebo_gravity_compensation_hw_sim iiwa_service)
+add_dependencies(iiwa_gazebo_gravity_compensation_hw_sim ${iiwa_tools_EXPORTED_TARGETS})
 
 # Install
 install(TARGETS iiwa_gazebo_gravity_compensation_hw_sim
