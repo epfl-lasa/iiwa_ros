@@ -59,7 +59,7 @@ namespace iiwa_tools {
         Eigen::MatrixXd jacobian(const RobotState& robot_state);
         Eigen::MatrixXd jacobian_deriv(const RobotState& robot_state);
         std::pair<Eigen::MatrixXd, Eigen::MatrixXd> jacobians(const RobotState& robot_state);
-        Eigen::VectorXd ee_wrench(const RobotState& robot_state, const Eigen::VectorXd ext_torque);
+        Eigen::VectorXd ee_wrench(const RobotState& robot_state, const Eigen::VectorXd& ext_torque);
         Eigen::VectorXd gravity(const std::vector<double>& gravity, const RobotState& robot_state);
 
     protected:

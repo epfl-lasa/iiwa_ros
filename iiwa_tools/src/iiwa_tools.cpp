@@ -281,7 +281,7 @@ namespace iiwa_tools {
     }
 
     // Calculates wrench in the end effector frame. The order is: torques(3), forces(3).
-    Eigen::VectorXd IiwaTools::ee_wrench(const RobotState& robot_state, const Eigen::VectorXd ext_torque) {
+    Eigen::VectorXd IiwaTools::ee_wrench(const RobotState& robot_state, const Eigen::VectorXd& ext_torque) {
         const Eigen::MatrixXd J = jacobian(robot_state);
         const Eigen::MatrixXd J_t_pinv = pseudo_inverse(J.transpose());
         return J_t_pinv*ext_torque;
