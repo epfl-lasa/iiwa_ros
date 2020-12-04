@@ -52,6 +52,25 @@ namespace iiwa_tools {
         return wrapped;
     }
 
+    template <class MatT>
+    Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> pseudo_inverse(const MatT& mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4}) // choose appropriately
+    {
+        typedef typename MatT::Scalar Scalar;
+        auto svd = mat.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
+        const auto& singularValues = svd.singularValues();
+        Eigen::Matrix<Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> singularValuesInv(mat.cols(), mat.rows());
+        singularValuesInv.setZero();
+        for (unsigned int i = 0; i < singularValues.size(); ++i) {
+            if (singularValues(i) > tolerance) {
+                singularValuesInv(i, i) = Scalar{1} / singularValues(i);
+            }
+            else {
+                singularValuesInv(i, i) = Scalar{0};
+            }
+        }
+        return svd.matrixV() * singularValuesInv * svd.matrixU().adjoint();
+    }
+
     iiwa_tools::EefState IiwaTools::perform_fk(const RobotState& robot_state)
     {
         // copy RBDyn for thread-safety
@@ -259,6 +278,13 @@ namespace iiwa_tools {
         }
 
         return q_best;
+    }
+
+    // Calculates wrench in the end effector frame. The order is: torques(3), forces(3).
+    Eigen::VectorXd IiwaTools::ee_wrench(const RobotState& robot_state, const Eigen::VectorXd ext_torque) {
+        const Eigen::MatrixXd J = jacobian(robot_state);
+        const Eigen::MatrixXd J_t_pinv = pseudo_inverse(J.transpose());
+        return J_t_pinv*ext_torque;
     }
 
     Eigen::VectorXd IiwaTools::gravity(const std::vector<double>& gravity, const RobotState& robot_state)
