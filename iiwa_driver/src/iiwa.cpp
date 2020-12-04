@@ -186,6 +186,23 @@ namespace iiwa_ros {
         registerInterface(&_position_joint_interface);
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
+
+        _additional_pub.init(_nh, "additional_outputs", 20);
+        _additional_pub.msg_.external_torques.layout.dim.resize(1);
+        _additional_pub.msg_.external_torques.layout.data_offset = 0;
+        _additional_pub.msg_.external_torques.layout.dim[0].size = _num_joints;
+        _additional_pub.msg_.external_torques.layout.dim[0].stride = 0;
+        _additional_pub.msg_.external_torques.data.resize(_num_joints);
+        _additional_pub.msg_.commanded_torques.layout.dim.resize(1);
+        _additional_pub.msg_.commanded_torques.layout.data_offset = 0;
+        _additional_pub.msg_.commanded_torques.layout.dim[0].size = _num_joints;
+        _additional_pub.msg_.commanded_torques.layout.dim[0].stride = 0;
+        _additional_pub.msg_.commanded_torques.data.resize(_num_joints);
+        _additional_pub.msg_.commanded_positions.layout.dim.resize(1);
+        _additional_pub.msg_.commanded_positions.layout.data_offset = 0;
+        _additional_pub.msg_.commanded_positions.layout.dim[0].size = _num_joints;
+        _additional_pub.msg_.commanded_positions.layout.dim[0].stride = 0;
+        _additional_pub.msg_.commanded_positions.data.resize(_num_joints);
     }
 
     void Iiwa::_ctrl_loop()
@@ -200,6 +217,17 @@ namespace iiwa_ros {
             _read(elapsed_time);
             _controller_manager->update(ros::Time::now(), elapsed_time);
             _write(elapsed_time);
+
+            // publish additional outputs
+            if (_additional_pub.trylock()) {
+                _additional_pub.msg_.header.stamp = ros::Time::now();
+                for (unsigned i = 0; i < _num_joints; i++) {
+                    _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
+                    _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
+                    _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
+                }
+                _additional_pub.unlockAndPublish();
+            }
 
             _publish();
             rate.sleep();
