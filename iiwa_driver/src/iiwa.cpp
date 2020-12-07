@@ -36,6 +36,33 @@
 #include <thread>
 
 namespace iiwa_ros {
+    bool hasRealtimeKernel() {
+        std::ifstream realtime("/sys/kernel/realtime", std::ios_base::in);
+        bool is_realtime;
+        realtime >> is_realtime;
+        return is_realtime;
+    }
+
+    bool setCurrentThreadToHighestSchedulerPriority(std::string& error_message) {
+        const int thread_priority = sched_get_priority_max(SCHED_FIFO);
+        if (thread_priority == -1) {
+            if (error_message.empty()) {
+                error_message = std::string("Unable to get maximum possible thread priority: ") + std::strerror(errno);
+            }
+            return false;
+        }
+
+        sched_param thread_param{};
+        thread_param.sched_priority = thread_priority;
+        if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &thread_param) != 0) {
+            if (error_message.empty()) {
+                error_message = std::string("Unable to set realtime scheduling: ") + std::strerror(errno);
+            }
+            return false;
+        }
+        return true;
+    }
+
     Iiwa::Iiwa(ros::NodeHandle& nh)
     {
         init(nh);
@@ -58,6 +85,17 @@ namespace iiwa_ros {
         _init(); // initialize
         _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
+
+        if (hasRealtimeKernel()) {
+            std::string error_message;
+            if (!setCurrentThreadToHighestSchedulerPriority(error_message)) {
+                ROS_ERROR_STREAM(error_message);
+            } else {
+                ROS_INFO_STREAM("Initializing with realtime scheduling support.");
+            }
+        } else {
+            ROS_INFO_STREAM("Initializing without realtime scheduling support.");
+        }
 
         if (_init_fri())
             _initialized = true;
