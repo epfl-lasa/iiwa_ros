@@ -33,6 +33,7 @@
 
 #include <iiwa_driver/AdditionalOutputs.h>
 #include <std_msgs/Float64MultiArray.h>
+#include <std_msgs/Bool.h>
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
@@ -96,8 +97,9 @@ namespace iiwa_ros {
         void _publish();
         void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
 
-        // External torque publisher
+        // External torque and commanding status publishers
         realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
+        realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
 
         // Interfaces
         hardware_interface::JointStateInterface _joint_state_interface;
@@ -142,7 +144,6 @@ namespace iiwa_ros {
         ros::NodeHandle _nh;
         std::string _robot_description;
         ros::Duration _control_period;
-        ros::Publisher _commanding_status_pub;
         double _control_freq;
         bool _initialized;
     };

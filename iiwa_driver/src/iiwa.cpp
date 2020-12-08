@@ -56,7 +56,6 @@ namespace iiwa_ros {
         _nh = nh;
         _load_params(); // load parameters
         _init(); // initialize
-        _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
         if (_init_fri())
@@ -187,6 +186,8 @@ namespace iiwa_ros {
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
 
+        _commanding_status_pub.init(_nh, "commanding_status", 100);
+
         _additional_pub.init(_nh, "additional_outputs", 20);
         _additional_pub.msg_.external_torques.layout.dim.resize(1);
         _additional_pub.msg_.external_torques.layout.data_offset = 0;
@@ -218,17 +219,6 @@ namespace iiwa_ros {
             _controller_manager->update(ros::Time::now(), elapsed_time);
             _write(elapsed_time);
 
-            // publish additional outputs
-            if (_additional_pub.trylock()) {
-                _additional_pub.msg_.header.stamp = ros::Time::now();
-                for (unsigned i = 0; i < _num_joints; i++) {
-                    _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
-                    _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
-                    _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
-                }
-                _additional_pub.unlockAndPublish();
-            }
-
             _publish();
             rate.sleep();
         }
@@ -236,9 +226,22 @@ namespace iiwa_ros {
 
     void Iiwa::_publish()
     {
-        std_msgs::Bool msg;
-        msg.data = _commanding;
-        _commanding_status_pub.publish(msg);
+        // publish commanding status
+        if (_commanding_status_pub.trylock()) {
+            _commanding_status_pub.msg_.data = _commanding;
+            _commanding_status_pub.unlockAndPublish();
+        }
+
+        // publish additional outputs
+        if (_additional_pub.trylock()) {
+            _additional_pub.msg_.header.stamp = ros::Time::now();
+            for (unsigned i = 0; i < _num_joints; i++) {
+                _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
+                _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
+                _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
+            }
+            _additional_pub.unlockAndPublish();
+		}
     }
 
     void Iiwa::_load_params()
