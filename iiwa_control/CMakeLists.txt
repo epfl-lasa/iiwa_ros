@@ -25,6 +25,8 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_control)
 
+cmake_policy(SET CMP0057 NEW)
+
 option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
 
 # Tell CMake where to find "Find<LIB>.cmake"
