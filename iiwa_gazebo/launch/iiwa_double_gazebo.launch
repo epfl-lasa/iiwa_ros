@@ -30,54 +30,72 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+    <arg name="controller" value="CustomControllers"/> <!--TorqueController-->
+    <arg name="robot_name_1" value="iiwa1"/>
+    <arg name="robot_name_2" value="iiwa_blue"/>
 
-    <group ns="/iiwa1">
+
+    <group ns="/$(arg robot_name_1)">
+
+        <arg name="robot_name" value="$(arg robot_name_1)"/>
 
         <!-- Setup iiwa -->
         <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-            <arg name="robot_name" value="iiwa1"/>
+            <arg name="robot_name" value="$(arg robot_name_1)"/>
             <arg name="model" value="7"/>
-            <arg name="namespace" value="/iiwa1"/>
-            <arg name="controller" value="CustomControllers"/> <!--TorqueController-->
-            <arg name="origin_xyz" value="0.5 -0.35 0.4"/>
+            <!-- <arg name="namespace" value="/iiwa1"/> -->
+            <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
+            <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
         </include>
 
         <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
         <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -model iiwa1 -param robot_description"/>
+            args="-urdf -model $(arg robot_name_1) -param robot_description -x 1"/>
 
-        <!-- Spawn controller -->
-        <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="/iiwa1"/> 
-        <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-           <arg name="namespace" value="/iiwa1"/>
-           <arg name="controller" value="CustomControllers"/>
-           <arg name="robot_name" value="iiwa1"/>
-        </include>
+         <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+  <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen"  ns="/$(arg robot_name_1)" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen">
+        </node>
 
     </group>
 
-    <group ns="/iiwa2">
+
+
+    <group ns="/$(arg robot_name_2)">
+
+        <arg name="robot_name" value="$(arg robot_name_2)"/>
 
         <!-- Setup iiwa -->
         <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-            <arg name="robot_name" value="iiwa2"/>
+            <arg name="robot_name" value="$(arg robot_name_2)"/>
             <arg name="model" value="7"/>
-            <arg name="namespace" value="/iiwa2"/>
-            <arg name="controller" value="CustomControllers"/>
-            <arg name="origin_xyz" value="0.5 1.35 0.4"/>
+            <!-- <arg name="namespace" value="/iiwa1"/> -->
+            <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
+            <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
         </include>
 
         <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
         <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-            args="-urdf -model iiwa2 -param robot_description"/>
+            args="-urdf -model $(arg robot_name_2) -param robot_description"/>
 
-        <!-- Spawn controller -->
-        <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="/iiwa2"/> 
-        <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-           <arg name="namespace" value="/iiwa2"/>
-           <arg name="controller" value="CustomControllers"/>
-           <arg name="robot_name" value="iiwa2"/>
-        </include>
+         <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+  <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen"  ns="/$(arg robot_name_2)" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen">
+        </node>
 
     </group>
 
