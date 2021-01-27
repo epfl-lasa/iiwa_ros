@@ -7,24 +7,24 @@ joint_state_controller:
 TorqueController:
   type: effort_controllers/JointGroupEffortController
   joints:
-    - iiwa_joint_1
-    - iiwa_joint_2
-    - iiwa_joint_3
-    - iiwa_joint_4
-    - iiwa_joint_5
-    - iiwa_joint_6
-    - iiwa_joint_7
+    - $(arg robot_name)_joint_1
+    - $(arg robot_name)_joint_2
+    - $(arg robot_name)_joint_3
+    - $(arg robot_name)_joint_4
+    - $(arg robot_name)_joint_5
+    - $(arg robot_name)_joint_6
+    - $(arg robot_name)_joint_7
 
 PositionTorqueController:
   type: effort_controllers/JointGroupPositionController
   joints:
-    - iiwa_joint_1
-    - iiwa_joint_2
-    - iiwa_joint_3
-    - iiwa_joint_4
-    - iiwa_joint_5
-    - iiwa_joint_6
-    - iiwa_joint_7
+    - $(arg robot_name)_joint_1
+    - $(arg robot_name)_joint_2
+    - $(arg robot_name)_joint_3
+    - $(arg robot_name)_joint_4
+    - $(arg robot_name)_joint_5
+    - $(arg robot_name)_joint_6
+    - $(arg robot_name)_joint_7
   iiwa_joint_1:
     pid: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
   iiwa_joint_2:
@@ -43,13 +43,13 @@ PositionTorqueController:
 PositionController:
   type: position_controllers/JointGroupPositionController
   joints:
-    - iiwa_joint_1
-    - iiwa_joint_2
-    - iiwa_joint_3
-    - iiwa_joint_4
-    - iiwa_joint_5
-    - iiwa_joint_6
-    - iiwa_joint_7
+    - $(arg robot_name)_joint_1
+    - $(arg robot_name)_joint_2
+    - $(arg robot_name)_joint_3
+    - $(arg robot_name)_joint_4
+    - $(arg robot_name)_joint_5
+    - $(arg robot_name)_joint_6
+    - $(arg robot_name)_joint_7
 
 # Custom Controllers ------------------------------------------------
 # The space variable can be either set to "task" or "joint"
@@ -88,13 +88,13 @@ CustomControllers:
 PositionTrajectoryController:
   type: position_controllers/JointTrajectoryController
   joints: 
-    - iiwa_joint_1
-    - iiwa_joint_2
-    - iiwa_joint_3
-    - iiwa_joint_4
-    - iiwa_joint_5
-    - iiwa_joint_6
-    - iiwa_joint_7
+    - $(arg robot_name)_joint_1
+    - $(arg robot_name)_joint_2
+    - $(arg robot_name)_joint_3
+    - $(arg robot_name)_joint_4
+    - $(arg robot_name)_joint_5
+    - $(arg robot_name)_joint_6
+    - $(arg robot_name)_joint_7
 
   constraints:
     goal_time: 0.5                   # Override default
