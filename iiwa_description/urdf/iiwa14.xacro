@@ -394,12 +394,36 @@
     </joint>
 
     <link name="${robot_name}_link_ee">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.1 0.1 0.02"/>
+        </geometry>
+        <material name="Red"/>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <box size="0.1 0.1 0.02"/>
+        </geometry>
+        <material name="Red"/>
+      </visual>
+
       <inertial>
+        <mass value="1e-5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+
+      <!--<inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="1e-6"/>
         <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
-      </inertial>
+      </inertial>-->
     </link>
+
+ 
 
     <!--Extensions -->
     <xacro:iiwa_gazebo robot_name="${robot_name}" />
