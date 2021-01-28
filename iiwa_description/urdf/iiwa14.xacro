@@ -387,27 +387,45 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_ee" type="fixed">
+    <joint name="${robot_name}_joint_FTS" type="fixed">
       <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_ee"/>
+      <child link="${robot_name}_link_FTS"/>
       <origin xyz="0 0 0.045" rpy="0 0 0"/>
     </joint>
 
-    <link name="${robot_name}_link_ee">
+    <gazebo reference="${robot_name}_joint_FTS">
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+      <sensor name="${robot_name}_your_cool_sensor_name" type="force_torque">
+        <force_torque>
+          <frame>child</frame>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+      </sensor>
+    </gazebo>
+
+    <gazebo>
+      <plugin name="${robot_name}_ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+        <updateRate>50.0</updateRate>
+        <topicName>${robot_name}_FTS_topic</topicName>
+        <jointName>${robot_name}_joint_FTS</jointName>
+      </plugin>
+    </gazebo>
+
+    <link name="${robot_name}_link_FTS">
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="0.1 0.1 0.02"/>
+          <mesh filename="package://force_sensor/meshes/collision/force_torque_sensor_col.stl"/>
         </geometry>
-        <material name="Red"/>
+        <material name="Grey"/>
       </collision>
 
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <box size="0.1 0.1 0.02"/>
+          <mesh filename="package://force_sensor/meshes/visual/force_torque_sensor_vis.stl"/>
         </geometry>
-        <material name="Red"/>
+        <material name="Grey"/>
       </visual>
 
       <inertial>
@@ -415,14 +433,51 @@
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
       </inertial>
+    </link>
 
-      <!--<inertial>
+    <joint name="${robot_name}_joint_grabber" type="fixed">
+      <parent link="${robot_name}_link_FTS"/>
+      <child link="${robot_name}_link_grabber"/>
+      <origin xyz="0 0 0.0212" rpy="0 0 0"/>
+    </joint>
+
+    <link name="${robot_name}_link_grabber">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/collision/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/visual/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+      </visual>
+
+      <inertial>
+        <mass value="1e-5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+
+    <joint name="${robot_name}_joint_ee" type="fixed">
+      <parent link="${robot_name}_link_grabber"/>
+      <child link="${robot_name}_link_ee"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="${robot_name}_link_ee">
+      <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="1e-6"/>
         <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
-      </inertial>-->
+      </inertial>
     </link>
-
  
 
     <!--Extensions -->
