@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Patrick Sgrò (maintainer)
+    email:    patrick.sgro@hotmail.com
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- The following macro is used to add the force/torque sensor to the iiwa robot -->
+  <xacro:macro name="grabber" params="robot_name parent_link_name size_parent_link">
+    <joint name="${robot_name}_joint_grabber" type="fixed">
+      <parent link="${parent_link_name}"/>
+      <child link="${robot_name}_link_grabber"/>
+      <origin xyz="${size_parent_link}" rpy="0 0 0"/> <!-- 0 0 0.0212 -->
+    </joint>
+
+    <link name="${robot_name}_link_grabber">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/collision/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/visual/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+      </visual>
+
+      <inertial>
+        <mass value="1e-5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+  </xacro:macro>
+
+</robot>
