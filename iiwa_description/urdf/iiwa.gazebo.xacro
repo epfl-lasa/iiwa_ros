@@ -93,9 +93,13 @@
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
+    
+    <gazebo reference="${robot_name}_link_ee">
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
 
     <gazebo reference="${robot_name}_link_FTS">
-      <provideFeedback>true</provideFeedback>
       <material>Gazebo/Grey</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
@@ -111,11 +115,7 @@
       <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
     </gazebo>
 
-    <gazebo reference="${robot_name}_link_ee">
-      <material>Gazebo/Red</material>
-      <mu1>0.2</mu1>
-      <mu2>0.2</mu2>
-    </gazebo>
+    
     
 
   </xacro:macro>
