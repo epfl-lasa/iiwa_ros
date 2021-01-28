@@ -93,24 +93,29 @@
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
-
+    
     <gazebo reference="${robot_name}_link_ee">
-      <material>Gazebo/Red</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <gazebo reference="${robot_name}_link_FTS">
+      <material>Gazebo/Grey</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
 
-      <sensor name="${robot_name}_contactsensor_sensor" type="contact">
-        <always_on>true</always_on>
-        <contact>
-          <collision>${robot_name}_link_7_fixed_joint_lump__${robot_name}_link_ee_collision_1</collision>
-        </contact>
-        <plugin name="${robot_name}_link_ee_plugin" filename="libgazebo_ros_bumper.so">
-          <bumperTopicName>${robot_name}_contactsensor_state</bumperTopicName>
-          <frameName>${robot_name}_link_ee</frameName>
-          <frameName>world</frameName>
-        </plugin>
-      </sensor>
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
     </gazebo>
+
+    <gazebo reference="${robot_name}_link_grabber">
+      <material>Gazebo/White</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
+    </gazebo>
+
+    
     
 
   </xacro:macro>

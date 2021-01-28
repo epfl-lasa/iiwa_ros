@@ -29,6 +29,10 @@
   <xacro:include filename="$(find iiwa_description)/urdf/materials.xacro" />
   <!--Import the lbr iiwa macro -->
   <xacro:include filename="$(find iiwa_description)/urdf/iiwa7.xacro"/>
+  <!--Import the macro of the force torque sensor -->
+  <xacro:include filename="$(find force_sensor)/urdf/force_torque_sensor.xacro"/>
+  <!--Import the macro of the grabber -->
+  <xacro:include filename="$(find force_sensor)/urdf/grabber.xacro"/>
 
   <xacro:arg name="hardware_interface" default="PositionJointInterface"/>
   <xacro:arg name="robot_name" default="iiwa"/>
