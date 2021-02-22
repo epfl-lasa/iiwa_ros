@@ -40,7 +40,7 @@
 
     <gazebo>
       <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
-        <updateRate>50.0</updateRate>
+        <updateRate>0</updateRate>
         <topicName>${topic_name}</topicName>
         <jointName>${robot_name}_joint_FTS</jointName>
       </plugin>
@@ -66,7 +66,8 @@
       <inertial>
         <mass value="0.4" />
         <origin xyz="0 0 0" rpy="0 0 0"/>
-        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+        <!-- <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" /> -->
+        <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
       </inertial>
     </link>
   </xacro:macro>
