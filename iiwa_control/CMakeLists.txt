@@ -94,6 +94,7 @@ target_link_libraries(CustomEffortController PUBLIC
   ${Eigen3_LIBRARIES}
   Corrade::PluginManager)
 
+# add_dependencies(CustomEffortController iiwa_service)
 add_dependencies(CustomEffortController ${iiwa_tools_EXPORTED_TARGETS})
 
 # Require C++11
