@@ -75,8 +75,8 @@ CustomControllers:
   controllers:
     # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     # ForceDS: {type: "ForceModDSController", params: [200]}
-    PassiveDS: {type: "PassiveDSController", params: [200, 200]}
-    PD: {type: "PidController", params: [20., 2.], input: "Orientation", output: "Torque"}
+    PassiveDS: {type: "PassiveDSController", params: [300, 300]}
+    PD: {type: "PidController", params: [40., 12.6], input: "Orientation", output: "Torque"}
   # structure:
     # AddCtrl:
     #   - LinearDS
