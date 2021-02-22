@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2021 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Patrick Sgrò (maintainer)
+    email:    patrick.sgro@hotmail.com
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+|-->
+<launch>
+    <!-- Select the robot -->
+    <arg name="robot_name" default="iiwa"/>
+
+    <!-- Select the model of the iiwa -->
+    <arg name="iiwa_model" default="14"/>
+
+    <!-- Select the controller -->
+    <!-- ex: <arg name="controller" default="TorqueController"/> -->
+    <arg name="controller" default="TorqueController"/>
+
+    <!-- Select the position of the robot -->
+    <!-- ex: <arg name="position" default="-y 0.5"/> -->
+    <arg name="position" default=""/>
+
+    <group ns="/$(arg robot_name)">
+
+        <!-- Setup iiwa -->
+        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
+            <arg name="robot_name" value="$(arg robot_name)"/>
+            <arg name="model" value="$(arg iiwa_model)"/>
+            <!-- <arg name="namespace" value="/iiwa1"/> -->
+            <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
+            <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
+        </include>
+
+        <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
+        <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+            args="-urdf -model $(arg robot_name) -param robot_description $(arg position)"/>
+
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+        <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen"  ns="/$(arg robot_name)" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen">
+        </node>
+    </group>
+</launch>
+
