@@ -4,12 +4,10 @@
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
               Bernardo Fichera
               Walid Amanhoud
-    email:    costashatz@gmail.com
-              bernardo.fichera@epfl.ch
-              walid.amanhoud@epfl.ch
-    Other contributors:
-              Yoan Mollard (yoan@aubrune.eu)
-    website:  lasa.epfl.ch
+    email:   konstantinos.chatzilygeroudis@epfl.ch
+             bernardo.fichera@epfl.ch
+             walid.amanhoud@epfl.ch
+    website: lasa.epfl.ch
 
     This file is part of iiwa_ros.
 
@@ -33,19 +31,25 @@
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
 
-    <!-- Select the robot -->
-    <arg name="robot_name" default="iiwa"/>
-    <arg name="model" default="14" />
-
     <!-- Select the controller -->
-    <arg name="controller" default="CustomControllers"/>
+    <arg name="controller" value="TorqueController"/>
 
-    <!-- Setup iiwa -->
-    <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-        <arg name="robot_name" value="$(arg robot_name)"/>
-        <arg name="model" value="$(arg model)"/>
-        <arg name="controller" value="$(arg controller)"/>
+    <!-- Select the robot name -->
+    <arg name="robot_name_1" value="iiwa"/>
+
+    <!-- Select the model of the iiwa -->
+    <arg name="iiwa_model_1" default="14"/>
+
+    <!-- Select the position of the robot -->
+    <arg name="position_1" default=""/>
+
+    <include file="$(find iiwa_gazebo)/launch/iiwa_spawner.launch">
+        <arg name="robot_name" value="$(arg robot_name_1)"/>
+        <arg name="iiwa_model" value="$(arg iiwa_model_1)"/>
+        <arg name="controller" value="$(arg controller)" />
+        <arg name="position" value="$(arg position_1)"/>
     </include>
+    
 
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
@@ -57,14 +61,4 @@
         <arg name="headless" value="$(arg headless)"/>
     </include>
 
-    <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
-    <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
-        args="-urdf -model iiwa -param robot_description"/>
-
-    <!-- Spawn controller -->
-    <rosparam file="$(find iiwa_gazebo)/config/iiwa_control.yaml" command="load" ns="$(arg robot_name)"/> 
-    <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-       <arg name="controller" value="$(arg controller)"/>
-    </include>
 </launch>
-
