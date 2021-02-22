@@ -32,11 +32,11 @@
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
 
     <!-- Select the controller -->
-    <arg name="controller" value="TorqueController"/>
+    <arg name="controller" default="TorqueController"/>
 
     <!-- Select the robot name -->
-    <arg name="robot_name_1" value="iiwa1"/>
-    <arg name="robot_name_2" value="iiwa_blue"/>
+    <arg name="robot_name_1" default="iiwa1"/>
+    <arg name="robot_name_2" default="iiwa_blue"/>
 
     <!-- Select the model of the iiwa -->
     <arg name="iiwa_model_1" default="7"/>
