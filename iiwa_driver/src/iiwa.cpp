@@ -230,10 +230,10 @@ namespace iiwa_ros {
         n_p.param("hardware_interface/control_freq", _control_freq, 200.);
         
         if(n_p.getParam("hardware_interface/joints", _joint_names)){
-            ROS_INFO_STREAM("Got parameter hardware_interface/joints");
+            ROS_INFO_STREAM_ONCE_NAMED("Iiwa","Got parameter hardware_interface/joints");
         }
         else{
-            ROS_ERROR_STREAM("Parameter hardware_interface/joints not found");
+            ROS_ERROR_STREAM_ONCE_NAMED("Iiwa","Parameter hardware_interface/joints not found");
         }
     }
 
