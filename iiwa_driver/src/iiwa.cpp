@@ -104,7 +104,13 @@ namespace iiwa_ros {
                                         " URDF in parameter [%s] on the ROS param server.",
                 _robot_description.c_str());
 
-            _nh.getParam(_robot_description, urdf_string);
+            std::string ns = _nh.getNamespace();
+            if(_nh.getParam(ns + _robot_description, urdf_string)){
+                ROS_INFO_STREAM("Got parameter: " + _robot_description);
+            }
+            else{
+                ROS_ERROR_STREAM("Parameter " + _robot_description + " not found");
+            }
 
             usleep(100000);
         }
@@ -250,7 +256,13 @@ namespace iiwa_ros {
         n_p.param<std::string>("fri/robot_description", _robot_description, "/robot_description");
 
         n_p.param("hardware_interface/control_freq", _control_freq, 200.);
-        n_p.getParam("hardware_interface/joints", _joint_names);
+        
+        if(n_p.getParam("hardware_interface/joints", _joint_names)){
+            ROS_INFO_STREAM("Got parameter hardware_interface/joints");
+        }
+        else{
+            ROS_ERROR_STREAM("Parameter hardware_interface/joints not found");
+        }
     }
 
     void Iiwa::_read(ros::Duration elapsed_time)
