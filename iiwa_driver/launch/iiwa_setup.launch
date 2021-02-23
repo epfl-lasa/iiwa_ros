@@ -32,6 +32,10 @@
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
 
+    <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
+    <arg name="force_sensor" default="False"/>
+    <arg name="grabber" default="False"/>
+
     <!-- Select the hardware interface -->
     <arg if="$(eval controller == 'TorqueController')" name="hardware_interface" value="EffortJointInterface"/>
     <arg if="$(eval controller == 'PositionTorqueController')" name="hardware_interface" value="EffortJointInterface"/>
@@ -42,8 +46,10 @@
 
     <!-- Upload iiwa URDF -->
     <include file="$(find iiwa_description)/launch/iiwa$(arg model)_upload.launch">
-    <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-    <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="force_sensor" value="$(arg force_sensor)"/>
+        <arg name="grabber" value="$(arg grabber)"/>
     </include>
 
     <!-- Spawn iiwa service -->

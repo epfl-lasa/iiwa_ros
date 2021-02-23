@@ -23,12 +23,18 @@
     <!-- ex: <arg name="position" default="-y 0.5"/> -->
     <arg name="position" default=""/>
 
+    <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
+    <arg name="force_sensor" default="False"/>
+    <arg name="grabber" default="False"/>
+
     <group ns="/$(arg robot_name)">
 
         <!-- Setup iiwa -->
         <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
             <arg name="robot_name" value="$(arg robot_name)"/>
             <arg name="model" value="$(arg iiwa_model)"/>
+            <arg name="force_sensor" value="$(arg force_sensor)"/>
+            <arg name="grabber" value="$(arg grabber)"/>
             <!-- <arg name="namespace" value="/iiwa1"/> -->
             <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
             <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
