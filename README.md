@@ -28,6 +28,11 @@ Dependencies
 
 ### KUKA FRI (Private)
 
+>If you are working with **noetic**, the ``./waf`` command will not be recognized, before installing KUKA FRI run the following command:
+``
+sudo apt-get install python-is-python3
+``
+
 ```sh
 cd /source/directory
 git clone https://github.com/epfl-lasa/kuka_fri.git
@@ -150,6 +155,16 @@ roslaunch iiwa_gazebo iiwa_gazebo.launch
 ```
 
 Both of the above commands will launch IIWA in **torque-control mode**. To change the control mode (e.g., position-control), please edit the launch files to select the appropriate controller.
+
+**Possible errors**
+
+By launching iiwa_gazebo.launch you might have the following error:
+>error while loading shared libraries: libRBDyn.so.0: cannot open shared object file: No such file or directory
+
+To solve this problem you have to create the links for the shared libraries, to do so you can use the following command:
+```
+sudo ldconfig
+```
 
 ### MoveIt planning
 
