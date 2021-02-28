@@ -22,7 +22,7 @@
 #|    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #|    GNU General Public License for more details.
 #|
-cmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.5)
 project(iiwa_description)
 
 find_package(catkin REQUIRED)
