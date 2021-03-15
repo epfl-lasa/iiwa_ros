@@ -25,19 +25,19 @@ PositionTorqueController:
     - $(arg robot_name)_joint_5
     - $(arg robot_name)_joint_6
     - $(arg robot_name)_joint_7
-  iiwa_joint_1:
+  $(arg robot_name)_joint_1:
     pid: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_2:
+  $(arg robot_name)_joint_2:
     pid: {p: 800.0, i: 1000, d: 100.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_3:
+  $(arg robot_name)_joint_3:
     pid: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_4:
+  $(arg robot_name)_joint_4:
     pid: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_5:
+  $(arg robot_name)_joint_5:
     pid: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_6:
+  $(arg robot_name)_joint_6:
     pid: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  iiwa_joint_7:
+  $(arg robot_name)_joint_7:
     pid: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
 
 PositionController:
@@ -50,6 +50,14 @@ PositionController:
     - $(arg robot_name)_joint_5
     - $(arg robot_name)_joint_6
     - $(arg robot_name)_joint_7
+  pid_gains:
+    $(arg robot_name)_joint_1: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_2: {p: 800.0, i: 1000, d: 100.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_3: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_4: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_5: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_6: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    $(arg robot_name)_joint_7: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
 
 # Custom Controllers ------------------------------------------------
 # The space variable can be either set to "task" or "joint"
@@ -75,8 +83,8 @@ CustomControllers:
   controllers:
     # LinearDS: {type: "LinearDSController", params: [1., 1., 1.]}
     # ForceDS: {type: "ForceModDSController", params: [200]}
-    PassiveDS: {type: "PassiveDSController", params: [300, 300]}
-    PD: {type: "PidController", params: [40., 12.6], input: "Orientation", output: "Torque"}
+    PassiveDS: {type: "PassiveDSController", params: [180, 180]}
+    PD: {type: "PidController", params: [20., 8.9], input: "Orientation", output: "Torque"}
   # structure:
     # AddCtrl:
     #   - LinearDS
