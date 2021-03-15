@@ -54,9 +54,12 @@ namespace iiwa_ros {
     void Iiwa::init(ros::NodeHandle& nh)
     {
         _nh = nh;
+        _ns = nh.getNamespace();
         _load_params(); // load parameters
         _init(); // initialize
-        _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
+        // add namespace
+        _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns+"/commanding_status", 100);
+        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
         if (_init_fri())
@@ -104,8 +107,7 @@ namespace iiwa_ros {
                                         " URDF in parameter [%s] on the ROS param server.",
                 _robot_description.c_str());
 
-            std::string ns = _nh.getNamespace();
-            if(_nh.getParam(ns + _robot_description, urdf_string)){
+            if(_nh.getParam(_robot_description, urdf_string)){
                 ROS_INFO_STREAM("Got parameter: " + _robot_description);
             }
             else{
@@ -251,13 +253,13 @@ namespace iiwa_ros {
     {
         ros::NodeHandle n_p("~");
 
-        n_p.param("fri/port", _port, 30200); // Default port is 30200
-        n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-        n_p.param<std::string>("fri/robot_description", _robot_description, "/robot_description");
+        n_p.param(_ns + "/fri/port", _port, 30200); // Default port is 30200
+        n_p.param<std::string>(_ns + "/fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
+        n_p.param<std::string>(_ns + "/fri/robot_description", _robot_description, _ns + "/robot_description");
 
-        n_p.param("hardware_interface/control_freq", _control_freq, 200.);
+        n_p.param(_ns + "/hardware_interface/control_freq", _control_freq, 200.);
         
-        if(n_p.getParam("hardware_interface/joints", _joint_names)){
+        if(n_p.getParam(_ns + "/hardware_interface/joints", _joint_names)){
             ROS_INFO_STREAM_ONCE_NAMED("Iiwa","Got parameter hardware_interface/joints");
         }
         else{
