@@ -253,13 +253,13 @@ namespace iiwa_ros {
     {
         ros::NodeHandle n_p("~");
 
-        n_p.param(_ns + "/fri/port", _port, 30200); // Default port is 30200
-        n_p.param<std::string>(_ns + "/fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-        n_p.param<std::string>(_ns + "/fri/robot_description", _robot_description, _ns + "/robot_description");
+        n_p.param(_ns + "/iiwa_driver/fri/port", _port, 30200); // Default port is 30200
+        n_p.param<std::string>(_ns + "/iiwa_driver/fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
+        n_p.param<std::string>(_ns + "/iiwa_driver/fri/robot_description", _robot_description, _ns + "/robot_description");
 
-        n_p.param(_ns + "/hardware_interface/control_freq", _control_freq, 200.);
+        n_p.param(_ns + "/iiwa_driver/hardware_interface/control_freq", _control_freq, 200.);
         
-        if(n_p.getParam(_ns + "/hardware_interface/joints", _joint_names)){
+        if(n_p.getParam(_ns + "/iiwa_driver/hardware_interface/joints", _joint_names)){
             ROS_INFO_STREAM_ONCE_NAMED("Iiwa","Got parameter hardware_interface/joints");
         }
         else{
