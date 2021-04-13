@@ -75,10 +75,13 @@ sudo make install
 
 ### corrade
 
+We are using a specific version of Corrade.
+
 ```sh
 cd /source/directory
 git clone https://github.com/mosra/corrade.git
 cd corrade
+git checkout 0d149ee9f26a6e35c30b1b44f281b272397842f5
 mkdir build && cd build
 cmake ..
 make -j
