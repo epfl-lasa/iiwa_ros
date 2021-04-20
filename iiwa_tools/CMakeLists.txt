@@ -54,6 +54,7 @@ add_service_files(
   GetJacobian.srv
   GetJacobians.srv
   GetGravity.srv
+  GetInertiaMatrix.srv
 )
 
 generate_messages(
