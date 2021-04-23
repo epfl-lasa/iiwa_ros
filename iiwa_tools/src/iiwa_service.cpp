@@ -65,8 +65,8 @@ namespace iiwa_tools {
         _gravity_server = _nh.advertiseService(_gravity_service_name, &IiwaService::get_gravity, this);
         ROS_INFO_STREAM("Started Iiwa Gravity Compensation server..");
 
-        _inertia_server = _nh.advertiseService(_inertia_service_name, &IiwaService::get_inertia_matrix, this);
-        ROS_INFO_STREAM("Started Iiwa Inertia Matrix server..");
+        _mass_server = _nh.advertiseService(_mass_service_name, &IiwaService::get_mass_matrix, this);
+        ROS_INFO_STREAM("Started Iiwa Mass Matrix server..");
     }
 
     bool IiwaService::perform_fk(iiwa_tools::GetFK::Request& request,
@@ -340,8 +340,8 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::get_inertia_matrix(iiwa_tools::GetInertiaMatrix::Request& request,
-        iiwa_tools::GetInertiaMatrix::Response& response)
+    bool IiwaService::get_mass_matrix(iiwa_tools::GetMassMatrix::Request& request,
+        iiwa_tools::GetMassMatrix::Response& response)
     {
         if (request.joint_angles.size() != _n_joints) {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
@@ -354,20 +354,20 @@ namespace iiwa_tools {
             robot_state.position[i] = request.joint_angles[i];
         }
 
-        Eigen::MatrixXd H = _tools.inertia_matrix(robot_state);
+        Eigen::MatrixXd H = _tools.mass_matrix(robot_state);
 
         // Fill response
-        response.inertia_matrix.layout.dim.resize(2);
-        response.inertia_matrix.layout.data_offset = 0;
-        response.inertia_matrix.layout.dim[0].size = H.rows();
-        response.inertia_matrix.layout.dim[0].stride = H.cols();
-        response.inertia_matrix.layout.dim[1].size = H.cols();
-        response.inertia_matrix.layout.dim[1].stride = 0;
-        response.inertia_matrix.data.resize(H.rows() * H.cols());
+        response.mass_matrix.layout.dim.resize(2);
+        response.mass_matrix.layout.data_offset = 0;
+        response.mass_matrix.layout.dim[0].size = H.rows();
+        response.mass_matrix.layout.dim[0].stride = H.cols();
+        response.mass_matrix.layout.dim[1].size = H.cols();
+        response.mass_matrix.layout.dim[1].stride = 0;
+        response.mass_matrix.data.resize(H.rows() * H.cols());
 
         for (int i = 0; i < H.rows(); i++) {
             for (int j = 0; j < H.cols(); j++) {
-                set_multi_array(response.inertia_matrix, i, j, H(i, j));
+                set_multi_array(response.mass_matrix, i, j, H(i, j));
             }
         }
 	
@@ -386,7 +386,7 @@ namespace iiwa_tools {
         n_p.param<std::string>("service/jacobian_deriv_service_name", _jacobian_deriv_service_name, "iiwa_jacobian_deriv_server");
         n_p.param<std::string>("service/jacobians_service_name", _jacobians_service_name, "iiwa_jacobians_server");
         n_p.param<std::string>("service/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
-	n_p.param<std::string>("service/inertia_service_name", _inertia_service_name, "iiwa_inertia_server");
+	n_p.param<std::string>("service/mass_service_name", _mass_service_name, "iiwa_mass_server");
     }
 
     void IiwaService::init()

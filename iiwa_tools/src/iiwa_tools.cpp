@@ -261,7 +261,7 @@ namespace iiwa_tools {
         return q_best;
     }
 
-    Eigen::MatrixXd IiwaTools::inertia_matrix(const RobotState& robot_state)
+    Eigen::MatrixXd IiwaTools::mass_matrix(const RobotState& robot_state)
     {
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
 	rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
@@ -270,12 +270,12 @@ namespace iiwa_tools {
 	// Forward Dynamics
 	rbd::ForwardDynamics fd(rbdyn_urdf.mb);
 	
-	// Compute Inertia Matrix
+	// Compute Mass Matrix
 	rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc); // TODO: needed?
 	rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc); // TODO: needed?
 	fd.computeH(rbdyn_urdf.mb, rbdyn_urdf.mbc);
       
-	// Get Inertia Matrix
+	// Get Mass Matrix
 	return fd.H();
     }
 

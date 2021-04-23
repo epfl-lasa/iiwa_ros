@@ -41,7 +41,7 @@
 #include <iiwa_tools/GetIK.h>
 #include <iiwa_tools/GetJacobian.h>
 #include <iiwa_tools/GetJacobians.h>
-#include <iiwa_tools/GetInertiaMatrix.h>
+#include <iiwa_tools/GetMassMatrix.h>
 
 namespace iiwa_tools {
     class IiwaService {
@@ -68,16 +68,16 @@ namespace iiwa_tools {
         bool get_gravity(iiwa_tools::GetGravity::Request& request,
             iiwa_tools::GetGravity::Response& response);
 
-	bool get_inertia_matrix(iiwa_tools::GetInertiaMatrix::Request& request,
-	    iiwa_tools::GetInertiaMatrix::Response& response);
+	bool get_mass_matrix(iiwa_tools::GetMassMatrix::Request& request,
+	    iiwa_tools::GetMassMatrix::Response& response);
 
     protected:
         void _load_params();
 
         // ROS related
         ros::NodeHandle _nh;
-        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _jacobian_deriv_service_name, _jacobians_service_name, _gravity_service_name, _inertia_service_name;
-        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _jacobian_deriv_server, _jacobians_server, _gravity_server, _inertia_server;
+        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _jacobian_deriv_service_name, _jacobians_service_name, _gravity_service_name, _mass_service_name;
+        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _jacobian_deriv_server, _jacobians_server, _gravity_server, _mass_server;
 
         // Robot
         unsigned int _n_joints;

@@ -22,7 +22,7 @@
 #|    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #|    GNU General Public License for more details.
 #|
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_tools)
 
 option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
@@ -54,7 +54,7 @@ add_service_files(
   GetJacobian.srv
   GetJacobians.srv
   GetGravity.srv
-  GetInertiaMatrix.srv
+  GetMassMatrix.srv
 )
 
 generate_messages(
