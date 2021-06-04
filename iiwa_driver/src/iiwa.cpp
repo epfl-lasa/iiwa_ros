@@ -23,6 +23,7 @@
 //|    GNU General Public License for more details.
 //|
 #include <iiwa_driver/iiwa.h>
+#include <iiwa_driver/ConnectionQuality.h>
 
 // ROS Headers
 #include <control_toolbox/filters.h>
@@ -245,6 +246,9 @@ namespace iiwa_ros {
             _additional_pub.msg_.commanded_positions.layout.dim[0].size = _num_joints;
             _additional_pub.msg_.commanded_positions.layout.dim[0].stride = 0;
             _additional_pub.msg_.commanded_positions.data.resize(_num_joints);
+
+            _fri_state_pub.init(_nh, "fri_state", 20);
+            _fri_state_pub.msg_.connection_quality.connection_quality = iiwa_driver::ConnectionQuality::POOR;
         }
     }
 
@@ -273,14 +277,22 @@ namespace iiwa_ros {
         }
 
         // publish additional outputs
-        if (_publish_additional_info && _additional_pub.trylock()) {
-            _additional_pub.msg_.header.stamp = ros::Time::now();
-            for (unsigned i = 0; i < _num_joints; i++) {
-                _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
-                _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
-                _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
+        if (_publish_additional_info) {
+            if (_additional_pub.trylock()) {
+              _additional_pub.msg_.header.stamp = ros::Time::now();
+              for (size_t i = 0; i < _num_joints; i++) {
+                  _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
+                  _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
+                  _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
+              }
+              _additional_pub.unlockAndPublish();
             }
-            _additional_pub.unlockAndPublish();
+
+            if (_fri_state_pub.trylock()) {
+                _fri_state_pub.msg_.header.stamp = ros::Time::now();
+                _fri_state_pub.msg_.connection_quality.connection_quality = _robot_state.getConnectionQuality();
+                _fri_state_pub.unlockAndPublish();
+            }
         }
     }
 

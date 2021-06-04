@@ -32,8 +32,9 @@
 #include <realtime_tools/realtime_publisher.h>
 
 #include <iiwa_driver/AdditionalOutputs.h>
-#include <std_msgs/Float64MultiArray.h>
+#include <iiwa_driver/FRIState.h>
 #include <std_msgs/Bool.h>
+#include <std_msgs/Float64MultiArray.h>
 
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
@@ -99,6 +100,7 @@ namespace iiwa_ros {
 
         // External torque and commanding status publishers
         realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
+        realtime_tools::RealtimePublisher<iiwa_driver::FRIState> _fri_state_pub;
         realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
 
         // Interfaces
