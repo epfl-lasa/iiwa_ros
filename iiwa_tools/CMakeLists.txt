@@ -29,14 +29,7 @@ option(ENABLE_SIMD "Build with all SIMD instructions on the current local machin
 
 find_package(PkgConfig)
 
-# Find RBDyn library and dependencies
-pkg_search_module(Eigen3 REQUIRED eigen3)
-find_package(Boost 1.49 REQUIRED)
-
-pkg_check_modules(tinyxml2 REQUIRED tinyxml2)
-pkg_check_modules(SpaceVecAlg REQUIRED SpaceVecAlg)
-pkg_check_modules(RBDyn REQUIRED RBDyn)
-pkg_check_modules(mc_rbdyn_urdf REQUIRED mc_rbdyn_urdf)
+find_package(mc_rbdyn_urdf REQUIRED)
 
 # Find catkin components
 find_package(catkin REQUIRED COMPONENTS
@@ -66,14 +59,13 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
  CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
- DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
  LIBRARIES iiwa_tools
 )
 
 add_library(iiwa_tools SHARED src/iiwa_tools.cpp)
 target_compile_options(iiwa_tools PUBLIC -std=c++11)
-target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} mc_rbdyn_urdf::mc_rbdyn_urdf)
 
 add_executable(iiwa_service src/iiwa_service.cpp src/iiwa_service_node.cpp)
 
@@ -95,8 +87,8 @@ if(ENABLE_SIMD)
 endif()
 
 target_compile_options(iiwa_service PUBLIC -std=c++11)
-target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES} iiwa_tools)
+target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} iiwa_tools)
 
 add_dependencies(iiwa_service iiwa_tools_generate_messages_cpp)
 
