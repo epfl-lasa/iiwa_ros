@@ -41,22 +41,28 @@ sudo ./waf install
 
 ```sh
 cd /source/directory
-git clone --recursive https://github.com/costashatz/SpaceVecAlg.git
+git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
 cd SpaceVecAlg
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
+```
+
+Instead of passing `-DCMAKE_CXX_FLAGS="-march=native -faligned-new"` for `SpaceVecAlg`, `RBDyn` and `mc_rbdyn_urdf` builds you can also set the `CXXFLAGS` environment variables and omit the option:
+
+```sh
+export CXXFLAGS="-march=native -faligned-new"
 ```
 
 ### RBDyn
 
 ```sh
 cd /source/directory
-git clone --recursive https://github.com/costashatz/RBDyn.git
+git clone --recursive https://github.com/jrl-umi3218/RBDyn.git
 cd RBDyn
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
 ```
@@ -65,10 +71,10 @@ sudo make install
 
 ```sh
 cd /source/directory
-git clone --recursive https://github.com/costashatz/mc_rbdyn_urdf.git
+git clone --recursive https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
 cd mc_rbdyn_urdf
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
 ```
@@ -181,9 +187,9 @@ Authors/Maintainers
 [gazebo]: http://gazebosim.org/
 [ros control]: http://wiki.ros.org/ros_control
 [kuka fri]: https://github.com/costashatz/kuka_fri
-[spacevecalg]: https://github.com/costashatz/SpaceVecAlg
-[rbdyn]: https://github.com/costashatz/RBDyn
-[mc_rbdyn_urdf]: https://github.com/costashatz/mc_rbdyn_urdf
+[spacevecalg]: https://github.com/jrl-umi3218/SpaceVecAlg
+[rbdyn]: https://github.com/jrl-umi3218/RBDyn
+[mc_rbdyn_urdf]: https://github.com/jrl-umi3218/mc_rbdyn_urdf
 [robot_controllers]: https://github.com/epfl-lasa/robot_controllers
 [corrade]: https://github.com/mosra/corrade
 [iiwa_stack]: https://github.com/IFL-CAMP/iiwa_stack
