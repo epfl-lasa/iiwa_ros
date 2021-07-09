@@ -1,6 +1,5 @@
 ARG BASE_IMAGE=osrf/ros
 ARG BASE_TAG=melodic-desktop-full
-ARG SSH_PRIVATE_KEY
 
 FROM ${BASE_IMAGE}:${BASE_TAG} AS project-dependencies
 
