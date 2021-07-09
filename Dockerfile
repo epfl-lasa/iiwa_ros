@@ -29,6 +29,7 @@ RUN wget http://packages.osrfoundation.org/gazebo.key -O - | apt-key add -
 RUN apt-get update && apt-get install -y \
     ros-melodic-ros-control \
     ros-melodic-ros-controllers \
+    ros-melodic-joint-state-publisher-gui \
 	libignition-math2-dev \
 	gazebo9 \
 	libgazebo9-dev \
@@ -76,6 +77,10 @@ RUN cd robot_controllers && mkdir build && cd build \
 RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
 RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
 
+# install control libraries
+RUN git clone --single-branch --branch develop https://github.com/epfl-lasa/control_libraries
+RUN bash control_libraries/source/install.sh --auto
+
 RUN sudo ldconfig
 RUN rm -rf /tmp/*
 
@@ -106,7 +111,6 @@ WORKDIR ${HOME}/ros_ws/src
 # Change .bashrc
 COPY docker/update_bashrc /sbin/update_bashrc
 RUN sudo chmod +x /sbin/update_bashrc ; sudo chown ros /sbin/update_bashrc ; sync ; /bin/bash -c /sbin/update_bashrc ; sudo rm /sbin/update_bashrc
-
 
 # ros user with everything pre-built
 FROM ros-ws AS ros-user

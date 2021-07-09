@@ -5,6 +5,6 @@ set -e
 source $HOME/.bashrc
 
 # start in home directory
-cd
+cd $HOME/ros_ws
 
 exec bash -i -c $@
