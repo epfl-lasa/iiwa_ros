@@ -29,7 +29,6 @@
 	<arg name="robot_name" default="iiwa"/>
 	<arg name="type" default="14"/>
 	<arg name="gui" default="true"/>
-	<param name="use_gui" value="$(arg gui)"/>
 
 	<!-- Upload iiwa URDF -->
 	<include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">
@@ -38,8 +37,10 @@
 	</include>
 
 	<!-- Start state publishers -->
-	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+	<group if="$(arg gui)">
+		<node name="joint_state_publisher_gui" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+	</group>
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
 	<!-- Start RVIZ -->
 	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find iiwa_description)/config/config.rviz" /> -->
 </launch>
