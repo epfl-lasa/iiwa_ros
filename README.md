@@ -180,6 +180,18 @@ Authors/Maintainers
 
 - Yoan Mollard (yoan@aubrune.eu)
 
+Citing iiwa_ros
+------------------
+
+```bibtex
+@software{iiwa2019github,
+  author = {Chatzilygeroudis, Konstantinos and Fichera, Bernardo and Amanhoud, Walid and Billard, Aude},
+  title = {iiwa_ros: A ROS Stack for KUKA's IIWA robots using the Fast Research Interface},
+  url = {http://github.com/epfl-lasa/iiwa_ros},
+  year = {2019},
+}
+```
+
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/
 [ros control]: http://wiki.ros.org/ros_control
