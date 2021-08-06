@@ -41,15 +41,20 @@ DOCKER_BUILDKIT=1 docker build "${BUILD_FLAGS[@]}" .. || exit
 
 [[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""
 
+docker network inspect multinet >/dev/null 2>&1 || \
+  docker network create --subnet=172.20.0.0/16 --gateway=172.20.0.1 multinet
+
 xhost +
 docker run \
   ${GPU_FLAG} \
   --privileged \
   -it \
   --rm \
-  --net="host" \
+  --hostname="${IMAGE_NAME}-runtime" \
+  --network=multinet \
   --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
   --volume="${XAUTHORITY}:${XAUTHORITY}" \
   --env XAUTHORITY="${XAUTHORITY}" \
   --env DISPLAY="${DISPLAY}" \
+  --env ROS_HOSTNAME="${IMAGE_NAME}-runtime" \
   "${IMAGE_NAME}:${STAGE_NAME}"
