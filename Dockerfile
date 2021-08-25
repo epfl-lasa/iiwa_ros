@@ -114,8 +114,7 @@ RUN sudo chmod +x /sbin/update_bashrc ; sudo chown ros /sbin/update_bashrc ; syn
 # ros user with everything pre-built
 FROM ros-ws AS ros-user
 
-COPY --chown=ros . .
-RUN rm -rf ./docker ./Dockerfile
+COPY --chown=ros ./iiwa_* .
 RUN cd ${HOME}/ros_ws && /bin/bash -c "source /ros_entrypoint.sh; catkin_make"
 
 # Change entrypoint to source ~/.bashrc and start in ~
