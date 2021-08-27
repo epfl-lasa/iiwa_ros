@@ -108,17 +108,17 @@ RUN cd ${HOME}/ros_ws && /bin/bash -c "source /ros_entrypoint.sh; catkin_make"
 WORKDIR ${HOME}/ros_ws/src
 
 # Change .bashrc
-COPY docker/update_bashrc /sbin/update_bashrc
+COPY config/update_bashrc /sbin/update_bashrc
 RUN sudo chmod +x /sbin/update_bashrc ; sudo chown ros /sbin/update_bashrc ; sync ; /bin/bash -c /sbin/update_bashrc ; sudo rm /sbin/update_bashrc
 
 # ros user with everything pre-built
 FROM ros-ws AS ros-user
 
-COPY --chown=ros ./iiwa_* .
+COPY --chown=ros ./ ./
 RUN cd ${HOME}/ros_ws && /bin/bash -c "source /ros_entrypoint.sh; catkin_make"
 
 # Change entrypoint to source ~/.bashrc and start in ~
-COPY docker/ros_entrypoint.sh /ros_entrypoint.sh
+COPY config/ros_entrypoint.sh /ros_entrypoint.sh
 RUN sudo chmod +x /ros_entrypoint.sh ; sudo chown ros /ros_entrypoint.sh ;
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
@@ -129,7 +129,7 @@ CMD ["bash"]
 FROM ros-ws AS dev-user
 
 # Change entrypoint to source ~/.bashrc and start in ~
-COPY docker/ros_entrypoint.sh /ros_entrypoint.sh
+COPY config/ros_entrypoint.sh /ros_entrypoint.sh
 RUN sudo chmod +x /ros_entrypoint.sh ; sudo chown ros /ros_entrypoint.sh ;
 
 ENTRYPOINT ["/ros_entrypoint.sh"]

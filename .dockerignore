@@ -1,0 +1,6 @@
+.git*
+build-run.sh
+remote-dev.sh
+Dockerfile
+add_license.py
+*.md

@@ -7,13 +7,6 @@ IMAGE_NAME=iiwa_ros
 STAGE_NAME=dev-user
 REBUILD=0
 
-path=$(echo "${PWD}" | rev | cut -d'/' -f-2 | rev)
-if [ "${path}" != "iiwa_ros/docker" ]; then
-  echo "Run this script from within the directory iiwa_ros/docker !"
-  echo "You are currently in ${path}"
-  exit 1
-fi
-
 while getopts 'r' opt; do
     case $opt in
         r) REBUILD=1 ;;
@@ -37,7 +30,7 @@ if [ "${REBUILD}" -eq 1 ]; then
     BUILD_FLAGS+=(--no-cache)
 fi
 
-DOCKER_BUILDKIT=1 docker build "${BUILD_FLAGS[@]}" .. || exit
+DOCKER_BUILDKIT=1 docker build "${BUILD_FLAGS[@]}" . || exit
 
 [[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""
 
