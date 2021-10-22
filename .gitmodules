@@ -1,0 +1,6 @@
+[submodule "koopman-op"]
+	path = koopman-op
+	url = git@github.com:psu-hcr/koopman-op.git
+[submodule "iiwa_ros/lus-rosscripts"]
+	path = iiwa_ros/lus-rosscripts
+	url = git@github.com:psu-hcr/lus-rosscripts.git
