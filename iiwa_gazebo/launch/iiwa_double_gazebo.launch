@@ -36,21 +36,21 @@
 
     <!-- Select the robot name -->
     <arg name="robot_name_1" default="iiwa1"/>
-    <arg name="robot_name_2" default="iiwa_blue"/>
+    <arg name="robot_name_2" default="iiwa2"/>
 
     <!-- Select the model of the iiwa -->
     <arg name="iiwa_model_1" default="14"/>
-    <arg name="iiwa_model_2" default="7"/>
+    <arg name="iiwa_model_2" default="14"/>
 
     <!-- Select the position of the robot -->
-    <arg name="position_1" default="-y -0.5"/>
-    <arg name="position_2" default="-y 0.5"/>
+    <arg name="position_1" default="-x -0.4 -y -1"/>
+    <arg name="position_2" default="-x 0.4 -y 1"/>
 
     <!-- Select the booleans grabber and force sensor (True or False) if we want them mounted on the robot -->
-    <arg name="force_sensor_1" default="True"/>
-    <arg name="grabber_1" default="True"/>
-    <arg name="force_sensor_2" default="True"/>
-    <arg name="grabber_2" default="True"/>
+    <arg name="force_sensor_1" default="False"/>
+    <arg name="grabber_1" default="False"/>
+    <arg name="force_sensor_2" default="False"/>
+    <arg name="grabber_2" default="False"/>
 
     <include file="$(find iiwa_gazebo)/launch/iiwa_spawner.launch">
         <arg name="robot_name" value="$(arg robot_name_1)"/>
