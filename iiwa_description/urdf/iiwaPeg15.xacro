@@ -387,7 +387,6 @@
       </collision>
     </link>
     
-    
 	 <!-- joint between link_6 and End Effector -->
     <joint name="${robot_name}_joint_ee" type="fixed">
       <parent link="${robot_name}_link_7"/>
