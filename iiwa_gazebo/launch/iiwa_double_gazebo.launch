@@ -43,8 +43,8 @@
     <arg name="iiwa_model_2" default="14"/>
 
     <!-- Select the position of the robot -->
-    <arg name="position_1" default="-x -0.55 -y -0.45"/>
-    <arg name="position_2" default="-x 0.55 -y 0.45 -Y 3.1415926536"/>
+    <arg name="position_1" default="-x 0.0 -y -0.5"/>
+    <arg name="position_2" default="-x 0.0 -y 0.5"/>
 
     <!-- Select the booleans grabber and force sensor (True or False) if we want them mounted on the robot -->
     <arg name="force_sensor_1" default="False"/>
