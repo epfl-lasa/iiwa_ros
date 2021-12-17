@@ -34,6 +34,7 @@
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
     <arg name="gzclient" default="false"/>
 
+
     <!-- Select the robot -->
     <arg name="robot_name" default="iiwa"/>
     <arg name="model" default="14" />
