@@ -386,37 +386,9 @@
         <material name="Grey"/>
       </collision>
     </link>
- <!-- joint between link_7 and end effector -->
-    <joint name="${robot_name}_joint_8" type="fixed">
-      <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_8"/>
-      <origin xyz="0 0.081 0" rpy="${- PI / 2} ${PI} 0"/>
-</joint>
-
-    <link name="${robot_name}_link_8">
-      <inertial>
-        <origin xyz="0 0.081 0" rpy="${- PI / 2} ${PI} 0"/>
-        <mass value="1.8"/>
-        <inertia ixx="0.005"  ixy="0"  ixz="0" iyy="0.0036" iyz="0" izz="0.0047" />
-      </inertial>
-
-      <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="//Home/test.stl"/>
-        </geometry>
-        <material name="Orange"/>
-      </visual>
-
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="//Home/test.stl"/>
-        </geometry>
-        <material name="Orange"/>
-      </collision>
-    </link>
-
+    
+    
+	 <!-- joint between link_6 and End Effector -->
     <joint name="${robot_name}_joint_ee" type="fixed">
       <parent link="${robot_name}_link_7"/>
       <child link="${robot_name}_link_ee"/>
@@ -429,6 +401,25 @@
         <mass value="1e-6"/>
         <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
       </inertial>
+      
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/BrushScaled.stl"/>
+          <!--  <box size="0.1 0.1 0.1"/> -->
+        </geometry>
+        <material name="Orange"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/BrushScaled.stl"/>
+          <!-- <box size="0.1 0.1 0.1"/> -->
+        </geometry>
+        <material name="Orange"/>
+      </collision>
+   
     </link>
 
     <!--Extensions -->

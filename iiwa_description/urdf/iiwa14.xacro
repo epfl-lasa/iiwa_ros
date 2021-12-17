@@ -405,7 +405,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/PegScaled.stl"/>
+          <!-- <mesh filename="package://iiwa_description/meshes/iiwa14/visual/PegScaled.stl"/> -->
           <!--  <box size="0.1 0.1 0.1"/> -->
         </geometry>
         <material name="Orange"/>
@@ -414,7 +414,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/PegScaled.stl"/>
+        <!--  <mesh filename="package://iiwa_description/meshes/iiwa14/collision/PegScaled.stl"/> -->
           <!-- <box size="0.1 0.1 0.1"/> -->
         </geometry>
         <material name="Orange"/>
