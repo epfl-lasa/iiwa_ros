@@ -39,7 +39,7 @@
     <arg name="robot_name_2" default="iiwa2"/>
 
     <!-- Select the model of the iiwa -->
-    <arg name="iiwa_model_1" default="14"/>
+    <arg name="iiwa_model_1" default="7"/>
     <arg name="iiwa_model_2" default="14"/>
 
     <!-- Select the position of the robot -->
