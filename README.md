@@ -174,7 +174,6 @@ Authors/Maintainers
 
 - Konstantinos Chatzilygeroudis (costashatz@gmail.com)
 - Bernardo Fichera (bernardo.fichera@epfl.ch)
-- Walid Amanhoud (walid.amanhoud@epfl.ch)
 
 ### Other Contributors
 
