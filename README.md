@@ -180,11 +180,22 @@ Authors/Maintainers
 
 - Konstantinos Chatzilygeroudis (costashatz@gmail.com)
 - Bernardo Fichera (bernardo.fichera@epfl.ch)
-- Walid Amanhoud (walid.amanhoud@epfl.ch)
 
 ### Other Contributors
 
 - Yoan Mollard (yoan@aubrune.eu)
+
+Citing iiwa_ros
+------------------
+
+```bibtex
+@software{iiwa2019github,
+  author = {Chatzilygeroudis, Konstantinos and Fichera, Bernardo and Billard, Aude},
+  title = {iiwa_ros: A ROS Stack for KUKA's IIWA robots using the Fast Research Interface},
+  url = {http://github.com/epfl-lasa/iiwa_ros},
+  year = {2019},
+}
+```
 
 [ros]: http://www.ros.org
 [gazebo]: http://gazebosim.org/
