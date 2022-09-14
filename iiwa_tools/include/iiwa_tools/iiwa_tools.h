@@ -60,6 +60,7 @@ namespace iiwa_tools {
         Eigen::MatrixXd jacobian_deriv(const RobotState& robot_state);
         std::pair<Eigen::MatrixXd, Eigen::MatrixXd> jacobians(const RobotState& robot_state);
         Eigen::VectorXd gravity(const std::vector<double>& gravity, const RobotState& robot_state);
+        Eigen::MatrixXd get_joint_inertia(const RobotState& robot_state);
 
     protected:
         size_t _rbd_index(const std::string& body_name) const;

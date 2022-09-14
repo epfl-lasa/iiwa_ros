@@ -284,6 +284,29 @@ namespace iiwa_tools {
         return -fd.C();
     }
 
+    Eigen::MatrixXd IiwaTools::get_joint_inertia(const RobotState& robot_state)
+    {
+        // copy RBDyn for thread-safety
+        // TO-DO: Check if it takes time
+        mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
+
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+
+        _update_urdf_state(rbdyn_urdf, robot_state);
+
+        // Forward Dynamics
+        rbd::ForwardDynamics fd(rbdyn_urdf.mb);
+
+        // Compute gravity compensation
+        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+        fd.computeH(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+
+        // Get gravity and Coriolis forces
+        return fd.H();
+    }
+
+
     Eigen::MatrixXd IiwaTools::jacobian(const RobotState& robot_state)
     {
         // copy RBDyn for thread-safety
