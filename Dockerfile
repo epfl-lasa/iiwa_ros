@@ -44,21 +44,21 @@ RUN ssh-keyscan github.com >> /root/.ssh/known_hosts
 WORKDIR /tmp
 
 # install SpaceVecAlg
-RUN git clone --recursive https://github.com/costashatz/SpaceVecAlg.git
+RUN git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
 RUN cd SpaceVecAlg && mkdir build && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF .. \
     && make -j && sudo make install
 
 # install RBDyn
-RUN git clone --recursive https://github.com/costashatz/RBDyn.git
+RUN git clone --recursive https://github.com/jrl-umi3218/RBDyn.git
 RUN cd RBDyn && mkdir build && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF .. \
     && make -j && sudo make install
 
 # install mc_rbdyn_urdf
-RUN git clone --recursive https://github.com/costashatz/mc_rbdyn_urdf.git
+RUN git clone --recursive https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
 RUN cd mc_rbdyn_urdf && mkdir build && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DENABLE_SIMD=ON -DPYTHON_BINDING=OFF .. \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF .. \
     && make -j && sudo make install
 
 # install corrade
@@ -75,10 +75,6 @@ RUN cd robot_controllers && mkdir build && cd build \
 # install kuka_fri
 RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
 RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
-
-# install control libraries
-RUN git clone --single-branch --branch develop https://github.com/epfl-lasa/control_libraries
-RUN bash control_libraries/source/install.sh --auto
 
 RUN sudo ldconfig
 RUN rm -rf /tmp/*
