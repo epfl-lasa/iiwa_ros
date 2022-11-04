@@ -33,6 +33,7 @@
 // FRI Headers
 #include <kuka/fri/ClientData.h>
 
+#include <cmath>
 #include <thread>
 
 namespace iiwa_ros {
@@ -304,8 +305,16 @@ namespace iiwa_ros {
         _fri_message_data->resetCommandMessage();
 
         if (_robot_state.getClientCommandMode() == kuka::fri::TORQUE) {
+            _joint_position_command = _joint_position;
+            // Implements dithering to trigger the friction observer.
+            // If the physical robot is at the commanded positions, KUKA turns off friction
+            // compensation.
+            for (int i = 0; i < 7; i++)
+            {
+                _joint_position_command.at(i) += 0.1 * sin(ros::Time::now().toSec());
+            }
+            _robot_command.setJointPosition(_joint_position_command.data());
             _robot_command.setTorque(_joint_effort_command.data());
-            _robot_command.setJointPosition(_joint_position.data());
         }
         else if (_robot_state.getClientCommandMode() == kuka::fri::POSITION)
             _robot_command.setJointPosition(_joint_position_command.data());
