@@ -228,7 +228,6 @@ namespace iiwa_ros {
 
     void Iiwa::_ctrl_loop()
     {
-        static ros::Rate rate(_control_freq);
         while (ros::ok()) {
             ros::Time time = ros::Time::now();
 
@@ -240,7 +239,6 @@ namespace iiwa_ros {
             _write(elapsed_time);
 
             _publish();
-            rate.sleep();
         }
     }
 
