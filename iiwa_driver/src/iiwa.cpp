@@ -241,7 +241,7 @@ namespace iiwa_ros {
                 _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
             }
             _additional_pub.unlockAndPublish();
-		}
+        }
     }
 
     void Iiwa::_load_params()
