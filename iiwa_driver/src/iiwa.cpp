@@ -36,14 +36,14 @@
 #include <thread>
 
 namespace iiwa_ros {
-    bool hasRealtimeKernel() {
+    bool has_realtime_kernel() {
         std::ifstream realtime("/sys/kernel/realtime", std::ios_base::in);
         bool is_realtime;
         realtime >> is_realtime;
         return is_realtime;
     }
 
-    bool setCurrentThreadToHighestSchedulerPriority(std::string& error_message) {
+    bool set_thread_to_highest_priority(std::string& error_message) {
         const int thread_priority = sched_get_priority_max(SCHED_FIFO);
         if (thread_priority == -1) {
             if (error_message.empty()) {
@@ -86,9 +86,9 @@ namespace iiwa_ros {
         _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
-        if (hasRealtimeKernel()) {
+        if (has_realtime_kernel()) {
             std::string error_message;
-            if (!setCurrentThreadToHighestSchedulerPriority(error_message)) {
+            if (!set_thread_to_highest_priority(error_message)) {
                 ROS_ERROR_STREAM(error_message);
             } else {
                 ROS_INFO_STREAM("Initializing with realtime scheduling support.");
