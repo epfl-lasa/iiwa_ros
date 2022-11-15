@@ -246,16 +246,17 @@ namespace iiwa_ros {
 
     void Iiwa::_ctrl_loop()
     {
+        ros::Time time = ros::Time::now();
+        const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
+        // Time since the last call of update
+        ros::Duration elapsed_time;
         while (ros::ok()) {
-            ros::Time time = ros::Time::now();
-
-            // TO-DO: Get real elapsed time?
-            auto elapsed_time = ros::Duration(1. / _control_freq);
-
-            _read(elapsed_time);
+            // Read is blocking until FRI has replied
+            _read(ctrl_duration);
+            elapsed_time = ros::Time::now() - time;
+            time = ros::Time::now();
             _controller_manager->update(ros::Time::now(), elapsed_time);
-            _write(elapsed_time);
-
+            _write(ctrl_duration);
             _publish();
         }
     }
@@ -292,7 +293,7 @@ namespace iiwa_ros {
         n_p.getParam("hardware_interface/joints", _joint_names);
     }
 
-    void Iiwa::_read(ros::Duration elapsed_time)
+    void Iiwa::_read(const ros::Duration& ctrl_duration)
     {
         // Read data from robot (via FRI)
         kuka::fri::ESessionState fri_state;
@@ -321,23 +322,23 @@ namespace iiwa_ros {
 
         for (int i = 0; i < _num_joints; i++) {
             _joint_position[i] = _robot_state.getMeasuredJointPosition()[i];
-            _joint_velocity[i] = filters::exponentialSmoothing((_joint_position[i] - _joint_position_prev[i]) / elapsed_time.toSec(), _joint_velocity[i], 0.2);
+            _joint_velocity[i] = filters::exponentialSmoothing((_joint_position[i] - _joint_position_prev[i]) / ctrl_duration.toSec(), _joint_velocity[i], 0.2);
             _joint_effort[i] = _robot_state.getMeasuredTorque()[i];
         }
     }
 
-    void Iiwa::_write(ros::Duration elapsed_time)
+    void Iiwa::_write(const ros::Duration& ctrl_duration)
     {
         if (_idle) // if idle, do nothing
             return;
 
         // enforce limits
-        _position_joint_limits_interface.enforceLimits(elapsed_time);
-        _position_joint_saturation_interface.enforceLimits(elapsed_time);
-        _effort_joint_limits_interface.enforceLimits(elapsed_time);
-        _effort_joint_saturation_interface.enforceLimits(elapsed_time);
-        _velocity_joint_limits_interface.enforceLimits(elapsed_time);
-        _velocity_joint_saturation_interface.enforceLimits(elapsed_time);
+        _position_joint_limits_interface.enforceLimits(ctrl_duration);
+        _position_joint_saturation_interface.enforceLimits(ctrl_duration);
+        _effort_joint_limits_interface.enforceLimits(ctrl_duration);
+        _effort_joint_saturation_interface.enforceLimits(ctrl_duration);
+        _velocity_joint_limits_interface.enforceLimits(ctrl_duration);
+        _velocity_joint_saturation_interface.enforceLimits(ctrl_duration);
 
         // reset commmand message
         _fri_message_data->resetCommandMessage();
