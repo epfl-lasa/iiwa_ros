@@ -224,24 +224,28 @@ namespace iiwa_ros {
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
 
-        _commanding_status_pub.init(_nh, "commanding_status", 100);
+        if (_publish_commanding_status) {
+            _commanding_status_pub.init(_nh, "commanding_status", 100);
+        }
 
-        _additional_pub.init(_nh, "additional_outputs", 20);
-        _additional_pub.msg_.external_torques.layout.dim.resize(1);
-        _additional_pub.msg_.external_torques.layout.data_offset = 0;
-        _additional_pub.msg_.external_torques.layout.dim[0].size = _num_joints;
-        _additional_pub.msg_.external_torques.layout.dim[0].stride = 0;
-        _additional_pub.msg_.external_torques.data.resize(_num_joints);
-        _additional_pub.msg_.commanded_torques.layout.dim.resize(1);
-        _additional_pub.msg_.commanded_torques.layout.data_offset = 0;
-        _additional_pub.msg_.commanded_torques.layout.dim[0].size = _num_joints;
-        _additional_pub.msg_.commanded_torques.layout.dim[0].stride = 0;
-        _additional_pub.msg_.commanded_torques.data.resize(_num_joints);
-        _additional_pub.msg_.commanded_positions.layout.dim.resize(1);
-        _additional_pub.msg_.commanded_positions.layout.data_offset = 0;
-        _additional_pub.msg_.commanded_positions.layout.dim[0].size = _num_joints;
-        _additional_pub.msg_.commanded_positions.layout.dim[0].stride = 0;
-        _additional_pub.msg_.commanded_positions.data.resize(_num_joints);
+        if (_publish_additional_info) {
+            _additional_pub.init(_nh, "additional_outputs", 20);
+            _additional_pub.msg_.external_torques.layout.dim.resize(1);
+            _additional_pub.msg_.external_torques.layout.data_offset = 0;
+            _additional_pub.msg_.external_torques.layout.dim[0].size = _num_joints;
+            _additional_pub.msg_.external_torques.layout.dim[0].stride = 0;
+            _additional_pub.msg_.external_torques.data.resize(_num_joints);
+            _additional_pub.msg_.commanded_torques.layout.dim.resize(1);
+            _additional_pub.msg_.commanded_torques.layout.data_offset = 0;
+            _additional_pub.msg_.commanded_torques.layout.dim[0].size = _num_joints;
+            _additional_pub.msg_.commanded_torques.layout.dim[0].stride = 0;
+            _additional_pub.msg_.commanded_torques.data.resize(_num_joints);
+            _additional_pub.msg_.commanded_positions.layout.dim.resize(1);
+            _additional_pub.msg_.commanded_positions.layout.data_offset = 0;
+            _additional_pub.msg_.commanded_positions.layout.dim[0].size = _num_joints;
+            _additional_pub.msg_.commanded_positions.layout.dim[0].stride = 0;
+            _additional_pub.msg_.commanded_positions.data.resize(_num_joints);
+        }
     }
 
     void Iiwa::_ctrl_loop()
@@ -263,13 +267,13 @@ namespace iiwa_ros {
     void Iiwa::_publish()
     {
         // publish commanding status
-        if (_commanding_status_pub.trylock()) {
+        if (_publish_commanding_status && _commanding_status_pub.trylock()) {
             _commanding_status_pub.msg_.data = _commanding;
             _commanding_status_pub.unlockAndPublish();
         }
 
         // publish additional outputs
-        if (_additional_pub.trylock()) {
+        if (_publish_additional_info && _additional_pub.trylock()) {
             _additional_pub.msg_.header.stamp = ros::Time::now();
             for (unsigned i = 0; i < _num_joints; i++) {
                 _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
@@ -290,6 +294,9 @@ namespace iiwa_ros {
 
         n_p.param("hardware_interface/control_freq", _control_freq, 200.);
         n_p.getParam("hardware_interface/joints", _joint_names);
+
+        n_p.param("publish/additional_info", _publish_additional_info, true);
+        n_p.param("publish/commanded_torques", _publish_commanding_status, true);
     }
 
     void Iiwa::_read(ros::Duration elapsed_time)

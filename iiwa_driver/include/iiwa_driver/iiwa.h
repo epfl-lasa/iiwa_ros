@@ -146,6 +146,8 @@ namespace iiwa_ros {
         ros::Duration _control_period;
         double _control_freq;
         bool _initialized;
+        bool _publish_additional_info{false};
+        bool _publish_commanding_status{false};
     };
 } // namespace iiwa_ros
 
