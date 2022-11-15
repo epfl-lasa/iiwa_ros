@@ -307,7 +307,7 @@ namespace iiwa_ros {
             // Implements dithering to trigger the friction observer.
             // If the physical robot is at the commanded positions, KUKA turns off friction
             // compensation.
-            for (size_t i = 0; i < 7; i++)
+            for (size_t i = 0; i < _num_joints; i++)
             {
                 _joint_position_command.at(i) = _joint_position.at(i) + 0.1 * std::sin(ros::Time::now().toSec());
             }
