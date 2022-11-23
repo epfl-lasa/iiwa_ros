@@ -61,6 +61,11 @@ generate_messages(
 # Needed for ros packages
 catkin_package(CATKIN_DEPENDS roscpp message_runtime geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager urdf realtime_tools)
 
+# Sets build type to "Release" in case no build type has not been set before
+if(NOT CMAKE_BUILD_TYPE) 
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
+
 add_executable(iiwa_driver src/iiwa.cpp src/iiwa_driver.cpp)
 
 # Require C++11
