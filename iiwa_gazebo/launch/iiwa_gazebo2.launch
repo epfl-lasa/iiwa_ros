@@ -1,0 +1,74 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Bernardo Fichera
+              Walid Amanhoud
+    email:   konstantinos.chatzilygeroudis@epfl.ch
+             bernardo.fichera@epfl.ch
+             walid.amanhoud@epfl.ch
+    website: lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+    <!-- These are the arguments you can pass this launch file, for example paused:=true -->
+    <arg name="paused" default="false"/>
+    <arg name="use_sim_time" default="true"/>
+    <arg name="gui" default="true"/>
+    <arg name="headless" default="false"/>
+    <arg name="debug" default="false"/>
+    <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+
+    <!-- Select the controller -->
+    <arg name="controller" default="TorqueController"/>
+
+    <!-- Select the robot name -->
+    <arg name="robot_name" default="iiwa"/>
+
+    <!-- Select the model of the iiwa -->
+    <arg name="iiwa_model" default="14"/>
+
+    <!-- Select the position of the robot -->
+    <arg name="position" default=""/>
+
+    <!-- Select the booleans grabber and force sensor (True or False) if we want them mounted on the robot -->
+    <arg name="force_sensor" default="True"/>
+    <arg name="grabber" default="True"/>
+    <arg name="table" default="True" />
+    <arg name="base" default="True" />
+
+    <include file="$(find iiwa_gazebo)/launch/iiwa_spawner2.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        <arg name="iiwa_model" value="$(arg iiwa_model)"/>
+        <arg name="controller" value="$(arg controller)" />
+        <arg name="position" value="$(arg position)"/>
+        <arg name="table" value="$(arg table)" />
+        <arg name="base" value="$(arg base)" />
+        <arg name="ft_sensor" value="$(arg force_sensor)" />
+        <arg name="grabber" value="$(arg grabber)"/>
+    </include>
+    
+
+    <!-- Loads the Gazebo world -->
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+        <arg name="world_name" value="$(arg world_name)"/> 
+        <arg name="debug" value="$(arg debug)" />
+        <arg name="gui" value="$(arg gui)" />
+        <arg name="paused" value="$(arg paused)"/>
+        <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+        <arg name="headless" value="$(arg headless)"/>
+    </include>
+
+</launch>

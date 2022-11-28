@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2021 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Patrick Sgrò (maintainer)
+    email:    patrick.sgro@hotmail.com
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+|-->
+<launch>
+    <!-- Select the robot -->
+    <arg name="robot_name" default="iiwa"/>
+
+    <!-- Select the model of the iiwa -->
+    <arg name="iiwa_model" default="14"/>
+
+    <!-- Select the controller -->
+    <!-- ex: <arg name="controller" default="TorqueController"/> -->
+    <arg name="controller" default="TorqueController"/>
+
+    <!-- Select the position of the robot -->
+    <!-- ex: <arg name="position" default="-y 0.5"/> -->
+    <arg name="position" default=""/>
+
+    <!-- Select the objects you want to spawn -->
+    <arg name="table" default="false"/>
+    <arg name="base" default="false"/>
+    <arg name="ft_sensor" default="false"/>
+    <arg name="grabber" default="false"/>
+    <arg name="position_base" default="0.0"/>
+
+
+    <group ns="/$(arg robot_name)">
+        <!-- Select the hardware interface -->
+        <arg if="$(eval controller == 'TorqueController')" name="hardware_interface" value="EffortJointInterface"/>
+        <arg if="$(eval controller == 'PositionTorqueController')" name="hardware_interface" value="EffortJointInterface"/>
+        <arg if="$(eval controller == 'PositionController')" name="hardware_interface" value="PositionJointInterface"/>
+        <arg if="$(eval controller == 'PositionTrajectoryController')" name="hardware_interface" value="PositionJointInterface"/>
+        <arg if="$(eval controller == 'CustomControllers')" name="hardware_interface" value="EffortJointInterface"/>
+        <!-- By default assume EffortJointInterface -->
+        <arg unless="$(eval (controller == 'PositionController') or (controller == 'PositionTorqueController') or (controller == 'TorqueController') or (controller == 'PositionTrajectoryController') or (controller == 'CustomControllers'))" name="hardware_interface" value="EffortJointInterface"/>
+
+        
+
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <!-- <rosparam file="$(find robot_gazebo)/config/iiwa_control.yaml" command="load" subst_value="True"/> -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+        
+        <!-- Upload iiwa URDF -->
+        <include file="$(find objects_description)/launch/robot_upload.launch">
+            <arg name="robot_name" value="$(arg robot_name)" />
+            <arg name="robot_type" value="iiwa$(arg iiwa_model)" />
+            <arg name="hardware_interface" value="$(arg hardware_interface)" />
+            <arg name="load_table" value="$(arg table)" />
+            <arg name="load_base" value="$(arg base)" />
+            <arg name="ft_sensor" value="$(arg ft_sensor)" />
+            <arg name="grabber" value="$(arg grabber)" />
+            <arg name="position_base" value="$(arg position_base)" />
+        </include>
+
+        <!-- <include file="$(find iiwa_description)/launch/iiwa_upload.launch">
+            <arg name="gazebo" value="true" />
+            <arg name="robot_name" value="$(arg robot_name)" />
+            <arg name="iiwa_model" value="$(arg iiwa_model)" />
+            <arg name="hardware_interface" value="$(arg hardware_interface)" />
+        </include> -->
+
+        <!-- <node name="robot_gravity_service_node" pkg="robot_gazebo" type="robot_gravity_service_node" respawn="false" output="screen" /> -->
+
+        <!-- Spawn iiwa service -->
+        <include file="$(find iiwa_tools)/launch/iiwa_service.launch">
+        <arg name="robot_name" value="$(arg robot_name)"/>
+        </include>
+
+        <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
+        <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+            args="-urdf -model $(arg robot_name) -param robot_description $(arg position)"/>
+
+        <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen"/>
+        
+        <!-- <node name="control_example" pkg="control_example" type="control_example" respawn="false"
+            output="screen" /> -->
+    </group>
+</launch>
+
