@@ -113,7 +113,7 @@ namespace iiwa_ros {
         joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
 
         // Shared memory
-        int _num_joints;
+        size_t _num_joints;
         int _joint_mode; // position, velocity, or effort
         std::vector<std::string> _joint_names;
         std::vector<int> _joint_types;
