@@ -87,8 +87,8 @@ namespace iiwa_ros {
         void _init();
         void _ctrl_loop();
         void _load_params();
-        void _read(ros::Duration elapsed_time);
-        void _write(ros::Duration elapsed_time);
+        void _read(const ros::Duration& ctrl_duration);
+        void _write(const ros::Duration& ctrl_duration);
         bool _init_fri();
         bool _connect_fri();
         void _disconnect_fri();
