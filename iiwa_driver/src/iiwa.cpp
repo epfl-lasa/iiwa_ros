@@ -152,7 +152,7 @@ namespace iiwa_ros {
             ROS_WARN_STREAM_NAMED("Iiwa", "Could not read URDF from '" << _robot_description << "' parameters. Joint limits will not work.");
 
         // Initialize Controller
-        for (int i = 0; i < _num_joints; ++i) {
+        for (size_t i = 0; i < _num_joints; ++i) {
             _joint_position[i] = _joint_velocity[i] = _joint_effort[i] = 0.;
             // Create joint state interface
             hardware_interface::JointStateHandle joint_state_handle(_joint_names[i], &_joint_position[i], &_joint_velocity[i], &_joint_effort[i]);
@@ -319,7 +319,7 @@ namespace iiwa_ros {
         // Update ROS structures
         _joint_position_prev = _joint_position;
 
-        for (int i = 0; i < _num_joints; i++) {
+        for (size_t i = 0; i < _num_joints; i++) {
             _joint_position[i] = _robot_state.getMeasuredJointPosition()[i];
             _joint_velocity[i] = filters::exponentialSmoothing((_joint_position[i] - _joint_position_prev[i]) / elapsed_time.toSec(), _joint_velocity[i], 0.2);
             _joint_effort[i] = _robot_state.getMeasuredTorque()[i];
@@ -343,8 +343,15 @@ namespace iiwa_ros {
         _fri_message_data->resetCommandMessage();
 
         if (_robot_state.getClientCommandMode() == kuka::fri::TORQUE) {
+            // Implements dithering to trigger the friction observer.
+            // If the physical robot is at the commanded positions, KUKA turns off friction
+            // compensation.
+            for (size_t i = 0; i < _num_joints; i++)
+            {
+                _joint_position_command.at(i) = _joint_position.at(i) + 0.1 * std::sin(ros::Time::now().toSec());
+            }
+            _robot_command.setJointPosition(_joint_position_command.data());
             _robot_command.setTorque(_joint_effort_command.data());
-            _robot_command.setJointPosition(_joint_position.data());
         }
         else if (_robot_state.getClientCommandMode() == kuka::fri::POSITION)
             _robot_command.setJointPosition(_joint_position_command.data());
