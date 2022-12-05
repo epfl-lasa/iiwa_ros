@@ -51,6 +51,8 @@ find_package(FRI REQUIRED COMPONENTS
 add_message_files(
   FILES
   AdditionalOutputs.msg
+  ConnectionQuality.msg
+  FRIState.msg
 )
 
 generate_messages(
