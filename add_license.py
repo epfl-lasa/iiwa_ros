@@ -1,15 +1,16 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #|
-#|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+#|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+#|              Matthias Mayr
 #|              Bernardo Fichera
-#|              Walid Amanhoud
 #|    email:    costashatz@gmail.com
+#|              matthias.mayr@cs.lth.se
 #|              bernardo.fichera@epfl.ch
-#|              walid.amanhoud@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
+#|              Walid Amanhoud (walid.amanhoud@epfl.ch)
 #|    website:  lasa.epfl.ch
 #|
 #|    This file is part of iiwa_ros.
@@ -27,15 +28,16 @@
 import fnmatch,re
 import os, shutil, sys
 
-license = '''Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+license = '''Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 Authors:  Konstantinos Chatzilygeroudis (maintainer)
+          Matthias Mayr
           Bernardo Fichera
-          Walid Amanhoud
 email:    costashatz@gmail.com
+          matthias.mayr@cs.lth.se
           bernardo.fichera@epfl.ch
-          walid.amanhoud@epfl.ch
 Other contributors:
           Yoan Mollard (yoan@aubrune.eu)
+          Walid Amanhoud (walid.amanhoud@epfl.ch)
 website:  lasa.epfl.ch
 
 This file is part of iiwa_ros.
@@ -79,7 +81,7 @@ def insert_header(fname, prefix, postfix, license, kept_header = []):
         output.write(postfix + '\n')
     in_header = False
     for line in input:
-        header = len(filter(lambda x: x == line[0:len(x)], kept_header)) != 0
+        header = len(list(filter(lambda x: x == line[0:len(x)], kept_header))) != 0
         check_prefix = (line[0:len(prefix)] == prefix)
         check_postfix = (has_postfix and (line[0:len(postfix)] == postfix))
         if check_prefix and has_postfix:
