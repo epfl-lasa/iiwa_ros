@@ -28,7 +28,8 @@ project(iiwa_control)
 
 cmake_policy(SET CMP0057 NEW)
 
-option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
+# When enabling SIMD, both the dependencies (e.g. RBDyn) and subsequent code need to be compiled with SIMD
+option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" OFF)
 
 # Tell CMake where to find "Find<LIB>.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

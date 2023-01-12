@@ -32,6 +32,10 @@ Dependencies
 cd /source/directory
 git clone https://github.com/epfl-lasa/kuka_fri.git
 cd kuka_fri
+# Apply SIMD patch:
+wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch
+git am 0001-Config-Disables-SIMD-march-native-by-default.patch
+# Build
 ./waf configure
 ./waf
 sudo ./waf install
