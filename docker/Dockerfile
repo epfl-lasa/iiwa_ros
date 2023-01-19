@@ -9,9 +9,9 @@ ARG GIT_EMAIL=""
 ARG USE_SIMD=OFF
 
 # Graphics capabilitees
-ENV QT_X11_NO_MITSHM 1
-ENV NVIDIA_VISIBLE_DEVICES all
-ENV NVIDIA_DRIVER_CAPABILITIES all
+# ENV QT_X11_NO_MITSHM 1
+# ENV NVIDIA_VISIBLE_DEVICES all
+# ENV NVIDIA_DRIVER_CAPABILITIES all
 
 # Tell docker we want to use bash instead of sh in general
 SHELL ["/bin/bash", "-c"]

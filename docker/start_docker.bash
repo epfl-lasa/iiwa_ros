@@ -3,8 +3,9 @@ IMAGE_NAME="epfl-lasa/iiwa_ros"
 CONTAINER_NAME="${IMAGE_NAME//[\/.]/-}"
 USERNAME="ros"
 MODE=()
-USE_NVIDIA_TOOLKIT=true
 
+# If you're using a graphic card 
+USE_NVIDIA_TOOLKIT=true
 
 # Help
 HELP_MESSAGE="Usage: ./start_dockers.sh [interactive | server | connect] [-i, --image] [-u, --user]
