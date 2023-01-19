@@ -8,13 +8,24 @@ ARG GIT_NAME=""
 ARG GIT_EMAIL=""
 ARG USE_SIMD=OFF
 
+# Graphics capabilitees
+ENV QT_X11_NO_MITSHM 1
+ENV NVIDIA_VISIBLE_DEVICES all
+ENV NVIDIA_DRIVER_CAPABILITIES all
+
 # Tell docker we want to use bash instead of sh in general
 SHELL ["/bin/bash", "-c"]
 
-
-### Make sure everything is up to date
-RUN sudo apt update
-RUN sudo apt upgrade -y
+### Add a few tools
+RUN sudo apt-get update && sudo apt-get install -y \
+    bash-completion \
+    silversearcher-ag \
+    apt-transport-https \
+    less \
+    alsa-utils \
+    ros-${ROS_DISTRO}-ros-control \
+    ros-${ROS_DISTRO}-ros-controllers \
+    && sudo apt-get upgrade -y && sudo apt-get clean
 
 ### Add the user to the current GID of the host to avoid permisson issues in volumes
 # AICA uses the same name for user and user group
@@ -41,10 +52,10 @@ RUN if [ "${USE_SIMD}" = "ON" ] ; \
 
 ### Install all dependencies of IIWA ROS
 # Clone KUKA FRI (need to be root to clone private repo)
-WORKDIR /sources
+WORKDIR /tmp
 USER root
 RUN --mount=type=ssh git clone git@github.com:epfl-lasa/kuka_fri.git
-WORKDIR /sources/kuka_fri
+WORKDIR /tmp/kuka_fri
 RUN if [ "${USE_SMID}" != "ON" ] ; \
     then wget https://gist.githubusercontent.com/matthias-mayr/0f947982474c1865aab825bd084e7a92/raw/244f1193bd30051ae625c8f29ed241855a59ee38/0001-Config-Disables-SIMD-march-native-by-default.patch \
     ; fi
@@ -52,67 +63,51 @@ RUN --mount=type=ssh  if [ "${USE_SMID}" != "ON" ] ; \
     then git am 0001-Config-Disables-SIMD-march-native-by-default.patch ; fi
 
 # Transfer repo back to original user after root clone
-WORKDIR /sources
+WORKDIR /tmp
 RUN chown -R ${USER}:${HOST_GID} kuka_fri
 
 # Install kuka Fri as USER
 USER ${USER}
-WORKDIR /sources/kuka_fri
-RUN ./waf configure
-RUN ./waf
-RUN sudo ./waf install
+RUN cd kuka_fri && ./waf configure && ./waf && sudo ./waf install
 
 # Install SpaceVecAlg
-WORKDIR /sources
 RUN git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
-WORKDIR /sources/SpaceVecAlg/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
-RUN make -j
-RUN sudo make install
+RUN cd SpaceVecAlg && mkdir build && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF .. \
+    && make -j && sudo make install
 
 # Install RBDyn
-WORKDIR /sources
 RUN git clone --recursive https://github.com/jrl-umi3218/RBDyn.git
-WORKDIR  /sources/RBDyn/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
-RUN make -j
-RUN sudo make install
+RUN cd RBDyn && mkdir build && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF .. \
+    && make -j && sudo make install
 
 # Install mc_rbdyn_urdf
-WORKDIR /sources
 RUN git clone --recursive -b v1.1.0 https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
-WORKDIR  /sources/mc_rbdyn_urdf/build
-RUN cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
-RUN make -j
-RUN sudo make install
+RUN cd mc_rbdyn_urdf && mkdir build && cd build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF .. \
+    && make -j && sudo make install
 
 # Install corrade
-WORKDIR /sources
 RUN git clone https://github.com/mosra/corrade.git
-WORKDIR /sources/corrade
-RUN git checkout 0d149ee9f26a6e35c30b1b44f281b272397842f5
-WORKDIR /sources/corrade/build
-RUN cmake ..
-RUN make -j
-RUN sudo make install
+RUN cd corrade && git checkout 0d149ee9f26a6e35c30b1b44f281b272397842f5 \
+    && mkdir build && cd build && cmake .. && make -j && sudo make install
 
 # Install robot_controller
-WORKDIR /sources
 RUN git clone https://github.com/epfl-lasa/robot_controllers.git
-WORKDIR /sources/robot_controllers/build
-RUN cmake ..
-RUN make -j
-RUN sudo make install
+RUN cd robot_controllers && mkdir build && cd build \
+    && cmake .. && make -j && sudo make install
 
-# Install ros_control
-RUN sudo apt-get install -y ros-${ROS_DISTRO}-ros-control ros-${ROS_DISTRO}-ros-controllers
+# Remove temporari files
+RUN sudo ldconfig
+RUN rm -rf /tmp/*
 
 ### Install gazebo
 # Install gazebo (9 or 11 depending on distro)
 WORKDIR /home/${USER}
 RUN sudo apt-get update
 RUN if [ "$ROS_DISTRO" = "noetic" ] ; then sudo apt-get install -y gazebo11 ; fi
-RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y gazebo9  ; fi
+RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y gazebo9 ; fi
 
 # A few extra steps to fix gazebo bugs under melodic
 # RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y mesa-utils libgl1-mesa-glx ; fi
@@ -138,3 +133,6 @@ RUN if [ "${USE_SIMD}" = "ON" ] ; \
 WORKDIR /home/${USER}/ros_ws
 RUN source /home/${USER}/.bashrc && rosdep install --from-paths src --ignore-src -r -y
 RUN source /home/${USER}/.bashrc && catkin_make;
+
+### Final apt clean
+RUN sudo apt update && sudo apt upgrade && sudo apt clean

@@ -3,6 +3,7 @@ IMAGE_NAME="epfl-lasa/iiwa_ros"
 CONTAINER_NAME="${IMAGE_NAME//[\/.]/-}"
 USERNAME="ros"
 MODE=()
+USE_NVIDIA_TOOLKIT=true
 
 
 # Help
@@ -58,9 +59,22 @@ if $SHOW_HELP; then
     exit 1
 fi
 
+# Handle network 
+docker network inspect multinet >/dev/null 2>&1 || \
+  docker network create --subnet=172.20.0.0/16 --gateway=172.20.0.1 multinet
+FWD_ARGS+=("--network=multinet")
+
+
+# Handle GPU usage
+[[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""
+
+# Other
+FWD_ARGS+=("--privileged")
+
 aica-docker \
     "${MODE}" \
     "${IMAGE_NAME}" \
     -u "${USERNAME}" \
     -n "${CONTAINER_NAME}" \
+    ${GPU_FLAG} \
     "${FWD_ARGS[@]}" \
