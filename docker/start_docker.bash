@@ -60,11 +60,9 @@ if $SHOW_HELP; then
     exit 1
 fi
 
-# Handle network 
-docker network inspect multinet >/dev/null 2>&1 || \
-  docker network create --subnet=172.20.0.0/16 --gateway=172.20.0.1 multinet
-FWD_ARGS+=("--network=multinet")
-
+# network for ros
+FWD_ARGS+=(--net=host)
+FWD_ARGS+=(--env ROS_HOSTNAME="$(hostname)")
 
 # Handle GPU usage
 [[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""

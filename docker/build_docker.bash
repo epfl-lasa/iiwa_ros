@@ -43,7 +43,11 @@ while [ "$#" -gt 0 ]; do
 done
 
 # Try to pull image
-docker pull "${BASE_IMAGE}" || echo -e "\033[31mCould not pull docker image ${BASE_IMAGE}"
+if [[ "$(docker images -q ${BASE_IMAGE} 2> /dev/null)" == "" ]]; \
+  then echo "Base image already exists on the computer, proceeding to build docker";
+  else echo -e "Base image does not exists ont the computer, pulling it..."; \
+    docker pull "${BASE_IMAGE}" || echo -e "\033[31mCould not pull docker image ${BASE_IMAGE}";
+fi
 
 # Setup build flags
 BUILD_FLAGS+=(--build-arg ROS_DISTRO="${ROS_DISTRO}")
