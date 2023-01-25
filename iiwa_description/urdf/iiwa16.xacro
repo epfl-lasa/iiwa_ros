@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <!--|
-    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
-              Matthias Mayr
               Bernardo Fichera
+              Walid Amanhoud
     email:    costashatz@gmail.com
-              matthias.mayr@cs.lth.se
               bernardo.fichera@epfl.ch
+              walid.amanhoud@epfl.ch
     Other contributors:
               Yoan Mollard (yoan@aubrune.eu)
-              Walid Amanhoud (walid.amanhoud@epfl.ch)
     website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
@@ -406,7 +405,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <!-- <mesh filename="package://iiwa_description/meshes/iiwa14/visual/PegScaled.stl"/> -->
+          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/BrushScaled.stl"/>
           <!--  <box size="0.1 0.1 0.1"/> -->
         </geometry>
         <material name="Orange"/>
@@ -415,7 +414,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-        <!--  <mesh filename="package://iiwa_description/meshes/iiwa14/collision/PegScaled.stl"/> -->
+          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/BrushScaled.stl"/>
           <!-- <box size="0.1 0.1 0.1"/> -->
         </geometry>
         <material name="Orange"/>
