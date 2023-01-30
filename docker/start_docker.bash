@@ -3,9 +3,15 @@ IMAGE_NAME="epfl-lasa/iiwa_ros"
 CONTAINER_NAME="${IMAGE_NAME//[\/.]/-}"
 USERNAME="ros"
 MODE=()
-
-# If you're using a graphic card 
 USE_NVIDIA_TOOLKIT=true
+
+# Chek if a NVIDIA GPU is available
+if [[ $(sudo lshw -C display | grep vendor) =~ NVIDIA ]]; then
+  USE_NVIDIA_TOOLKIT=true
+  echo "Detected NVIDIA graphic card, giving access to the container."
+else
+  USE_NVIDIA_TOOLKIT=false
+fi
 
 # Help
 HELP_MESSAGE="Usage: ./start_dockers.sh [interactive | server | connect] [-i, --image] [-u, --user]
