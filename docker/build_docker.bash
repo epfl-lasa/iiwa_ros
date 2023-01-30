@@ -2,7 +2,7 @@
 
 # Name and base and options
 IMAGE_NAME=epfl-lasa/iiwa_ros                             # Chose any name for your image (but make sure to report it in start_docker)
-ROS_DISTRO=noetic                                        # Possible: noetic, melodic
+ROS_DISTRO=noetic                                         # Possible: noetic, melodic
 USE_SIMD=ON                                               # Possible: ON, OFF
 BASE_IMAGE=ghcr.io/aica-technology/ros-ws:${ROS_DISTRO}   # Do not modify
 
@@ -13,6 +13,8 @@ Options:
   -r, --rebuild            Rebuild with --no-cache option.
   -v, --verbose            Display additional info upon build.
   -i, --image-name         Defines the name given to the image beeing built.
+  -d, --distro             Can be \"noetic\" or \"melodic\".
+  -smid                    Build with smid flags on.
   -h, --help               Show this help message."
 
 # Parse build flags
@@ -31,6 +33,18 @@ while [ "$#" -gt 0 ]; do
     IMAGE_NAME=$2
     shift 2
     ;;
+  -d | --distro)
+    ROS_DISTRO=$2
+    if [[ "$ROS_DISTRO" != "noetic" && "$ROS_DISTRO" != "melodic" ]] ; then
+      echo -e "\033[31mERROR: Distro \"$ROS_DISTRO\" is not supported"; \
+      exit 1;
+    fi
+    shift 2
+    ;;
+  -smid)
+    USE_SIMD=ON
+    shift 1
+    ;;
   -h | --help)
     echo "${HELP_MESSAGE}"
     exit 0
@@ -41,6 +55,7 @@ while [ "$#" -gt 0 ]; do
     ;;
   esac
 done
+
 
 # Try to pull image
 if [[ "$(docker images -q ${BASE_IMAGE} 2> /dev/null)" != "" ]]; \
