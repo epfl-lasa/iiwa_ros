@@ -3,15 +3,7 @@ IMAGE_NAME="epfl-lasa/iiwa_ros"
 CONTAINER_NAME="${IMAGE_NAME//[\/.]/-}"
 USERNAME="ros"
 MODE=()
-USE_NVIDIA_TOOLKIT=true
-
-# Chek if a NVIDIA GPU is available
-if [[ $(sudo lshw -C display | grep vendor) =~ NVIDIA ]]; then
-  USE_NVIDIA_TOOLKIT=true
-  echo "Detected NVIDIA graphic card, giving access to the container."
-else
-  USE_NVIDIA_TOOLKIT=false
-fi
+USE_NVIDIA_TOOLKIT=()
 
 # Help
 HELP_MESSAGE="Usage: ./start_dockers.sh [interactive | server | connect] [-i, --image] [-u, --user]
@@ -60,22 +52,42 @@ while [ "$#" -gt 0 ]; do
     esac
 done
 
+# Help verbose
 if $SHOW_HELP; then
     echo $HELP_MESSAGE
     aica-docker $MODE -h
     exit 1
 fi
 
-# network for ros
-FWD_ARGS+=(--net=host)
-FWD_ARGS+=(--env ROS_HOSTNAME="$(hostname)")
+# Handle interactive/server specific arguments
+if [ "${MODE}" != "connect" ]; then
 
-# Handle GPU usage
-[[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""
+    # Check if a NVIDIA GPU is available
+    if [[ $(sudo lshw -C display | grep vendor) =~ NVIDIA ]]; then
+        USE_NVIDIA_TOOLKIT=true
+        echo "Detected NVIDIA graphic card, giving access to the container."
+    else
+        USE_NVIDIA_TOOLKIT=false
+    fi
 
-# Other
-FWD_ARGS+=("--privileged")
+    # network for ros
+    FWD_ARGS+=(--net=host)
+    FWD_ARGS+=(--env ROS_HOSTNAME="$(hostname)")
 
+    # Handle GPU usage
+    [[ ${USE_NVIDIA_TOOLKIT} = true ]] && GPU_FLAG="--gpus all" || GPU_FLAG=""
+
+    # Other
+    FWD_ARGS+=("--privileged")
+fi
+
+# Trick aica-docker into making a server on a host network container
+if [ "${MODE}" == "server" ]; then
+    FWD_ARGS+=("--detach")
+    MODE=interactive
+fi
+
+# Start docker using aica
 aica-docker \
     "${MODE}" \
     "${IMAGE_NAME}" \
