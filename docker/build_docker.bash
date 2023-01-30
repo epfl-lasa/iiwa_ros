@@ -14,7 +14,7 @@ Options:
   -v, --verbose            Display additional info upon build.
   -i, --image-name         Defines the name given to the image beeing built.
   -d, --distro             Can be \"noetic\" or \"melodic\".
-  -smid                    Build with smid flags on.
+  --smid                   Build with smid flags on.
   -h, --help               Show this help message."
 
 # Parse build flags
@@ -41,7 +41,7 @@ while [ "$#" -gt 0 ]; do
     fi
     shift 2
     ;;
-  -smid)
+  --smid)
     USE_SIMD=ON
     shift 1
     ;;
