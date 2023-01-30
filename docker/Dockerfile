@@ -104,9 +104,6 @@ RUN sudo apt-get update
 RUN if [ "$ROS_DISTRO" = "noetic" ] ; then sudo apt-get install -y gazebo11 ; fi
 RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y gazebo9 ; fi
 
-# A few extra steps to fix gazebo bugs under melodic
-# RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y mesa-utils libgl1-mesa-glx ; fi
-
 # Install gaezbo ros packages
 RUN sudo apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control
 
