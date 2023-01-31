@@ -62,6 +62,12 @@ fi
 # Handle interactive/server specific arguments
 if [ "${MODE}" != "connect" ]; then
 
+    # Check if a conitainer with this name is already running
+    if [ "$( docker container inspect -f '{{.State.Status}}' ${CONTAINER_NAME} 2>/dev/null)" == "running" ]; then
+        echo "A container named ${CONTAINER_NAME} is already running. Stopping it."
+        docker stop ${CONTAINER_NAME}
+    fi
+
     # Check if a NVIDIA GPU is available
     if [[ $(sudo lshw -C display | grep vendor) =~ NVIDIA ]]; then
         USE_NVIDIA_TOOLKIT=true
