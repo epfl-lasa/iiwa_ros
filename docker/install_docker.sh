@@ -38,7 +38,7 @@ fi
 if ! [ $(getent group docker) ] || ! id -nG | grep -qw "docker" ; then # ! [ id -nG | grep -qw "docker" ]; then
 
     while true; do
-        read -p "Docker post install steps not done, do you whish to do it (y/n)?" yn
+        read -p "Docker post install steps for Linux not done, do you whish to do it (y/n)?" yn
         case $yn in
             [Yy]* ) 
                 # Docker post-installation according to https://docs.docker.com/engine/install/linux-postinstall/
