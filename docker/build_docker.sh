@@ -7,14 +7,14 @@ USE_SIMD=OFF                                              # Possible: ON, OFF
 BASE_IMAGE=ghcr.io/aica-technology/ros-ws:${ROS_DISTRO}   # Do not modify
 
 # Help
-HELP_MESSAGE="Usage: ./build.sh [-r, --rebuild] [-v, --verbose] [-i, --image-name]
+HELP_MESSAGE="Usage: ./build.sh [-r, --rebuild] [-v, --verbose] [-i, --image-name] [-d, --distro] [--smid]
 Build the '${IMAGE_NAME}' image.
 Options:
   -r, --rebuild            Rebuild with --no-cache option.
   -v, --verbose            Display additional info upon build.
-  -i, --image-name         Defines the name given to the image beeing built.
-  -d, --distro             Can be \"noetic\" or \"melodic\".
-  --smid                   Build with smid flags on.
+  -i, --image-name         Defines the name given to the image beeing built. Default: ${IMAGE_NAME}
+  -d, --distro             Can be \"noetic\" or \"melodic\", default: ${ROS_DISTRO}
+  --smid                   Build with smid flags on. Flags are off by default.
   -h, --help               Show this help message."
 
 # Parse build flags
