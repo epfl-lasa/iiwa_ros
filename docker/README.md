@@ -9,7 +9,7 @@ This folder holds a docker for iiwa_ros. This is an out of the box docker infras
 
 **OS-X:** For OSX users, the docker should work. However it is to be expected that the graphical interfaces such as Gazebo will not be working. This might be fixable for specific cases but support is not provided by this package. This is due to the fact that solutions to this may vary a lot depending on the hardware and versions. Also `install_docker.sh` will most likely not work on OS-X. However the user should be able to recreate by hand the necessary steps.
 
-**Windows:** This will not work under windows. However I would suggest using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about) which should allow the user to run this docker on a windows computer.
+**Windows:** This will not work under windows. However I would suggest using [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about) which should allow the user to run this docker on a windows computer. However display sharing issues are still to be expected.
 
 ### Network
 
@@ -102,6 +102,9 @@ Options:
 ## Technical notes
 
 - The docker builds on top of docker images from the [aica-docker/docker-images](https://github.com/aica-technology/docker-images). And the `start_docker.sh` script uses their set of command. This might not be the best approach but this works for now so it is good enough.
+- The tested base images versions are:
+  - [ros-ws:melodic](https://github.com/aica-technology/docker-images/pkgs/container/ros-ws): sha256:d1ab8c7a5e28dd3fa71ebe051ac0937207adf03215235386a1a0edea855d68d2
+  - [ros-ws:noetic](https://github.com/aica-technology/docker-images/pkgs/container/ros-ws): sha256:6c439fedd5b475995187a7206b8cd6f0f2651b809dd689aba5641f3975c61b7f
 - When building the docker the iiwa-ros repository is cloned into the image. A better approach would probably be to copy it from the host computer. This would likely save a little time at build (who ever does that should also make sure that the .dockerignore is also updated)
 - `start_docker.sh` checks for NVIDIA GPU and automatically chooses to enable it for the container if it is there. The reason is that it seems gazebo has some issues if there is only an NVIDIA GPU and the container does not have access. But it might still be nice to have an option to override this automatic detection. Also, the output of the command is printed on the terminal, we could do without. Maybe check if there is an NVIDIA driver instead of a physical GPU?
 - In my case gazebo still outputs an error on the terminal but everything ends up working fine. I think this is partly because gazebo9 and gazebo11 are fairly old. So if everything else works just ignore error messages.
@@ -113,4 +116,3 @@ Options:
 ## Authors/Maintainers
 
 - Loïc Niederhauser: loic.niederhauser@epfl.ch, @niderha on github.
-
