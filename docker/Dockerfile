@@ -11,17 +11,6 @@ ARG USE_SIMD=OFF
 # Tell docker we want to use bash instead of sh in general
 SHELL ["/bin/bash", "-c"]
 
-### Add a few tools
-RUN sudo apt-get update && sudo apt-get install -y \
-    bash-completion \
-    silversearcher-ag \
-    apt-transport-https \
-    less \
-    alsa-utils \
-    ros-${ROS_DISTRO}-ros-control \
-    ros-${ROS_DISTRO}-ros-controllers \
-    && sudo apt-get upgrade -y && sudo apt-get clean
-
 ### Add the user to the current GID of the host to avoid permisson issues in volumes
 # AICA uses the same name for user and user group
 ENV USER_GROUP=${USER}
@@ -40,6 +29,27 @@ RUN git config --global user.email "${GIT_EMAIL}"
 RUN sudo apt update
 RUN if [ "${ROS_DISTRO}" == "noetic" ] ; \
     then sudo apt install python-is-python3 ; fi
+
+
+### Add a few tools
+RUN sudo apt-get update && sudo apt-get install -y \
+    bash-completion \
+    silversearcher-ag \
+    apt-transport-https \
+    less \
+    alsa-utils \
+    ros-${ROS_DISTRO}-ros-control \
+    ros-${ROS_DISTRO}-ros-controllers \
+    && sudo apt-get upgrade -y && sudo apt-get clean
+
+# Install gazebo (9 or 11 depending on distro)
+WORKDIR /home/${USER}
+RUN sudo apt-get update
+RUN if [ "$ROS_DISTRO" = "noetic" ] ; then sudo apt-get install -y gazebo11 ; fi
+RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y gazebo9 ; fi
+
+# Install gaezbo ros packages
+RUN sudo apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control
 
 # Handle SIMD option
 RUN if [ "${USE_SIMD}" = "ON" ] ; \ 
@@ -96,16 +106,6 @@ RUN cd robot_controllers && mkdir build && cd build \
 # Remove temporari files
 RUN sudo ldconfig
 RUN rm -rf /tmp/*
-
-### Install gazebo
-# Install gazebo (9 or 11 depending on distro)
-WORKDIR /home/${USER}
-RUN sudo apt-get update
-RUN if [ "$ROS_DISTRO" = "noetic" ] ; then sudo apt-get install -y gazebo11 ; fi
-RUN if [ "$ROS_DISTRO" = "melodic" ] ; then sudo apt-get install -y gazebo9 ; fi
-
-# Install gaezbo ros packages
-RUN sudo apt install -y ros-${ROS_DISTRO}-gazebo-ros-pkgs ros-${ROS_DISTRO}-gazebo-ros-control
 
 ### Install IIWA ROS
 WORKDIR /home/${USER}/ros_ws/src
