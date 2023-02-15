@@ -1,11 +1,9 @@
 #|
-#|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+#|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 #|              Bernardo Fichera
-#|              Walid Amanhoud
 #|    email:    costashatz@gmail.com
 #|              bernardo.fichera@epfl.ch
-#|              walid.amanhoud@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
 #|    website:  lasa.epfl.ch
@@ -25,7 +23,8 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_tools)
 
-option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
+# When enabling SIMD, both the dependencies (e.g. RBDyn) and subsequent code need to be compiled with SIMD
+option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" OFF)
 
 find_package(PkgConfig)
 
@@ -48,6 +47,7 @@ add_service_files(
   GetJacobian.srv
   GetJacobians.srv
   GetGravity.srv
+  GetMassMatrix.srv
 )
 
 generate_messages(

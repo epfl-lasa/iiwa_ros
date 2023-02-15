@@ -31,6 +31,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  message_generation
   rospy
   std_msgs
   geometry_msgs
@@ -39,14 +40,33 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   sensor_msgs
   urdf
+  realtime_tools
 )
 
 find_package(FRI REQUIRED COMPONENTS
     kuka_fri
 )
 
+# Message files
+add_message_files(
+  FILES
+  AdditionalOutputs.msg
+  ConnectionQuality.msg
+  FRIState.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
 # Needed for ros packages
-catkin_package(CATKIN_DEPENDS roscpp geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager urdf)
+catkin_package(CATKIN_DEPENDS roscpp message_runtime geometry_msgs tf std_msgs sensor_msgs hardware_interface controller_manager urdf realtime_tools)
+
+# Sets build type to "Release" in case no build type has not been set before
+if(NOT CMAKE_BUILD_TYPE) 
+    set(CMAKE_BUILD_TYPE Release)
+endif(NOT CMAKE_BUILD_TYPE)
 
 add_executable(iiwa_driver src/iiwa.cpp src/iiwa_driver.cpp)
 
@@ -57,6 +77,8 @@ set_property(TARGET iiwa_driver PROPERTY CXX_STANDARD_REQUIRED ON)
 target_include_directories(iiwa_driver PUBLIC include ${catkin_INCLUDE_DIRS} ${FRI_INCLUDE_DIRS})
 target_link_libraries(iiwa_driver ${catkin_LIBRARIES} ${FRI_LIBRARIES})
 add_dependencies(iiwa_driver ${catkin_EXPORTED_TARGETS})
+
+add_dependencies(iiwa_driver iiwa_driver_generate_messages_cpp)
 
 
 install(TARGETS iiwa_driver

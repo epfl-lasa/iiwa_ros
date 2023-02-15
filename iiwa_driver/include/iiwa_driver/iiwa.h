@@ -29,6 +29,13 @@
 #include <ros/ros.h>
 #include <std_msgs/Bool.h>
 
+#include <realtime_tools/realtime_publisher.h>
+
+#include <iiwa_driver/AdditionalOutputs.h>
+#include <iiwa_driver/FRIState.h>
+#include <std_msgs/Bool.h>
+#include <std_msgs/Float64MultiArray.h>
+
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -81,8 +88,8 @@ namespace iiwa_ros {
         void _init();
         void _ctrl_loop();
         void _load_params();
-        void _read(ros::Duration elapsed_time);
-        void _write(ros::Duration elapsed_time);
+        void _read(const ros::Duration& ctrl_duration);
+        void _write(const ros::Duration& ctrl_duration);
         bool _init_fri();
         bool _connect_fri();
         void _disconnect_fri();
@@ -90,6 +97,11 @@ namespace iiwa_ros {
         bool _write_fri();
         void _publish();
         void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
+
+        // External torque and commanding status publishers
+        realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
+        realtime_tools::RealtimePublisher<iiwa_driver::FRIState> _fri_state_pub;
+        realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
 
         // Interfaces
         hardware_interface::JointStateInterface _joint_state_interface;
@@ -105,7 +117,7 @@ namespace iiwa_ros {
         joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
 
         // Shared memory
-        int _num_joints;
+        size_t _num_joints;
         int _joint_mode; // position, velocity, or effort
         std::vector<std::string> _joint_names;
         std::vector<int> _joint_types;
@@ -135,9 +147,10 @@ namespace iiwa_ros {
         std::string _ns;
         std::string _robot_description;
         ros::Duration _control_period;
-        ros::Publisher _commanding_status_pub;
         double _control_freq;
         bool _initialized;
+        bool _publish_additional_info{false};
+        bool _publish_commanding_status{false};
     };
 } // namespace iiwa_ros
 

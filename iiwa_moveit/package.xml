@@ -55,6 +55,5 @@
   <depend>robot_state_publisher</depend>
   <depend>xacro</depend>
   <depend>iiwa_description</depend>
-  <depend>iiwa_hw</depend>
 
 </package>

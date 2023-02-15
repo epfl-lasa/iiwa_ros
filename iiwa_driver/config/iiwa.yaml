@@ -13,3 +13,7 @@ hardware_interface:
     - $(arg robot_name)_joint_5
     - $(arg robot_name)_joint_6
     - $(arg robot_name)_joint_7
+
+publish:
+  additional_info: true
+  commanded_torques: true
