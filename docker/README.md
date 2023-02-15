@@ -101,7 +101,7 @@ Options:
 
 ## Technical notes
 
-- The docker builds on top of docker images from the [aica-docker/docker-images](https://github.com/aica-technology/docker-images). And the `start_docker.sh` script uses their set of command. This might not be the best approach but this works for now so it is good enough.
+- The docker builds on top of docker images from the [aica-docker/docker-images](https://github.com/aica-technology/docker-images). The install script checks out the  And the `start_docker.sh` script uses their set of command. This might not be the best approach but this works for now so it is good enough. At the time of merging the latest commit working with these script is [5f8d908](https://github.com/aica-technology/docker-images/commit/5f8d9084b2d7b4fb69631b9e69aa72f64d7f7843) on main. Although it is likely to work with later commits. Note that the install script will install the `aica-docker` command from this commit.
 - The tested base images versions are:
   - [ros-ws:melodic](https://github.com/aica-technology/docker-images/pkgs/container/ros-ws): sha256:d1ab8c7a5e28dd3fa71ebe051ac0937207adf03215235386a1a0edea855d68d2
   - [ros-ws:noetic](https://github.com/aica-technology/docker-images/pkgs/container/ros-ws): sha256:6c439fedd5b475995187a7206b8cd6f0f2651b809dd689aba5641f3975c61b7f
