@@ -40,6 +40,8 @@ RUN sudo apt-get update && sudo apt-get install -y \
     alsa-utils \
     ros-${ROS_DISTRO}-ros-control \
     ros-${ROS_DISTRO}-ros-controllers \
+    net-tools \
+    netbase \
     && sudo apt-get upgrade -y && sudo apt-get clean
 
 # Install gazebo (9 or 11 depending on distro)
