@@ -21,6 +21,10 @@
 	      <view_controller>orbit</view_controller>
       </camera>
     </gui>
+
+    <scene>
+      <shadows>0</shadows>
+    </scene>
     
   </world>
   

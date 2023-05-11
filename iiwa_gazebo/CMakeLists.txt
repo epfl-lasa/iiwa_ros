@@ -49,6 +49,8 @@ add_library(iiwa_gazebo_gravity_compensation_hw_sim src/gravity_compensation_hw_
 # Require C++11
 set_property(TARGET iiwa_gazebo_gravity_compensation_hw_sim PROPERTY CXX_STANDARD 11)
 set_property(TARGET iiwa_gazebo_gravity_compensation_hw_sim PROPERTY CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 target_include_directories(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC include ${catkin_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 target_link_libraries(iiwa_gazebo_gravity_compensation_hw_sim PUBLIC ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES})

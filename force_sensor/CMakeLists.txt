@@ -19,6 +19,11 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(force_sensor)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 find_package(catkin REQUIRED)
 
 catkin_package(

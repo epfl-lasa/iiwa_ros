@@ -25,6 +25,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_tools)
 
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
 
 find_package(PkgConfig)

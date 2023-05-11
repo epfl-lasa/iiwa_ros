@@ -25,6 +25,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(iiwa_driver)
 
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+
 # Tell CMake where to find "FindFRI.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
