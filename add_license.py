@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #|
-#|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+#|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 #|              Bernardo Fichera
 #|              Walid Amanhoud
@@ -10,6 +10,7 @@
 #|              walid.amanhoud@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
+#|              Walid Amanhoud (walid.amanhoud@epfl.ch)
 #|    website:  lasa.epfl.ch
 #|
 #|    This file is part of iiwa_ros.

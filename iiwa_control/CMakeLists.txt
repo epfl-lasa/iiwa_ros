@@ -1,11 +1,14 @@
 #|
 #|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+#|              Matthias Mayr
 #|              Bernardo Fichera
 #|    email:    costashatz@gmail.com
+#|              matthias.mayr@cs.lth.se
 #|              bernardo.fichera@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
+#|              Walid Amanhoud (walid.amanhoud@epfl.ch)
 #|    website:  lasa.epfl.ch
 #|
 #|    This file is part of iiwa_ros.
@@ -93,7 +96,6 @@ target_link_libraries(CustomEffortController PUBLIC
   ${Eigen3_LIBRARIES}
   Corrade::PluginManager)
 
-# add_dependencies(CustomEffortController iiwa_service)
 add_dependencies(CustomEffortController ${iiwa_tools_EXPORTED_TARGETS})
 
 # Require C++11

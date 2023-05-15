@@ -1,14 +1,15 @@
 <?xml version="1.0"?>
 <!--|
-    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
               Bernardo Fichera
-              Walid Amanhoud
     email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
               bernardo.fichera@epfl.ch
-              walid.amanhoud@epfl.ch
     Other contributors:
               Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
     website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
@@ -52,9 +53,7 @@
   <build_depend>tf</build_depend>
   <build_depend>sensor_msgs</build_depend>
   <build_depend>urdf</build_depend>
-
   <build_depend>realtime_tools</build_depend>
-
 
   <run_depend>roscpp</run_depend>
   <run_depend>message_runtime</run_depend>
@@ -66,7 +65,6 @@
   <run_depend>tf</run_depend>
   <run_depend>sensor_msgs</run_depend>
   <run_depend>urdf</run_depend>
-
   <run_depend>realtime_tools</run_depend>
 
 
