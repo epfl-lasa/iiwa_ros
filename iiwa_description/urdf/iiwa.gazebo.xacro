@@ -94,6 +94,44 @@
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
+    
+    <gazebo reference="${robot_name}_link_ee">
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <gazebo reference="${robot_name}_link_FTS">
+      <material>Gazebo/Grey</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
+    </gazebo>
+
+    <gazebo reference="${robot_name}_link_grabber">
+      <material>Gazebo/White</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <minDepth>0.003</minDepth>  
+      <maxVel>0</maxVel>
+
+      <collision>
+      <surface>
+        <friction>
+          <torsional>
+            <coefficient>1.0</coefficient>
+            <use_patch_radius>true</use_patch_radius>
+            <patch_radius>0.05</patch_radius>
+          </torsional>
+        </friction>
+      </surface>
+    </collision>
+
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
+    </gazebo>
+
+    
+    
 
   </xacro:macro>
 

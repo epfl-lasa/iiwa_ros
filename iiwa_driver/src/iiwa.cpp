@@ -37,18 +37,23 @@
 
 #include <thread>
 
-namespace iiwa_ros {
-    bool has_realtime_kernel() {
+namespace iiwa_ros
+{
+    bool has_realtime_kernel()
+    {
         std::ifstream realtime("/sys/kernel/realtime", std::ios_base::in);
         bool is_realtime;
         realtime >> is_realtime;
         return is_realtime;
     }
 
-    bool set_thread_to_highest_priority(std::string& error_message) {
+    bool set_thread_to_highest_priority(std::string &error_message)
+    {
         const int thread_priority = sched_get_priority_max(SCHED_FIFO);
-        if (thread_priority == -1) {
-            if (error_message.empty()) {
+        if (thread_priority == -1)
+        {
+            if (error_message.empty())
+            {
                 error_message = std::string("Unable to get maximum possible thread priority: ") + std::strerror(errno);
             }
             return false;
@@ -56,8 +61,10 @@ namespace iiwa_ros {
 
         sched_param thread_param{};
         thread_param.sched_priority = thread_priority;
-        if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &thread_param) != 0) {
-            if (error_message.empty()) {
+        if (pthread_setschedparam(pthread_self(), SCHED_FIFO, &thread_param) != 0)
+        {
+            if (error_message.empty())
+            {
                 error_message = std::string("Unable to set realtime scheduling: ") + std::strerror(errno);
             }
             return false;
@@ -65,7 +72,7 @@ namespace iiwa_ros {
         return true;
     }
 
-    Iiwa::Iiwa(ros::NodeHandle& nh)
+    Iiwa::Iiwa(ros::NodeHandle &nh)
     {
         init(nh);
     }
@@ -80,21 +87,31 @@ namespace iiwa_ros {
             delete _fri_message_data;
     }
 
-    void Iiwa::init(ros::NodeHandle& nh)
+    void Iiwa::init(ros::NodeHandle &nh)
     {
         _nh = nh;
+        _ns = nh.getNamespace();
         _load_params(); // load parameters
-        _init(); // initialize
+        _init();        // initialize
+        // add namespace
+        _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns + "/commanding_status", 100);
+        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
-        if (has_realtime_kernel()) {
+        if (has_realtime_kernel())
+        {
             std::string error_message;
-            if (!set_thread_to_highest_priority(error_message)) {
+            if (!set_thread_to_highest_priority(error_message))
+            {
                 ROS_ERROR_STREAM(error_message);
-            } else {
+            }
+            else
+            {
                 ROS_INFO_STREAM("Initializing with realtime scheduling support.");
             }
-        } else {
+        }
+        else
+        {
             ROS_INFO_STREAM("Initializing without realtime scheduling support.");
         }
 
@@ -106,7 +123,8 @@ namespace iiwa_ros {
 
     void Iiwa::run()
     {
-        if (!_initialized) {
+        if (!_initialized)
+        {
             ROS_ERROR_STREAM("Not connected to the robot. Cannot run!");
             return;
         }
@@ -138,23 +156,32 @@ namespace iiwa_ros {
         std::string urdf_string;
 
         // search and wait for robot_description on param server
-        while (urdf_string.empty()) {
+        while (urdf_string.empty())
+        {
             ROS_INFO_ONCE_NAMED("Iiwa", "Iiwa is waiting for model"
                                         " URDF in parameter [%s] on the ROS param server.",
-                _robot_description.c_str());
+                                _robot_description.c_str());
 
-            _nh.getParam(_robot_description, urdf_string);
+            if (_nh.getParam(_robot_description, urdf_string))
+            {
+                ROS_INFO_STREAM("Got parameter: " + _robot_description);
+            }
+            else
+            {
+                ROS_ERROR_STREAM("Parameter " + _robot_description + " not found");
+            }
 
             usleep(100000);
         }
         ROS_INFO_STREAM_NAMED("Iiwa", "Received urdf from param server, parsing...");
 
-        const urdf::Model* const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : nullptr;
+        const urdf::Model *const urdf_model_ptr = urdf_model.initString(urdf_string) ? &urdf_model : nullptr;
         if (urdf_model_ptr == nullptr)
             ROS_WARN_STREAM_NAMED("Iiwa", "Could not read URDF from '" << _robot_description << "' parameters. Joint limits will not work.");
 
         // Initialize Controller
-        for (size_t i = 0; i < _num_joints; ++i) {
+        for (size_t i = 0; i < _num_joints; ++i)
+        {
             _joint_position[i] = _joint_velocity[i] = _joint_effort[i] = 0.;
             // Create joint state interface
             hardware_interface::JointStateHandle joint_state_handle(_joint_names[i], &_joint_position[i], &_joint_velocity[i], &_joint_effort[i]);
@@ -166,9 +193,11 @@ namespace iiwa_ros {
             joint_limits_interface::JointLimits limits;
             joint_limits_interface::SoftJointLimits soft_limits;
 
-            if (has_limits) {
+            if (has_limits)
+            {
                 auto urdf_joint = urdf_model_ptr->getJoint(_joint_names[i]);
-                if (!urdf_joint) {
+                if (!urdf_joint)
+                {
                     ROS_WARN_STREAM_NAMED("Iiwa", "Could not find joint '" << _joint_names[i] << "' in URDF. No limits will be applied for this joint.");
                     continue;
                 }
@@ -181,11 +210,13 @@ namespace iiwa_ros {
             // Create position joint interface
             hardware_interface::JointHandle joint_position_handle(joint_state_handle, &_joint_position_command[i]);
 
-            if (has_soft_limits) {
+            if (has_soft_limits)
+            {
                 joint_limits_interface::PositionJointSoftLimitsHandle joint_limits_handle(joint_position_handle, limits, soft_limits);
                 _position_joint_limits_interface.registerHandle(joint_limits_handle);
             }
-            else {
+            else
+            {
                 joint_limits_interface::PositionJointSaturationHandle joint_limits_handle(joint_position_handle, limits);
                 _position_joint_saturation_interface.registerHandle(joint_limits_handle);
             }
@@ -195,11 +226,13 @@ namespace iiwa_ros {
             // Create effort joint interface
             hardware_interface::JointHandle joint_effort_handle(joint_state_handle, &_joint_effort_command[i]);
 
-            if (has_soft_limits) {
+            if (has_soft_limits)
+            {
                 joint_limits_interface::EffortJointSoftLimitsHandle joint_limits_handle(joint_effort_handle, limits, soft_limits);
                 _effort_joint_limits_interface.registerHandle(joint_limits_handle);
             }
-            else if (has_limits) {
+            else if (has_limits)
+            {
                 joint_limits_interface::EffortJointSaturationHandle joint_limits_handle(joint_effort_handle, limits);
                 _effort_joint_saturation_interface.registerHandle(joint_limits_handle);
             }
@@ -209,11 +242,13 @@ namespace iiwa_ros {
             // Create velocity joint interface
             hardware_interface::JointHandle joint_velocity_handle(joint_state_handle, &_joint_velocity_command[i]);
 
-            if (has_soft_limits) {
+            if (has_soft_limits)
+            {
                 joint_limits_interface::VelocityJointSoftLimitsHandle joint_limits_handle(joint_velocity_handle, limits, soft_limits);
                 _velocity_joint_limits_interface.registerHandle(joint_limits_handle);
             }
-            else {
+            else
+            {
                 joint_limits_interface::VelocityJointSaturationHandle joint_limits_handle(joint_velocity_handle, limits);
                 _velocity_joint_saturation_interface.registerHandle(joint_limits_handle);
             }
@@ -226,11 +261,13 @@ namespace iiwa_ros {
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
 
-        if (_publish_commanding_status) {
+        if (_publish_commanding_status)
+        {
             _commanding_status_pub.init(_nh, "commanding_status", 100);
         }
 
-        if (_publish_additional_info) {
+        if (_publish_additional_info)
+        {
             _additional_pub.init(_nh, "additional_outputs", 20);
             _additional_pub.msg_.external_torques.layout.dim.resize(1);
             _additional_pub.msg_.external_torques.layout.data_offset = 0;
@@ -259,7 +296,8 @@ namespace iiwa_ros {
         const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
         // Time since the last call of update
         ros::Duration elapsed_time;
-        while (ros::ok()) {
+        while (ros::ok())
+        {
             // Read is blocking until FRI has replied
             _read(ctrl_duration);
             elapsed_time = ros::Time::now() - time;
@@ -273,24 +311,29 @@ namespace iiwa_ros {
     void Iiwa::_publish()
     {
         // publish commanding status
-        if (_publish_commanding_status && _commanding_status_pub.trylock()) {
+        if (_publish_commanding_status && _commanding_status_pub.trylock())
+        {
             _commanding_status_pub.msg_.data = _commanding;
             _commanding_status_pub.unlockAndPublish();
         }
 
         // publish additional outputs
-        if (_publish_additional_info) {
-            if (_additional_pub.trylock()) {
-              _additional_pub.msg_.header.stamp = ros::Time::now();
-              for (size_t i = 0; i < _num_joints; i++) {
-                  _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
-                  _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
-                  _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
-              }
-              _additional_pub.unlockAndPublish();
+        if (_publish_additional_info)
+        {
+            if (_additional_pub.trylock())
+            {
+                _additional_pub.msg_.header.stamp = ros::Time::now();
+                for (size_t i = 0; i < _num_joints; i++)
+                {
+                    _additional_pub.msg_.external_torques.data[i] = _robot_state.getExternalTorque()[i];
+                    _additional_pub.msg_.commanded_torques.data[i] = _robot_state.getCommandedTorque()[i];
+                    _additional_pub.msg_.commanded_positions.data[i] = _robot_state.getCommandedJointPosition()[i];
+                }
+                _additional_pub.unlockAndPublish();
             }
 
-            if (_fri_state_pub.trylock()) {
+            if (_fri_state_pub.trylock())
+            {
                 _fri_state_pub.msg_.header.stamp = ros::Time::now();
                 _fri_state_pub.msg_.connection_quality.connection_quality = _robot_state.getConnectionQuality();
                 _fri_state_pub.unlockAndPublish();
@@ -302,24 +345,32 @@ namespace iiwa_ros {
     {
         ros::NodeHandle n_p("~");
 
-        n_p.param("fri/port", _port, 30200); // Default port is 30200
-        n_p.param<std::string>("fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
-        n_p.param<std::string>("fri/robot_description", _robot_description, "/robot_description");
+        n_p.param(_ns + "/iiwa_driver/fri/port", _port, 30200);                                  // Default port is 30200
+        n_p.param<std::string>(_ns + "/iiwa_driver/fri/robot_ip", _remote_host, "192.170.10.2"); // Default robot ip is 192.170.10.2
+        n_p.param<std::string>(_ns + "/iiwa_driver/fri/robot_description", _robot_description, _ns + "/robot_description");
 
-        n_p.param("hardware_interface/control_freq", _control_freq, 200.);
-        n_p.getParam("hardware_interface/joints", _joint_names);
+        n_p.param(_ns + "/iiwa_driver/publish/additional_info", _publish_additional_info, true);
+        n_p.param(_ns + "/iiwa_driver/publish/commanded_torques", _publish_commanding_status, true);
+        n_p.param(_ns + "/iiwa_driver/hardware_interface/control_freq", _control_freq, 200.);
 
-        n_p.param("publish/additional_info", _publish_additional_info, true);
-        n_p.param("publish/commanded_torques", _publish_commanding_status, true);
+        if (n_p.getParam(_ns + "/iiwa_driver/hardware_interface/joints", _joint_names))
+        {
+            ROS_INFO_STREAM_ONCE_NAMED("Iiwa", "Got parameter hardware_interface/joints");
+        }
+        else
+        {
+            ROS_ERROR_STREAM_ONCE_NAMED("Iiwa", "Parameter hardware_interface/joints not found");
+        }
     }
 
-    void Iiwa::_read(const ros::Duration& ctrl_duration)
+    void Iiwa::_read(const ros::Duration &ctrl_duration)
     {
         // Read data from robot (via FRI)
         kuka::fri::ESessionState fri_state;
         _read_fri(fri_state);
 
-        switch (fri_state) {
+        switch (fri_state)
+        {
         case kuka::fri::MONITORING_WAIT:
         case kuka::fri::MONITORING_READY:
         case kuka::fri::COMMANDING_WAIT:
@@ -340,14 +391,15 @@ namespace iiwa_ros {
         // Update ROS structures
         _joint_position_prev = _joint_position;
 
-        for (size_t i = 0; i < _num_joints; i++) {
+        for (size_t i = 0; i < _num_joints; i++)
+        {
             _joint_position[i] = _robot_state.getMeasuredJointPosition()[i];
             _joint_velocity[i] = filters::exponentialSmoothing((_joint_position[i] - _joint_position_prev[i]) / ctrl_duration.toSec(), _joint_velocity[i], 0.2);
             _joint_effort[i] = _robot_state.getMeasuredTorque()[i];
         }
     }
 
-    void Iiwa::_write(const ros::Duration& ctrl_duration)
+    void Iiwa::_write(const ros::Duration &ctrl_duration)
     {
         if (_idle) // if idle, do nothing
             return;
@@ -363,7 +415,8 @@ namespace iiwa_ros {
         // reset commmand message
         _fri_message_data->resetCommandMessage();
 
-        if (_robot_state.getClientCommandMode() == kuka::fri::TORQUE) {
+        if (_robot_state.getClientCommandMode() == kuka::fri::TORQUE)
+        {
             // Implements dithering to trigger the friction observer.
             // If the physical robot is at the commanded positions, KUKA turns off friction
             // compensation.
@@ -405,7 +458,8 @@ namespace iiwa_ros {
 
     bool Iiwa::_connect_fri()
     {
-        if (_fri_connection.isOpen()) {
+        if (_fri_connection.isOpen())
+        {
             // TO-DO: Use ROS output
             // printf("Warning: client application already connected!\n");
             return true;
@@ -420,9 +474,10 @@ namespace iiwa_ros {
             _fri_connection.close();
     }
 
-    bool Iiwa::_read_fri(kuka::fri::ESessionState& current_state)
+    bool Iiwa::_read_fri(kuka::fri::ESessionState &current_state)
     {
-        if (!_fri_connection.isOpen()) {
+        if (!_fri_connection.isOpen())
+        {
             // TO-DO: Use ROS output
             // printf("Error: client application is not connected!\n");
             return false;
@@ -433,18 +488,21 @@ namespace iiwa_ros {
         // **************************************************************************
         _message_size = _fri_connection.receive(_fri_message_data->receiveBuffer, kuka::fri::FRI_MONITOR_MSG_MAX_SIZE);
 
-        if (_message_size <= 0) { // TODO: size == 0 -> connection closed (maybe go to IDLE instead of stopping?)
+        if (_message_size <= 0)
+        { // TODO: size == 0 -> connection closed (maybe go to IDLE instead of stopping?)
             // TO-DO: Use ROS output
             // printf("Error: failed while trying to receive monitoring message!\n");
             return false;
         }
 
-        if (!_fri_message_data->decoder.decode(_fri_message_data->receiveBuffer, _message_size)) {
+        if (!_fri_message_data->decoder.decode(_fri_message_data->receiveBuffer, _message_size))
+        {
             return false;
         }
 
         // check message type (so that our wrappers match)
-        if (_fri_message_data->expectedMonitorMsgID != _fri_message_data->monitoringMsg.header.messageIdentifier) {
+        if (_fri_message_data->expectedMonitorMsgID != _fri_message_data->monitoringMsg.header.messageIdentifier)
+        {
             // TO-DO: Use ROS output
             // printf("Error: incompatible IDs for received message (got: %d expected %d)!\n",
             //     (int)_fri_message_data->monitoringMsg.header.messageIdentifier,
@@ -454,7 +512,8 @@ namespace iiwa_ros {
 
         current_state = (kuka::fri::ESessionState)_fri_message_data->monitoringMsg.connectionInfo.sessionState;
 
-        if (_fri_message_data->lastState != current_state) {
+        if (_fri_message_data->lastState != current_state)
+        {
             _on_fri_state_change(_fri_message_data->lastState, current_state);
             _fri_message_data->lastState = current_state;
         }
@@ -470,18 +529,21 @@ namespace iiwa_ros {
 
         _fri_message_data->lastSendCounter++;
         // check if its time to send an answer
-        if (_fri_message_data->lastSendCounter >= _fri_message_data->monitoringMsg.connectionInfo.receiveMultiplier) {
+        if (_fri_message_data->lastSendCounter >= _fri_message_data->monitoringMsg.connectionInfo.receiveMultiplier)
+        {
             _fri_message_data->lastSendCounter = 0;
 
             // set sequence counters
             _fri_message_data->commandMsg.header.sequenceCounter = _fri_message_data->sequenceCounter++;
             _fri_message_data->commandMsg.header.reflectedSequenceCounter = _fri_message_data->monitoringMsg.header.sequenceCounter;
 
-            if (!_fri_message_data->encoder.encode(_fri_message_data->sendBuffer, _message_size)) {
+            if (!_fri_message_data->encoder.encode(_fri_message_data->sendBuffer, _message_size))
+            {
                 return false;
             }
 
-            if (!_fri_connection.send(_fri_message_data->sendBuffer, _message_size)) {
+            if (!_fri_connection.send(_fri_message_data->sendBuffer, _message_size))
+            {
                 // TO-DO: Use ROS output
                 // printf("Error: failed while trying to send command message!\n");
                 return false;

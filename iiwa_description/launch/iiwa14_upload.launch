@@ -31,8 +31,14 @@
   <arg name="hardware_interface" default="EffortJointInterface"/>
   <arg name="robot_name" default="iiwa"/>
 
+  <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
+  <arg name="force_sensor" default="False"/>
+  <arg name="grabber" default="False"/>
+
   <param name="robot_description"
       command="$(find xacro)/xacro --inorder '$(find iiwa_description)/urdf/iiwa14.urdf.xacro'
       hardware_interface:=$(arg hardware_interface)
-      robot_name:=$(arg robot_name)" />
+      robot_name:=$(arg robot_name)
+      force_sensor:=$(arg force_sensor)
+      grabber:=$(arg grabber)"/>
 </launch>

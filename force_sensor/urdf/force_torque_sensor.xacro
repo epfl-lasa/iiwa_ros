@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Patrick Sgrò (maintainer)
+    email:    patrick.sgro@hotmail.com
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- The following macro is used to add the force/torque sensor to the iiwa robot -->
+  <xacro:macro name="force_torque_sensor" params="robot_name parent_link_name topic_name size_parent_link">
+    <joint name="${robot_name}_joint_FTS" type="fixed">
+      <parent link="${parent_link_name}"/>
+      <child link="${robot_name}_link_FTS"/>
+      <origin xyz="${size_parent_link}" rpy="0 0 0"/> <!--0 0 0.045-->
+    </joint>
+
+    <gazebo reference="${robot_name}_joint_FTS">
+      <disableFixedJointLumping>true</disableFixedJointLumping>
+      <sensor name="${robot_name}_ft_sensor" type="force_torque">
+        <force_torque>
+          <frame>child</frame>
+          <measure_direction>child_to_parent</measure_direction>
+        </force_torque>
+      </sensor>
+    </gazebo>
+
+    <gazebo>
+      <plugin name="ft_sensor" filename="libgazebo_ros_ft_sensor.so">
+        <updateRate>0</updateRate>
+        <topicName>${topic_name}</topicName>
+        <jointName>${robot_name}_joint_FTS</jointName>
+      </plugin>
+    </gazebo>
+
+    <link name="${robot_name}_link_FTS">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/collision/force_torque_sensor_col.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/visual/force_torque_sensor_vis.stl"/>
+        </geometry>
+        <material name="Grey"/>
+      </visual>
+
+      <inertial>
+        <mass value="0.4" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <!-- <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" /> -->
+        <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
+      </inertial>
+    </link>
+  </xacro:macro>
+
+</robot>

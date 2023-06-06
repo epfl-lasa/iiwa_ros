@@ -31,6 +31,7 @@ option(ENABLE_SIMD "Build with all SIMD instructions on the current local machin
 
 find_package(PkgConfig)
 
+# Find RBDyn library and dependencies
 find_package(mc_rbdyn_urdf REQUIRED)
 
 # Find catkin components

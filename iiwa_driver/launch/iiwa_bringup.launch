@@ -32,26 +32,38 @@
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
+  
+  <group ns="/$(arg robot_name)">
 
-  <!-- Setup iiwa -->
-  <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-      <arg name="robot_name" value="$(arg robot_name)"/>
-      <arg name="model" value="$(arg model)"/>
-      <arg name="controller" value="$(arg controller)"/>
-  </include>
+        <!-- Setup iiwa -->
+        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
+            <arg name="robot_name" value="$(arg robot_name)"/>
+            <arg name="model" value="$(arg model)"/>
+            <!-- <arg name="namespace" value="/iiwa1"/> -->
+            <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
+            <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
+        </include>
 
-  <!-- Spawn iiwa FRI driver -->
-  <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
-    <remap from="/joint_states" to="/iiwa/joint_states"/>
-    <remap from="/controller_manager" to="/iiwa/controller_manager"/>
-    <remap from="/commanding_status" to="/iiwa/commanding_status"/>
-    <!-- Load configurations from YAML file to parameter server -->
-    <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load"/>
-  </node>
+        <!-- Spawn iiwa FRI driver -->
+        <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
+          <!-- <remap from="/joint_states" to="/iiwa/joint_states"/>
+          <remap from="/controller_manager" to="/iiwa/controller_manager"/> 
+          <remap from="/commanding_status" to="/iiwa/commanding_status"/> -->
+          <!-- Load configurations from YAML file to parameter server -->
+          <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
+        </node>
+        
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
 
-  <!-- Spawn controller -->
-  <include file="$(find iiwa_control)/launch/iiwa_control.launch">
-    <arg name="controller" value="$(arg controller)"/>
-  </include>
+        <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen"  ns="/$(arg robot_name)" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen">
+        </node>
+    </group>
 
 </launch>

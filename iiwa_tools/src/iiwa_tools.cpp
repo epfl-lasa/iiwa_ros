@@ -37,23 +37,27 @@
 // ROS headers
 #include <ros/ros.h>
 
-namespace iiwa_tools {
-    double wrap_angle(const double& angle)
+namespace iiwa_tools
+{
+    double wrap_angle(const double &angle)
     {
         double wrapped;
-        if ((angle <= M_PI) && (angle >= -M_PI)) {
+        if ((angle <= M_PI) && (angle >= -M_PI))
+        {
             wrapped = angle;
         }
-        else if (angle < 0.0) {
+        else if (angle < 0.0)
+        {
             wrapped = std::fmod(angle - M_PI, 2.0 * M_PI) + M_PI;
         }
-        else {
+        else
+        {
             wrapped = std::fmod(angle + M_PI, 2.0 * M_PI) - M_PI;
         }
         return wrapped;
     }
 
-    iiwa_tools::EefState IiwaTools::perform_fk(const RobotState& robot_state)
+    iiwa_tools::EefState IiwaTools::perform_fk(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -62,7 +66,8 @@ namespace iiwa_tools {
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
         Eigen::VectorXd q_high = q_low;
 
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        for (size_t i = 0; i < _rbd_indices.size(); i++)
+        {
             size_t index = _rbd_indices[i];
             q_low(i) = rbdyn_urdf.limits.lower[rbdyn_urdf.mb.joint(index).name()][0];
             q_high(i) = rbdyn_urdf.limits.upper[rbdyn_urdf.mb.joint(index).name()][0];
@@ -70,7 +75,8 @@ namespace iiwa_tools {
 
         rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
 
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        for (size_t i = 0; i < _rbd_indices.size(); i++)
+        {
             size_t rbd_index = _rbd_indices[i];
             double jt = robot_state.position[i];
             // wrap in [-pi,pi]
@@ -96,7 +102,7 @@ namespace iiwa_tools {
         return {trans, quat};
     }
 
-    Eigen::VectorXd IiwaTools::perform_ik(const EefState& ee_state, const RobotState& seed_state)
+    Eigen::VectorXd IiwaTools::perform_ik(const EefState &ee_state, const RobotState &seed_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -117,7 +123,8 @@ namespace iiwa_tools {
         Eigen::VectorXd q_low = Eigen::VectorXd::Ones(_rbd_indices.size());
         Eigen::VectorXd q_high = q_low;
 
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        for (size_t i = 0; i < _rbd_indices.size(); i++)
+        {
             size_t index = _rbd_indices[i];
             q_low(i) = rbdyn_urdf.limits.lower[rbdyn_urdf.mb.joint(index).name()][0];
             q_high(i) = rbdyn_urdf.limits.upper[rbdyn_urdf.mb.joint(index).name()][0];
@@ -135,8 +142,10 @@ namespace iiwa_tools {
 
         rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
         bool seeds_provided = (seed_state.position.size() == _rbd_indices.size());
-        if (seeds_provided) {
-            for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        if (seeds_provided)
+        {
+            for (size_t i = 0; i < _rbd_indices.size(); i++)
+            {
                 size_t rbd_index = _rbd_indices[i];
                 // wrap in [-pi,pi]
                 double seed = wrap_angle(seed_state.position[i]);
@@ -153,8 +162,10 @@ namespace iiwa_tools {
 
         // Solve IK with traditional approach and pass it as a seed if successful
         bool valid = _ik->inverseKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc, target_tf);
-        if (valid) {
-            for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        if (valid)
+        {
+            for (size_t i = 0; i < _rbd_indices.size(); i++)
+            {
                 size_t rbd_index = _rbd_indices[i];
 
                 // wrap in [-pi,pi]
@@ -168,9 +179,12 @@ namespace iiwa_tools {
             }
             ROS_DEBUG_STREAM("Using seed from RBDyn: " << qref.transpose());
         }
-        else {
-            if (seeds_provided) {
-                for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        else
+        {
+            if (seeds_provided)
+            {
+                for (size_t i = 0; i < _rbd_indices.size(); i++)
+                {
                     size_t rbd_index = _rbd_indices[i];
                     // wrap in [-pi,pi]
                     double seed = wrap_angle(seed_state.position[i]);
@@ -195,7 +209,8 @@ namespace iiwa_tools {
 
         int iter = 0;
         double error = 0.;
-        for (iter = 0; iter < max_iterations; iter++) {
+        for (iter = 0; iter < max_iterations; iter++)
+        {
             rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc);
             rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);
 
@@ -205,7 +220,8 @@ namespace iiwa_tools {
 
             error = v.norm();
 
-            if (error < best) {
+            if (error < best)
+            {
                 best = error;
                 q_best = qref;
             }
@@ -225,8 +241,10 @@ namespace iiwa_tools {
             ik_solver.settings.max_iters = 100;
 
             // set params
-            for (int r = 0; r < 6; r++) {
-                for (int c = 0; c < _rbd_indices.size(); c++) {
+            for (int r = 0; r < 6; r++)
+            {
+                for (int c = 0; c < _rbd_indices.size(); c++)
+                {
                     ik_solver.params.J[r + 1][c] = jac_mat(r, c);
                 }
             }
@@ -246,11 +264,13 @@ namespace iiwa_tools {
 
             Eigen::VectorXd q_prev = qref;
 
-            for (size_t j = 0; j < _rbd_indices.size(); j++) {
+            for (size_t j = 0; j < _rbd_indices.size(); j++)
+            {
                 qref(j) += ik_solver.vars.dq[j];
             }
 
-            for (size_t j = 0; j < _rbd_indices.size(); j++) {
+            for (size_t j = 0; j < _rbd_indices.size(); j++)
+            {
                 size_t rbd_index = _rbd_indices[j];
                 rbdyn_urdf.mbc.q[rbd_index][0] = qref(j);
             }
@@ -262,25 +282,25 @@ namespace iiwa_tools {
         return q_best;
     }
 
-    Eigen::MatrixXd IiwaTools::mass_matrix(const RobotState& robot_state)
+    Eigen::MatrixXd IiwaTools::mass_matrix(const RobotState &robot_state)
     {
         mc_rbdyn_urdf::URDFParserResult rbdyn_urdf = _rbdyn_urdf;
-	rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
-	_update_urdf_state(rbdyn_urdf, robot_state);
-	
-	// Forward Dynamics
-	rbd::ForwardDynamics fd(rbdyn_urdf.mb);
-	
-	// Compute Mass Matrix
-	rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc); // TODO: needed?
-	rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc); // TODO: needed?
-	fd.computeH(rbdyn_urdf.mb, rbdyn_urdf.mbc);
-      
-	// Get Mass Matrix
-	return fd.H();
+        rbdyn_urdf.mbc.zero(rbdyn_urdf.mb);
+        _update_urdf_state(rbdyn_urdf, robot_state);
+
+        // Forward Dynamics
+        rbd::ForwardDynamics fd(rbdyn_urdf.mb);
+
+        // Compute Mass Matrix
+        rbd::forwardKinematics(rbdyn_urdf.mb, rbdyn_urdf.mbc); // TODO: needed?
+        rbd::forwardVelocity(rbdyn_urdf.mb, rbdyn_urdf.mbc);   // TODO: needed?
+        fd.computeH(rbdyn_urdf.mb, rbdyn_urdf.mbc);
+
+        // Get Mass Matrix
+        return fd.H();
     }
 
-    Eigen::VectorXd IiwaTools::gravity(const std::vector<double>& gravity, const RobotState& robot_state)
+    Eigen::VectorXd IiwaTools::gravity(const std::vector<double> &gravity, const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -303,7 +323,7 @@ namespace iiwa_tools {
         return -fd.C();
     }
 
-    Eigen::MatrixXd IiwaTools::get_joint_inertia(const RobotState& robot_state)
+    Eigen::MatrixXd IiwaTools::get_joint_inertia(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -325,8 +345,11 @@ namespace iiwa_tools {
         return fd.H();
     }
 
+<<<<<<< HEAD
 
-    Eigen::MatrixXd IiwaTools::jacobian(const RobotState& robot_state)
+=======
+>>>>>>> 0832bcfebc6869d74f61269085a9bfb026edce3f
+    Eigen::MatrixXd IiwaTools::jacobian(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -346,7 +369,7 @@ namespace iiwa_tools {
         return jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc);
     }
 
-    Eigen::MatrixXd IiwaTools::jacobian_deriv(const RobotState& robot_state)
+    Eigen::MatrixXd IiwaTools::jacobian_deriv(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -366,7 +389,7 @@ namespace iiwa_tools {
         return jac.jacobianDot(rbdyn_urdf.mb, rbdyn_urdf.mbc);
     }
 
-    std::pair<Eigen::MatrixXd, Eigen::MatrixXd> IiwaTools::jacobians(const RobotState& robot_state)
+    std::pair<Eigen::MatrixXd, Eigen::MatrixXd> IiwaTools::jacobians(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
         // TO-DO: Check if it takes time
@@ -386,14 +409,15 @@ namespace iiwa_tools {
         return std::make_pair(jac.jacobian(rbdyn_urdf.mb, rbdyn_urdf.mbc), jac.jacobianDot(rbdyn_urdf.mb, rbdyn_urdf.mbc));
     }
 
-    void IiwaTools::init_rbdyn(const std::string& urdf_string, const std::string& end_effector)
+    void IiwaTools::init_rbdyn(const std::string &urdf_string, const std::string &end_effector)
     {
         // Convert URDF to RBDyn
         _rbdyn_urdf = mc_rbdyn_urdf::rbdyn_from_urdf(urdf_string);
 
         _rbd_indices.clear();
 
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrJoints(); i++) {
+        for (size_t i = 0; i < _rbdyn_urdf.mb.nrJoints(); i++)
+        {
             if (_rbdyn_urdf.mb.joint(i).type() != rbd::Joint::Fixed)
                 _rbd_indices.push_back(i);
         }
@@ -403,10 +427,12 @@ namespace iiwa_tools {
         _ik.reset(new rbd::InverseKinematics(_rbdyn_urdf.mb, _ef_index));
     }
 
-    size_t IiwaTools::_rbd_index(const std::string& body_name) const
+    size_t IiwaTools::_rbd_index(const std::string &body_name) const
     {
-        for (size_t i = 0; i < _rbdyn_urdf.mb.nrBodies(); i++) {
-            if (_rbdyn_urdf.mb.body(i).name() == body_name) {
+        for (size_t i = 0; i < _rbdyn_urdf.mb.nrBodies(); i++)
+        {
+            if (_rbdyn_urdf.mb.body(i).name() == body_name)
+            {
                 return i;
             }
         }
@@ -415,9 +441,10 @@ namespace iiwa_tools {
         return 0;
     }
 
-    void IiwaTools::_update_urdf_state(mc_rbdyn_urdf::URDFParserResult& rbdyn_urdf, const RobotState& robot_state)
+    void IiwaTools::_update_urdf_state(mc_rbdyn_urdf::URDFParserResult &rbdyn_urdf, const RobotState &robot_state)
     {
-        for (size_t i = 0; i < _rbd_indices.size(); i++) {
+        for (size_t i = 0; i < _rbd_indices.size(); i++)
+        {
             size_t rbd_index = _rbd_indices[i];
 
             if (robot_state.position.size() > i)

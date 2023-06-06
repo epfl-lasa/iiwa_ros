@@ -48,9 +48,21 @@ cd /source/directory
 git clone --recursive https://github.com/jrl-umi3218/SpaceVecAlg.git
 cd SpaceVecAlg
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
+```
+
+Instead of passing `-DCMAKE_CXX_FLAGS="-march=native -faligned-new"` for `SpaceVecAlg`, `RBDyn` and `mc_rbdyn_urdf` builds you can also set the `CXXFLAGS` environment variables and omit the option:
+
+```sh
+export CXXFLAGS="-march=native -faligned-new"
+```
+
+Instead of passing `-DCMAKE_CXX_FLAGS="-march=native -faligned-new"` for `SpaceVecAlg`, `RBDyn` and `mc_rbdyn_urdf` builds you can also set the `CXXFLAGS` environment variables and omit the option:
+
+```sh
+export CXXFLAGS="-march=native -faligned-new"
 ```
 
 To compile with SIMD flags (e.g. because you enabled it for robot_controllers and iiwa_ros), you can do `cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..` instead of the above. Also, instead of passing `-DCMAKE_CXX_FLAGS="-march=native -faligned-new"` for `SpaceVecAlg`, `RBDyn` and `mc_rbdyn_urdf` builds you can also set the `CXXFLAGS` environment variables and omit the option:
@@ -68,7 +80,7 @@ cd /source/directory
 git clone --recursive https://github.com/jrl-umi3218/RBDyn.git
 cd RBDyn
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
 ```
@@ -80,7 +92,7 @@ cd /source/directory
 git clone --recursive https://github.com/jrl-umi3218/mc_rbdyn_urdf.git
 cd mc_rbdyn_urdf
 mkdir build && cd build
-cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_BINDING=OFF ..
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-march=native -faligned-new" -DPYTHON_BINDING=OFF ..
 make -j
 sudo make install
 ```

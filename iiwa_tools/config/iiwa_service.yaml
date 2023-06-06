@@ -7,3 +7,4 @@ service:
   jacobian_deriv_service_name: iiwa_jacobian_deriv_server
   jacobians_service_name: iiwa_jacobians_server
   gravity_service_name: iiwa_gravity_server
+  inertia_service_name: iiwa_inertia_server

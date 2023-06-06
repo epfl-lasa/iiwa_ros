@@ -67,7 +67,7 @@
   <xacro:property name="max_velocity_6" value="${PI}"/>
   <xacro:property name="max_velocity_7" value="${PI}"/>
 
-  <xacro:macro name="iiwa7" params="parent hardware_interface robot_name collision_postfix *origin">
+  <xacro:macro name="iiwa7" params="parent hardware_interface robot_name force_sensor grabber collision_postfix *origin">
 
     <!--joint between {parent} and link_0-->
     <joint name="${parent}_${robot_name}_joint" type="fixed">
@@ -383,7 +383,7 @@
     <joint name="${robot_name}_joint_ee" type="fixed">
       <parent link="${robot_name}_link_7"/>
       <child link="${robot_name}_link_ee"/>
-      <origin xyz="0 0 0.045" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
     <link name="${robot_name}_link_ee">
@@ -393,6 +393,21 @@
         <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
       </inertial>
     </link>
+
+    <xacro:if value="${force_sensor == True}"> 
+      <xacro:force_torque_sensor robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" topic_name="${robot_name}_FTS_topic" size_parent_link="0 0 0.045">
+      </xacro:force_torque_sensor>
+      <xacro:if value="${grabber == True}">
+        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
+        </xacro:grabber>
+      </xacro:if>
+    </xacro:if>
+    <xacro:if value="${force_sensor == False}"> 
+      <xacro:if value="${grabber == True}">
+        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" size_parent_link="0 0 0.045">
+        </xacro:grabber>
+      </xacro:if>
+    </xacro:if>
 
     <!--Extensions -->
     <xacro:iiwa_gazebo robot_name="${robot_name}" />

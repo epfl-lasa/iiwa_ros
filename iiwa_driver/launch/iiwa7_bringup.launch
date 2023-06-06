@@ -1,15 +1,14 @@
 <?xml version="1.0"?>
 <!--|
-    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
     Authors:  Konstantinos Chatzilygeroudis (maintainer)
-              Matthias Mayr
               Bernardo Fichera
+              Walid Amanhoud
     email:    costashatz@gmail.com
-              matthias.mayr@cs.lth.se
               bernardo.fichera@epfl.ch
+              walid.amanhoud@epfl.ch
     Other contributors:
               Yoan Mollard (yoan@aubrune.eu)
-              Walid Amanhoud (walid.amanhoud@epfl.ch)
     website:  lasa.epfl.ch
 
     This file is part of iiwa_ros.
@@ -26,14 +25,17 @@
 
 |-->
 <launch>
+  <!-- Select the robot -->
+  <arg name="robot_name_1" default="iiwa1"/>
+  <arg name="model_1" default="7" />
 
-  <arg name="robot_name" default="iiwa"/>
+  <!-- Select the controller -->
+  <arg name="controller" default="TorqueController"/>
 
-  <!-- Load IK params from YAML file to parameter server -->
-  <rosparam file="$(find iiwa_tools)/config/iiwa_service.yaml" command="load"/>
-
-  <!-- launch the IK server -->
-  <node name="iiwa_service" pkg="iiwa_tools" type="iiwa_service" respawn="false"
-    output="screen" ns="/$(arg robot_name)"/>
+  <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+    <arg name="robot_name" value="$(arg robot_name_1)"/>
+    <arg name="model" value="$(arg model_1)"/>
+    <arg name="controller" value="$(arg controller)"/>
+  </include>
 
 </launch>

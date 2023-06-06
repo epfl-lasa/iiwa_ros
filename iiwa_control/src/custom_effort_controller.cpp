@@ -177,6 +177,10 @@ namespace iiwa_control {
     bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n)
     {
         // List of controlled joints
+        std::cout << n.getNamespace() << std::endl;
+        std::string delimiter = "CustomControllers";
+        std::string ns = n.getNamespace();
+        ns = ns.substr(0, ns.find(delimiter)); // token is "scott"
         std::string param_name = "joints";
         if (!n.getParam(param_name, joint_names_)) {
             ROS_ERROR_STREAM("Failed to getParam '" << param_name << "' (namespace: " << n.getNamespace() << ").");
@@ -191,7 +195,7 @@ namespace iiwa_control {
 
         // Get URDF
         urdf::Model urdf;
-        if (!urdf.initParam("robot_description")) {
+        if (!urdf.initParam(ns+"robot_description")) {
             ROS_ERROR("Failed to parse urdf file");
             return false;
         }
@@ -205,7 +209,7 @@ namespace iiwa_control {
 
             // Get the URDF XML from the parameter server
             std::string urdf_string, full_param;
-            std::string robot_description = "robot_description";
+            std::string robot_description = ns+"robot_description";
             std::string end_effector;
 
             // gets the location of the robot description on the parameter server
@@ -227,7 +231,8 @@ namespace iiwa_control {
             ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
 
             // Get the end-effector
-            n.param<std::string>("params/end_effector", end_effector, "iiwa_link_ee");
+            std::cerr << ns.substr(1,ns.length()-2) << std::endl;
+            n.param<std::string>("params/end_effector", end_effector, ns.substr(1,ns.length()-2)+"_link_ee");
 
             // Initialize iiwa tools
             tools_.init_rbdyn(urdf_string, end_effector);
