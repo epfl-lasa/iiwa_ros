@@ -1,13 +1,14 @@
 #|
-#|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+#|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+#|              Matthias Mayr
 #|              Bernardo Fichera
-#|              Walid Amanhoud
 #|    email:    costashatz@gmail.com
+#|              matthias.mayr@cs.lth.se
 #|              bernardo.fichera@epfl.ch
-#|              walid.amanhoud@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
+#|              Walid Amanhoud (walid.amanhoud@epfl.ch)
 #|    website:  lasa.epfl.ch
 #|
 #|    This file is part of iiwa_ros.
@@ -27,7 +28,8 @@ project(iiwa_control)
 
 cmake_policy(SET CMP0057 NEW)
 
-option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" ON)
+# When enabling SIMD, both the dependencies (e.g. RBDyn) and subsequent code need to be compiled with SIMD
+option(ENABLE_SIMD "Build with all SIMD instructions on the current local machine" OFF)
 
 # Tell CMake where to find "Find<LIB>.cmake"
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

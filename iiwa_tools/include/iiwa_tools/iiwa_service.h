@@ -1,13 +1,14 @@
 //|
-//|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+//|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 //|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+//|              Matthias Mayr
 //|              Bernardo Fichera
-//|              Walid Amanhoud
 //|    email:    costashatz@gmail.com
+//|              matthias.mayr@cs.lth.se
 //|              bernardo.fichera@epfl.ch
-//|              walid.amanhoud@epfl.ch
 //|    Other contributors:
 //|              Yoan Mollard (yoan@aubrune.eu)
+//|              Walid Amanhoud (walid.amanhoud@epfl.ch)
 //|    website:  lasa.epfl.ch
 //|
 //|    This file is part of iiwa_ros.
@@ -41,6 +42,7 @@
 #include <iiwa_tools/GetIK.h>
 #include <iiwa_tools/GetJacobian.h>
 #include <iiwa_tools/GetJacobians.h>
+#include <iiwa_tools/GetMassMatrix.h>
 
 namespace iiwa_tools {
     class IiwaService {
@@ -67,13 +69,16 @@ namespace iiwa_tools {
         bool get_gravity(iiwa_tools::GetGravity::Request& request,
             iiwa_tools::GetGravity::Response& response);
 
+	bool get_mass_matrix(iiwa_tools::GetMassMatrix::Request& request,
+	    iiwa_tools::GetMassMatrix::Response& response);
+
     protected:
         void _load_params();
 
         // ROS related
         ros::NodeHandle _nh;
-        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _jacobian_deriv_service_name, _jacobians_service_name, _gravity_service_name;
-        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _jacobian_deriv_server, _jacobians_server, _gravity_server;
+        std::string _robot_description, _fk_service_name, _ik_service_name, _jacobian_service_name, _jacobian_deriv_service_name, _jacobians_service_name, _gravity_service_name, _mass_service_name;
+        ros::ServiceServer _fk_server, _ik_server, _jacobian_server, _jacobian_deriv_server, _jacobians_server, _gravity_server, _mass_server;
 
         // Robot
         unsigned int _n_joints;
