@@ -109,9 +109,13 @@ RUN cd robot_controllers && mkdir build && cd build \
 RUN sudo ldconfig
 RUN rm -rf /tmp/*
 
-### Install IIWA ROS
-WORKDIR /home/${USER}/ros_ws/src
-RUN git clone https://github.com/epfl-lasa/iiwa_ros.git
+# ### Install IIWA ROS
+# WORKDIR /home/${USER}/ros_ws/src
+# RUN git clone -b featuresim https://github.com/epfl-lasa/iiwa_ros.git
+
+# Copy IIWA ROS folder inside docker
+WORKDIR /home/${USER}/ros_ws
+COPY --chown=${USER} ./ ./src/iiwa_ros
 
 ### Add environement variables to bashrc
 WORKDIR /home/${USER}
@@ -129,4 +133,4 @@ RUN source /home/${USER}/.bashrc && rosdep install --from-paths src --ignore-src
 RUN source /home/${USER}/.bashrc && catkin_make;
 
 ### Final apt clean
-RUN sudo apt update && sudo apt upgrade && sudo apt clean
+RUN sudo apt update && sudo apt upgrade -y && sudo apt clean -y

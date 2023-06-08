@@ -94,8 +94,11 @@ namespace iiwa_ros
         _load_params(); // load parameters
         _init();        // initialize
         // add namespace
-        _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns + "/commanding_status", 100);
-        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>("commanding_status", 100);
+        if (_publish_commanding_status)
+        {
+            _commanding_status_pub.init(_nh, _ns + "/commanding_status", 100);
+        }
+        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns + "/commanding_status", 100);
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
         if (has_realtime_kernel())

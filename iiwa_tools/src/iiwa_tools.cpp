@@ -345,10 +345,6 @@ namespace iiwa_tools
         return fd.H();
     }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 0832bcfebc6869d74f61269085a9bfb026edce3f
     Eigen::MatrixXd IiwaTools::jacobian(const RobotState &robot_state)
     {
         // copy RBDyn for thread-safety
