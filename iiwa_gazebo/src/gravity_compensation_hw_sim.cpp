@@ -25,28 +25,28 @@
 //|
 #include <iiwa_gazebo/gravity_compensation_hw_sim.h>
 
-namespace {
+namespace
+{
     double clamp(const double val, const double min_val, const double max_val)
     {
         return std::min(std::max(val, min_val), max_val);
     }
 } // namespace
 
-namespace iiwa_gazebo {
+namespace iiwa_gazebo
+{
     bool GravityCompensationHWSim::initSim(
-        const std::string& robot_namespace,
+        const std::string &robot_namespace,
         ros::NodeHandle model_nh,
         gazebo::physics::ModelPtr parent_model,
-        const urdf::Model* const urdf_model,
+        const urdf::Model *const urdf_model,
         std::vector<transmission_interface::TransmissionInfo> transmissions)
     {
         // Initialize Gazebo related things
         if (!DefaultRobotHWSim::initSim(robot_namespace, model_nh, parent_model, urdf_model, transmissions))
             return false;
-
-        std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
         std::cout << model_nh.getNamespace() << std::endl;
-        _iiwa_gravity_client = model_nh.serviceClient<iiwa_tools::GetGravity>(model_nh.getNamespace()+"/iiwa_gravity_server");
+        _iiwa_gravity_client = model_nh.serviceClient<iiwa_tools::GetGravity>(model_nh.getNamespace() + "/iiwa_gravity_server");
 
         // Initialize service message
         auto gravity = parent_model->GetWorld()->Gravity();
@@ -61,19 +61,22 @@ namespace iiwa_gazebo {
 
     void GravityCompensationHWSim::readSim(ros::Time time, ros::Duration period)
     {
-        for (unsigned int j = 0; j < n_dof_; j++) {
+        for (unsigned int j = 0; j < n_dof_; j++)
+        {
             // Gazebo has an interesting API...
 #if GAZEBO_MAJOR_VERSION >= 8
             double position = sim_joints_[j]->Position(0);
 #else
             double position = sim_joints_[j]->GetAngle(0).Radian();
 #endif
-            if (joint_types_[j] == urdf::Joint::PRISMATIC) {
+            if (joint_types_[j] == urdf::Joint::PRISMATIC)
+            {
                 joint_position_[j] = position;
             }
-            else {
+            else
+            {
                 joint_position_[j] += angles::shortest_angular_distance(joint_position_[j],
-                    position);
+                                                                        position);
             }
             joint_velocity_[j] = sim_joints_[j]->GetVelocity(0);
             joint_effort_[j] = sim_joints_[j]->GetForce((unsigned int)(0));
@@ -95,21 +98,26 @@ namespace iiwa_gazebo {
         // Get gravity and Coriolis forces
         std::vector<double> C(n_dof_, 0.);
         // Call iiwa tools service for gravity compensation
-        if (_iiwa_gravity_client.call(_gravity_srv)) {
-            for (size_t i = 0; i < n_dof_; i++) {
+        if (_iiwa_gravity_client.call(_gravity_srv))
+        {
+            for (size_t i = 0; i < n_dof_; i++)
+            {
                 C[i] = _gravity_srv.response.compensation_torques[i];
             }
         }
 
         // If the E-stop is active, joints controlled by position commands will maintain their positions.
-        if (e_stop_active_) {
-            if (!last_e_stop_active_) {
+        if (e_stop_active_)
+        {
+            if (!last_e_stop_active_)
+            {
                 last_joint_position_command_ = joint_position_;
                 last_e_stop_active_ = true;
             }
             joint_position_command_ = last_joint_position_command_;
         }
-        else {
+        else
+        {
             last_e_stop_active_ = false;
         }
 
@@ -120,13 +128,17 @@ namespace iiwa_gazebo {
         vj_sat_interface_.enforceLimits(period);
         vj_limits_interface_.enforceLimits(period);
 
-        for (unsigned int j = 0; j < n_dof_; j++) {
-            switch (joint_control_methods_[j]) {
-            case EFFORT: {
+        for (unsigned int j = 0; j < n_dof_; j++)
+        {
+            switch (joint_control_methods_[j])
+            {
+            case EFFORT:
+            {
                 const double effort_limit = joint_effort_limits_[j];
                 const double effort = e_stop_active_ ? 0 : clamp(joint_effort_command_[j] + C[j], -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
-            } break;
+            }
+            break;
 
             case POSITION:
 #if GAZEBO_MAJOR_VERSION >= 9
@@ -140,19 +152,21 @@ namespace iiwa_gazebo {
 #endif
                 break;
 
-            case POSITION_PID: {
+            case POSITION_PID:
+            {
                 double error;
-                switch (joint_types_[j]) {
+                switch (joint_types_[j])
+                {
                 case urdf::Joint::REVOLUTE:
                     angles::shortest_angular_distance_with_limits(joint_position_[j],
-                        joint_position_command_[j],
-                        joint_lower_limits_[j],
-                        joint_upper_limits_[j],
-                        error);
+                                                                  joint_position_command_[j],
+                                                                  joint_lower_limits_[j],
+                                                                  joint_upper_limits_[j],
+                                                                  error);
                     break;
                 case urdf::Joint::CONTINUOUS:
                     error = angles::shortest_angular_distance(joint_position_[j],
-                        joint_position_command_[j]);
+                                                              joint_position_command_[j]);
                     break;
                 default:
                     error = joint_position_command_[j] - joint_position_[j];
@@ -160,16 +174,19 @@ namespace iiwa_gazebo {
 
                 const double effort_limit = joint_effort_limits_[j];
                 const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C[j],
-                    -effort_limit, effort_limit);
+                                            -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
-            } break;
+            }
+            break;
 
             case VELOCITY:
 #if GAZEBO_MAJOR_VERSION > 2
-                if (physics->GetType().compare("ode") == 0) {
+                if (physics->GetType().compare("ode") == 0)
+                {
                     sim_joints_[j]->SetParam("vel", 0, e_stop_active_ ? 0 : joint_velocity_command_[j]);
                 }
-                else {
+                else
+                {
                     sim_joints_[j]->SetVelocity(0, e_stop_active_ ? 0 : joint_velocity_command_[j]);
                 }
 #else
@@ -185,7 +202,7 @@ namespace iiwa_gazebo {
                     error = joint_velocity_command_[j] - joint_velocity_[j];
                 const double effort_limit = joint_effort_limits_[j];
                 const double effort = clamp(pid_controllers_[j].computeCommand(error, period) + C[j],
-                    -effort_limit, effort_limit);
+                                            -effort_limit, effort_limit);
                 sim_joints_[j]->SetForce(0, effort);
                 break;
             }

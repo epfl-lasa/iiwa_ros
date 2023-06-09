@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Name and base and options
-IMAGE_NAME=epfl-lasa/iiwa_ros_feature_sim_inertia         # Chose any name for your image (but make sure to report it in start_docker)
+IMAGE_NAME=epfl-lasa/iiwa_ros_double_robot_inertia         # Chose any name for your image (but make sure to report it in start_docker)
 ROS_DISTRO=noetic                                         # Possible: noetic, melodic
 USE_SIMD=OFF                                              # Possible: ON, OFF
 BASE_IMAGE=ghcr.io/aica-technology/ros-ws:${ROS_DISTRO}   # Do not modify

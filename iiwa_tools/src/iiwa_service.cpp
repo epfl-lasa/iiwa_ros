@@ -25,8 +25,9 @@
 //|
 #include <iiwa_tools/iiwa_service.h>
 
-namespace iiwa_tools {
-    double get_multi_array(const std_msgs::Float64MultiArray& array, size_t i, size_t j)
+namespace iiwa_tools
+{
+    double get_multi_array(const std_msgs::Float64MultiArray &array, size_t i, size_t j)
     {
         assert(array.layout.dim.size() == 2);
         size_t offset = array.layout.data_offset;
@@ -34,7 +35,7 @@ namespace iiwa_tools {
         return array.data[offset + i * array.layout.dim[0].stride + j];
     }
 
-    void set_multi_array(std_msgs::Float64MultiArray& array, size_t i, size_t j, double val)
+    void set_multi_array(std_msgs::Float64MultiArray &array, size_t i, size_t j, double val)
     {
         assert(array.layout.dim.size() == 2);
         size_t offset = array.layout.data_offset;
@@ -70,17 +71,19 @@ namespace iiwa_tools {
         ROS_INFO_STREAM("Started Iiwa Mass Matrix server..");
     }
 
-    bool IiwaService::perform_fk(iiwa_tools::GetFK::Request& request,
-        iiwa_tools::GetFK::Response& response)
+    bool IiwaService::perform_fk(iiwa_tools::GetFK::Request &request,
+                                 iiwa_tools::GetFK::Response &response)
     {
-        if (request.joints.layout.dim.size() != 2 || request.joints.layout.dim[1].size != _n_joints) {
+        if (request.joints.layout.dim.size() != 2 || request.joints.layout.dim[1].size != _n_joints)
+        {
             ROS_ERROR("Request joint angles not properly defined.");
             return false;
         }
 
         response.poses.resize(request.joints.layout.dim[0].size);
 
-        for (size_t point = 0; point < request.joints.layout.dim[0].size; ++point) {
+        for (size_t point = 0; point < request.joints.layout.dim[0].size; ++point)
+        {
             iiwa_tools::RobotState robot_state;
             robot_state.position.resize(_n_joints);
             for (size_t i = 0; i < _n_joints; i++)
@@ -101,8 +104,8 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::perform_ik(iiwa_tools::GetIK::Request& request,
-        iiwa_tools::GetIK::Response& response)
+    bool IiwaService::perform_ik(iiwa_tools::GetIK::Request &request,
+                                 iiwa_tools::GetIK::Response &response)
     {
         bool seeds_provided = request.seed_angles.layout.dim.size() == 2 && (request.seed_angles.layout.dim[0].size == request.poses.size());
         // // copy RBDyn for thread-safety
@@ -150,11 +153,14 @@ namespace iiwa_tools {
         response.joints.layout.dim[1].stride = 0;
         response.joints.data.resize(request.poses.size() * _n_joints);
 
-        for (size_t point = 0; point < request.poses.size(); ++point) {
+        for (size_t point = 0; point < request.poses.size(); ++point)
+        {
             iiwa_tools::RobotState seed_state;
-            if (seeds_provided) {
+            if (seeds_provided)
+            {
                 seed_state.position.resize(_n_joints);
-                for (size_t i = 0; i < _n_joints; i++) {
+                for (size_t i = 0; i < _n_joints; i++)
+                {
                     seed_state.position(i) = get_multi_array(request.seed_angles, point, i);
                 }
             }
@@ -162,13 +168,14 @@ namespace iiwa_tools {
             iiwa_tools::EefState ee_state;
             ee_state.translation = {request.poses[point].position.x, request.poses[point].position.y, request.poses[point].position.z};
             ee_state.orientation = Eigen::Quaterniond(request.poses[point].orientation.w,
-                request.poses[point].orientation.x,
-                request.poses[point].orientation.y,
-                request.poses[point].orientation.z);
+                                                      request.poses[point].orientation.x,
+                                                      request.poses[point].orientation.y,
+                                                      request.poses[point].orientation.z);
 
             Eigen::VectorXd q_best = _tools.perform_ik(ee_state, seed_state);
 
-            for (size_t joint = 0; joint < _n_joints; ++joint) {
+            for (size_t joint = 0; joint < _n_joints; ++joint)
+            {
                 set_multi_array(response.joints, point, joint, q_best[joint]);
             }
 
@@ -182,10 +189,11 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::get_jacobian(iiwa_tools::GetJacobian::Request& request,
-        iiwa_tools::GetJacobian::Response& response)
+    bool IiwaService::get_jacobian(iiwa_tools::GetJacobian::Request &request,
+                                   iiwa_tools::GetJacobian::Response &response)
     {
-        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size()) {
+        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size())
+        {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
@@ -193,7 +201,8 @@ namespace iiwa_tools {
         RobotState robot_state;
         robot_state.position.resize(_n_joints);
         robot_state.velocity.resize(_n_joints);
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             robot_state.position[i] = request.joint_angles[i];
             robot_state.velocity[i] = request.joint_velocities[i];
         }
@@ -209,8 +218,10 @@ namespace iiwa_tools {
         response.jacobian.layout.dim[1].stride = 0;
         response.jacobian.data.resize(jac_mat.rows() * jac_mat.cols());
 
-        for (int i = 0; i < jac_mat.rows(); i++) {
-            for (int j = 0; j < jac_mat.cols(); j++) {
+        for (int i = 0; i < jac_mat.rows(); i++)
+        {
+            for (int j = 0; j < jac_mat.cols(); j++)
+            {
                 set_multi_array(response.jacobian, i, j, jac_mat(i, j));
             }
         }
@@ -218,10 +229,11 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::get_jacobian_deriv(iiwa_tools::GetJacobian::Request& request,
-        iiwa_tools::GetJacobian::Response& response)
+    bool IiwaService::get_jacobian_deriv(iiwa_tools::GetJacobian::Request &request,
+                                         iiwa_tools::GetJacobian::Response &response)
     {
-        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size()) {
+        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size())
+        {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
@@ -229,7 +241,8 @@ namespace iiwa_tools {
         RobotState robot_state;
         robot_state.position.resize(_n_joints);
         robot_state.velocity.resize(_n_joints);
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             robot_state.position[i] = request.joint_angles[i];
             robot_state.velocity[i] = request.joint_velocities[i];
         }
@@ -245,8 +258,10 @@ namespace iiwa_tools {
         response.jacobian.layout.dim[1].stride = 0;
         response.jacobian.data.resize(jac_deriv_mat.rows() * jac_deriv_mat.cols());
 
-        for (int i = 0; i < jac_deriv_mat.rows(); i++) {
-            for (int j = 0; j < jac_deriv_mat.cols(); j++) {
+        for (int i = 0; i < jac_deriv_mat.rows(); i++)
+        {
+            for (int j = 0; j < jac_deriv_mat.cols(); j++)
+            {
                 set_multi_array(response.jacobian, i, j, jac_deriv_mat(i, j));
             }
         }
@@ -254,10 +269,11 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::get_jacobians(iiwa_tools::GetJacobians::Request& request,
-        iiwa_tools::GetJacobians::Response& response)
+    bool IiwaService::get_jacobians(iiwa_tools::GetJacobians::Request &request,
+                                    iiwa_tools::GetJacobians::Response &response)
     {
-        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size()) {
+        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size())
+        {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
@@ -265,7 +281,8 @@ namespace iiwa_tools {
         RobotState robot_state;
         robot_state.position.resize(_n_joints);
         robot_state.velocity.resize(_n_joints);
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             robot_state.position[i] = request.joint_angles[i];
             robot_state.velocity[i] = request.joint_velocities[i];
         }
@@ -291,8 +308,10 @@ namespace iiwa_tools {
         response.jacobian_deriv.layout.dim[1].stride = 0;
         response.jacobian_deriv.data.resize(jac_deriv_mat.rows() * jac_deriv_mat.cols());
 
-        for (int i = 0; i < jac_deriv_mat.rows(); i++) {
-            for (int j = 0; j < jac_deriv_mat.cols(); j++) {
+        for (int i = 0; i < jac_deriv_mat.rows(); i++)
+        {
+            for (int j = 0; j < jac_deriv_mat.cols(); j++)
+            {
                 set_multi_array(response.jacobian, i, j, jac_mat(i, j));
                 set_multi_array(response.jacobian_deriv, i, j, jac_deriv_mat(i, j));
             }
@@ -301,20 +320,24 @@ namespace iiwa_tools {
         return true;
     }
 
-    bool IiwaService::get_gravity(iiwa_tools::GetGravity::Request& request,
-        iiwa_tools::GetGravity::Response& response)
+    bool IiwaService::get_gravity(iiwa_tools::GetGravity::Request &request,
+                                  iiwa_tools::GetGravity::Response &response)
     {
-        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size() || request.joint_angles.size() != request.joint_torques.size()) {
+        if (request.joint_angles.size() != _n_joints || request.joint_angles.size() != request.joint_velocities.size() || request.joint_angles.size() != request.joint_torques.size())
+        {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
 
         std::vector<double> gravity = {0., 0., -9.8};
-        if (request.gravity.size() != 3) {
+        if (request.gravity.size() != 3)
+        {
             ROS_WARN_STREAM("Gravity not given. Assuming default [0, 0, -9.8]!");
         }
-        else {
-            for (size_t i = 0; i < 3; i++) {
+        else
+        {
+            for (size_t i = 0; i < 3; i++)
+            {
                 gravity[i] = request.gravity[i];
             }
         }
@@ -323,7 +346,8 @@ namespace iiwa_tools {
         robot_state.position.resize(_n_joints);
         robot_state.velocity.resize(_n_joints);
         robot_state.torque.resize(_n_joints);
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             robot_state.position[i] = request.joint_angles[i];
             robot_state.velocity[i] = request.joint_velocities[i];
             robot_state.torque[i] = request.joint_torques[i];
@@ -334,24 +358,27 @@ namespace iiwa_tools {
         // Fill response
         response.compensation_torques.resize(_n_joints);
 
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             response.compensation_torques[i] = C(i);
         }
 
         return true;
     }
 
-    bool IiwaService::get_mass_matrix(iiwa_tools::GetMassMatrix::Request& request,
-        iiwa_tools::GetMassMatrix::Response& response)
+    bool IiwaService::get_mass_matrix(iiwa_tools::GetMassMatrix::Request &request,
+                                      iiwa_tools::GetMassMatrix::Response &response)
     {
-        if (request.joint_angles.size() != _n_joints) {
+        if (request.joint_angles.size() != _n_joints)
+        {
             ROS_ERROR_STREAM("The requested joint size is not the same as the robot's size or some field is missing!");
             return false;
         }
 
         RobotState robot_state;
         robot_state.position.resize(_n_joints);
-        for (size_t i = 0; i < _n_joints; i++) {
+        for (size_t i = 0; i < _n_joints; i++)
+        {
             robot_state.position[i] = request.joint_angles[i];
         }
 
@@ -366,31 +393,32 @@ namespace iiwa_tools {
         response.mass_matrix.layout.dim[1].stride = 0;
         response.mass_matrix.data.resize(H.rows() * H.cols());
 
-        for (int i = 0; i < H.rows(); i++) {
-            for (int j = 0; j < H.cols(); j++) {
+        for (int i = 0; i < H.rows(); i++)
+        {
+            for (int j = 0; j < H.cols(); j++)
+            {
                 set_multi_array(response.mass_matrix, i, j, H(i, j));
             }
         }
-	
+
         return true;
     }
 
-  void IiwaService::_load_params()
+    void IiwaService::_load_params()
     {
         ros::NodeHandle n_p("~");
-        std::cout << "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBbb" << std::endl;
         std::cout << _nh.getNamespace() << std::endl;
         std::string ns = _nh.getNamespace();
-        std::cout <<  ns.substr(1,ns.length()-1)+"_link_ee" << std::endl;
-        n_p.param<std::string>("service/robot_description", _robot_description, ns+"/robot_description");
-        n_p.param<std::string>("service/end_effector", _end_effector, ns.substr(1,ns.length()-1)+"_link_ee");
+        std::cout << ns.substr(1, ns.length() - 1) + "_link_ee" << std::endl;
+        n_p.param<std::string>("service/robot_description", _robot_description, ns + "/robot_description");
+        n_p.param<std::string>("service/end_effector", _end_effector, ns.substr(1, ns.length() - 1) + "_link_ee");
         n_p.param<std::string>("service/fk_service_name", _fk_service_name, "iiwa_fk_server");
         n_p.param<std::string>("service/ik_service_name", _ik_service_name, "iiwa_ik_server");
         n_p.param<std::string>("service/jacobian_service_name", _jacobian_service_name, "iiwa_jacobian_server");
         n_p.param<std::string>("service/jacobian_deriv_service_name", _jacobian_deriv_service_name, "iiwa_jacobian_deriv_server");
         n_p.param<std::string>("service/jacobians_service_name", _jacobians_service_name, "iiwa_jacobians_server");
         n_p.param<std::string>("service/gravity_service_name", _gravity_service_name, "iiwa_gravity_server");
-	n_p.param<std::string>("service/mass_service_name", _mass_service_name, "iiwa_mass_server");
+        n_p.param<std::string>("service/mass_service_name", _mass_service_name, "iiwa_mass_server");
     }
 
     void IiwaService::init()
@@ -399,10 +427,11 @@ namespace iiwa_tools {
         std::string urdf_string;
 
         // search and wait for robot_description on param server
-        while (urdf_string.empty()) {
+        while (urdf_string.empty())
+        {
             ROS_INFO_ONCE_NAMED("IiwaService", "IiwaService is waiting for model"
                                                " URDF in parameter [%s] on the ROS param server.",
-                _robot_description.c_str());
+                                _robot_description.c_str());
 
             _nh.getParam(_robot_description, urdf_string);
 
