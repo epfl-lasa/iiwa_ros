@@ -425,7 +425,7 @@ namespace iiwa_ros
             // compensation.
             for (size_t i = 0; i < _num_joints; i++)
             {
-                _joint_position_command.at(i) = _joint_position.at(i) + 0.1 * std::sin(ros::Time::now().toSec());
+                _joint_position_command.at(i) = _joint_position.at(i) + 0.0 * std::sin(ros::Time::now().toSec());
             }
             _robot_command.setJointPosition(_joint_position_command.data());
             _robot_command.setTorque(_joint_effort_command.data());
