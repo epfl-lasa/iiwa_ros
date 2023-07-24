@@ -36,7 +36,7 @@
     <arg name="gzclient" default="false"/>
 
     <!-- Select the controller -->
-    <arg name="controller" default="CustomControllers"/>
+    <arg name="controller" default="TorqueController"/>
 
     <!-- Select the robot name -->
     <arg name="robot_name_1" default="iiwa"/>

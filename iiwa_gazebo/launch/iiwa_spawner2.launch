@@ -48,7 +48,7 @@
         <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
         
         <!-- Upload iiwa URDF -->
-        <include file="$(find objects_description)/launch/robot_upload.launch">
+        <include file="$(find sim_objects_description)/launch/robot_upload.launch">
             <arg name="robot_name" value="$(arg robot_name)" />
             <arg name="robot_type" value="iiwa$(arg iiwa_model)" />
             <arg name="hardware_interface" value="$(arg hardware_interface)" />
