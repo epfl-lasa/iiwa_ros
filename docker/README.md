@@ -44,9 +44,9 @@ If for some reasons you are not able to use the install script, you can install 
 
 ## Building image
 
-To build the docker image simply run:
+To build the docker image simply run from the iiwa_ros directory:
 ```bash
-bash build_docker.sh
+bash docker/build_docker.sh
 ```
 
 This script has a few options that can be used to specify various build variations. The options are:
