@@ -46,11 +46,11 @@
 
         <!-- Spawn iiwa FRI driver -->
         <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
-          <!-- <remap from="/joint_states" to="/iiwa/joint_states"/>
-          <remap from="/controller_manager" to="/iiwa/controller_manager"/> 
-          <remap from="/commanding_status" to="/iiwa/commanding_status"/> -->
-          <!-- Load configurations from YAML file to parameter server -->
-          <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
+            <!-- <remap from="/joint_states" to="/iiwa/joint_states"/>
+            <remap from="/controller_manager" to="/iiwa/controller_manager"/>
+            <remap from="/commanding_status" to="/iiwa/commanding_status"/> -->
+            <!-- Load configurations from YAML file to parameter server -->
+            <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
         </node>
         
         <!-- Load joint controller configurations from YAML file to parameter server -->

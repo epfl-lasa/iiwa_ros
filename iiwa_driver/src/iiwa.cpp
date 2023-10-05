@@ -93,12 +93,14 @@ namespace iiwa_ros
         _ns = nh.getNamespace();
         _load_params(); // load parameters
         _init();        // initialize
+
         // add namespace
         if (_publish_commanding_status)
         {
             _commanding_status_pub.init(_nh, _ns + "/commanding_status", 100);
         }
-        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns + "/commanding_status", 100);
+        // _commanding_status_pub = _nh.advertise<std_msgs::Bool>(_ns + "/commanding_status", 100); // gives type error ??
+
         _controller_manager.reset(new controller_manager::ControllerManager(this, _nh));
 
         if (has_realtime_kernel())
@@ -255,7 +257,6 @@ namespace iiwa_ros
                 joint_limits_interface::VelocityJointSaturationHandle joint_limits_handle(joint_velocity_handle, limits);
                 _velocity_joint_saturation_interface.registerHandle(joint_limits_handle);
             }
-
             _velocity_joint_interface.registerHandle(joint_velocity_handle);
         }
 
@@ -264,10 +265,11 @@ namespace iiwa_ros
         registerInterface(&_effort_joint_interface);
         registerInterface(&_velocity_joint_interface);
 
-        if (_publish_commanding_status)
-        {
-            _commanding_status_pub.init(_nh, "commanding_status", 100);
-        }
+        // Moved to iiwa::init to avoid double init -> ERROR
+        // if (_publish_commanding_status)
+        // {
+        //     _commanding_status_pub.init(_nh, "commanding_status", 100);
+        // }
 
         if (_publish_additional_info)
         {
