@@ -1,5 +1,5 @@
 //|
-//|    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+//|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 //|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
 //|              Matthias Mayr
 //|              Bernardo Fichera

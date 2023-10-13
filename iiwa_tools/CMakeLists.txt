@@ -63,7 +63,6 @@ generate_messages(
 catkin_package(
  INCLUDE_DIRS include
  CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
- DEPENDS Boost tinyxml2 SpaceVecAlg RBDyn mc_rbdyn_urdf
  LIBRARIES iiwa_tools
 )
 

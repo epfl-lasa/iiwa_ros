@@ -3,11 +3,11 @@
 #|
 #|    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 #|    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+#|              Matthias Mayr
 #|              Bernardo Fichera
-#|              Walid Amanhoud
 #|    email:    costashatz@gmail.com
+#|              matthias.mayr@cs.lth.se
 #|              bernardo.fichera@epfl.ch
-#|              walid.amanhoud@epfl.ch
 #|    Other contributors:
 #|              Yoan Mollard (yoan@aubrune.eu)
 #|              Walid Amanhoud (walid.amanhoud@epfl.ch)
@@ -30,11 +30,14 @@ import os, shutil, sys
 
 license = '''Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
 Authors:  Konstantinos Chatzilygeroudis (maintainer)
+          Matthias Mayr
           Bernardo Fichera
 email:    costashatz@gmail.com
+          matthias.mayr@cs.lth.se
           bernardo.fichera@epfl.ch
 Other contributors:
           Yoan Mollard (yoan@aubrune.eu)
+          Walid Amanhoud (walid.amanhoud@epfl.ch)
 website:  lasa.epfl.ch
 
 This file is part of iiwa_ros.

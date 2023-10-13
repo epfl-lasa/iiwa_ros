@@ -185,8 +185,8 @@ Authors/Maintainers
 ---------------------
 
 - Konstantinos Chatzilygeroudis (costashatz@gmail.com)
+- Matthias Mayr (matthias.mayr@cs.lth.se)
 - Bernardo Fichera (bernardo.fichera@epfl.ch)
-- Walid Amanhoud (walid.amanhoud@epfl.ch)
 
 ### Other Contributors
 
