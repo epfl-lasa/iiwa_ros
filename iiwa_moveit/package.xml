@@ -34,7 +34,7 @@
   <author email="yoan@aubrune.eu">Yoan Mollard</author>
   <maintainer email="konstantinos.chatzilygeroudis@epfl.ch">Konstantinos Chatzilygeroudis</maintainer>
 
-  <license>GPLv3</license>
+  <license>GPL-3.0-or-later</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
