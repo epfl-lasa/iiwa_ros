@@ -27,6 +27,7 @@ Dependencies
 -------------
 
 ### KUKA FRI (Private)
+This repo can be omitted if the robot is only used in simulation.
 
 ```sh
 cd /source/directory
@@ -114,7 +115,12 @@ sudo make install
 
 Compilation
 ------------
+If a simulation-only setup is enough or you do not have access to `KUKA FRI`, the robot driver compilation can be disabled with
+```sh
+touch /path/to/ros_workspace/iiwa_ros/iiwa_driver/CATKIN_IGNORE
+```
 
+Build the workspace:
 ```sh
 cd /path/to/ros_workspace
 # source ros workspace
@@ -166,11 +172,6 @@ Both of the above commands will launch IIWA in **torque-control mode**. To chang
 ### MoveIt planning
 
 If everything looks in simulation or with the FRI driver, a next step might be to try out your robot with [MoveIt](/iiwa_moveit).
-
-Documentation
----------------------
-
-**UNDER CONSTRUCTION**
 
 Contributing
 ---------------------
