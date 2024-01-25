@@ -25,7 +25,8 @@
     GNU General Public License for more details.
 
 |-->
-<robot name="iiwa7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="iiwa7"
+  xmlns:xacro="http://www.ros.org/wiki/xacro">
   <!-- Import Rviz colors -->
   <xacro:include filename="$(find iiwa_description)/urdf/materials.xacro" />
   <!--Import the lbr iiwa macro -->
@@ -45,14 +46,12 @@
 
   <!-- collision shapes -->
   <xacro:if value="$(arg simple_collision)">
-    <xacro:arg name="collision_postfix" default="_s"/> <!-- TO-DO: Create simple collision shapes for iiwa 7 -->
+    <xacro:arg name="collision_postfix" default="_s"/>
+    <!-- TO-DO: Create simple collision shapes for iiwa 7 -->
   </xacro:if>
   <xacro:unless value="$(arg simple_collision)">
     <xacro:arg name="collision_postfix" default=""/>
   </xacro:unless>
-
-  <!-- Fix to world just for testing -->
-  <link name="world"/>
 
   <!--iiwa-->
   <xacro:iiwa7 hardware_interface="$(arg hardware_interface)" robot_name="$(arg robot_name)" force_sensor="$(arg force_sensor)" grabber="$(arg grabber)" parent="world" collision_postfix="$(arg collision_postfix)">
