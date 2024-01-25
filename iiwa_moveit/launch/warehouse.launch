@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+
+  <!-- The path to the database must be specified -->
+  <arg name="moveit_warehouse_database_path" />
+
+  <!-- Load warehouse parameters -->
+  <include file="$(find iiwa_moveit)/launch/warehouse_settings.launch.xml" />
+
+  <!-- Run the DB server -->
+  <node name="$(anon mongo_wrapper_ros)" cwd="ROS_HOME" type="mongo_wrapper_ros.py" pkg="warehouse_ros">
+    <param name="overwrite" value="false"/>
+    <param name="database_path" value="$(arg moveit_warehouse_database_path)" />
+  </node>
+
+</launch>

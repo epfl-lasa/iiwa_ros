@@ -1,0 +1,5 @@
+float64[] joint_angles
+float64[] joint_velocities
+---
+std_msgs/Float64MultiArray jacobian
+std_msgs/Float64MultiArray jacobian_deriv

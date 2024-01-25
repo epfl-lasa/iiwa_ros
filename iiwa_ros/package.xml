@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<package>
+  <name>iiwa_ros</name>
+  <version>0.0.1</version>
+  <description>iiwa_ros metapackage contains packages to integrate into KUKA's IIWA robots.</description>
+
+  <maintainer email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</maintainer>
+
+
+  <license>GPLv3</license>
+
+  <url type="repository">https://github.com/costashatz/iiwa_ros</url>
+  <url type="bugtracker">https://github.com/costashatz/iiwa_ros/issues</url>
+
+  <author email="costashatz@gmail.com">Konstantinos Chatzilygeroudis</author>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <run_depend>iiwa_description</run_depend>
+  <run_depend>iiwa_driver</run_depend>
+  <run_depend>iiwa_control</run_depend>
+  <run_depend>iiwa_gazebo</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

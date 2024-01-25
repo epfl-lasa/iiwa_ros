@@ -1,0 +1,17 @@
+# end-effector poses to request IK for
+geometry_msgs/Pose[] poses
+
+# (optional) initial joint position seeds for IK solver
+# one for each pose
+std_msgs/Float64MultiArray seed_angles
+
+# (optional) optimization parameters
+float32 tolerance
+int32 max_iterations
+float64[] slack
+float64[] damping
+---
+# joints[i]      == joint angle solution for each pose_state[i]
+std_msgs/Float64MultiArray joints
+float64[] accepted_tolerance
+bool[] is_valid

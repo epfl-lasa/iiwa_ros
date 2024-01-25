@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<robot name="iiwa7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Import Rviz colors -->
+  <xacro:include filename="$(find iiwa_description)/urdf/materials.xacro" />
+  <!--Import the lbr iiwa macro -->
+  <xacro:include filename="$(find iiwa_description)/urdf/iiwa7.xacro"/>
+  <!--Import the macro of the force torque sensor -->
+  <xacro:include filename="$(find force_sensor)/urdf/force_torque_sensor.xacro"/>
+  <!--Import the macro of the grabber -->
+  <xacro:include filename="$(find force_sensor)/urdf/grabber.xacro"/>
+
+  <xacro:arg name="hardware_interface" default="PositionJointInterface"/>
+  <xacro:arg name="robot_name" default="iiwa"/>
+  <xacro:arg name="force_sensor" default="False"/>
+  <xacro:arg name="grabber" default="False"/>
+  <xacro:arg name="origin_xyz" default="0 0 0"/>
+  <xacro:arg name="origin_rpy" default="0 0 0"/>
+  <xacro:arg name="simple_collision" default="false"/>
+
+  <!-- collision shapes -->
+  <xacro:if value="$(arg simple_collision)">
+    <xacro:arg name="collision_postfix" default="_s"/> <!-- TO-DO: Create simple collision shapes for iiwa 7 -->
+  </xacro:if>
+  <xacro:unless value="$(arg simple_collision)">
+    <xacro:arg name="collision_postfix" default=""/>
+  </xacro:unless>
+
+  <!-- Fix to world just for testing -->
+  <link name="world"/>
+
+  <!--iiwa-->
+  <xacro:iiwa7 hardware_interface="$(arg hardware_interface)" robot_name="$(arg robot_name)" force_sensor="$(arg force_sensor)" grabber="$(arg grabber)" parent="world" collision_postfix="$(arg collision_postfix)">
+    <origin xyz="$(arg origin_xyz)" rpy="$(arg origin_rpy)" />
+  </xacro:iiwa7>
+
+</robot>

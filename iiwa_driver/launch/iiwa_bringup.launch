@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+  <!-- Select the robot -->
+  <arg name="robot_name" default="iiwa"/>
+  <arg name="model" default="14" />
+
+  <!-- Select the controller -->
+  <arg name="controller" default="TorqueController"/>
+  
+  <group ns="/$(arg robot_name)">
+
+        <!-- Setup iiwa -->
+        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
+            <arg name="robot_name" value="$(arg robot_name)"/>
+            <arg name="model" value="$(arg model)"/>
+            <!-- <arg name="namespace" value="/iiwa1"/> -->
+            <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
+            <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
+        </include>
+
+        <!-- Spawn iiwa FRI driver -->
+        <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
+            <!-- <remap from="/joint_states" to="/iiwa/joint_states"/>
+            <remap from="/controller_manager" to="/iiwa/controller_manager"/>
+            <remap from="/commanding_status" to="/iiwa/commanding_status"/> -->
+            <!-- Load configurations from YAML file to parameter server -->
+            <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
+        </node>
+        
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+        <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false"
+        output="screen"  ns="/$(arg robot_name)" args="$(arg controller) joint_state_controller"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"
+            respawn="false" output="screen">
+        </node>
+    </group>
+
+</launch>

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+	<arg name="hardware_interface" default="EffortJointInterface"/>
+	<arg name="robot_name" default="iiwa"/>
+	<arg name="type" default="14"/>
+	<arg name="gui" default="true"/>
+	<param name="use_gui" value="$(arg gui)"/>
+
+	<!-- Upload iiwa URDF -->
+	<include file="$(find iiwa_description)/launch/iiwa$(arg type)_upload.launch">
+	<arg name="hardware_interface" value="$(arg hardware_interface)"/>
+	<arg name="robot_name" value="$(arg robot_name)"/>
+	</include>
+
+	<!-- Start state publishers -->
+	<node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+	<node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher" />
+	<!-- Start RVIZ -->
+	<node name="rviz" pkg="rviz" type="rviz" args="-d $(find iiwa_description)/config/config.rviz" /> -->
+</launch>

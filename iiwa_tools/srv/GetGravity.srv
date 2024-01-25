@@ -1,0 +1,6 @@
+float64[] joint_angles
+float64[] joint_velocities
+float64[] joint_torques
+float64[] gravity
+---
+float64[] compensation_torques

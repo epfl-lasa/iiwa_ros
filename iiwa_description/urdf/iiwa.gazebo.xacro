@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="iiwa_gazebo" params="robot_name">
+
+    <!-- Load Gazebo lib and set the robot namespace -->
+    <gazebo>
+      <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <robotNamespace>/${robot_name}</robotNamespace>
+        <robotSimType>iiwa_gazebo/GravityCompensationHWSim</robotSimType>
+      </plugin>
+    </gazebo>
+
+    <!-- Link0 -->
+    <gazebo reference="${robot_name}_link_0">
+      <material>Gazebo/Grey</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link1 -->
+    <gazebo reference="${robot_name}_link_1">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link2 -->
+    <gazebo reference="${robot_name}_link_2">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link3 -->
+    <gazebo reference="${robot_name}_link_3">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+
+    <!-- Link4 -->
+    <gazebo reference="${robot_name}_link_4">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link5 -->
+    <gazebo reference="${robot_name}_link_5">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link6 -->
+    <gazebo reference="${robot_name}_link_6">
+      <material>Gazebo/Orange</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <!-- Link7 -->
+    <gazebo reference="${robot_name}_link_7">
+      <material>Gazebo/Grey</material>
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+    
+    <gazebo reference="${robot_name}_link_ee">
+      <mu1>0.2</mu1>
+      <mu2>0.2</mu2>
+    </gazebo>
+
+    <gazebo reference="${robot_name}_link_FTS">
+      <material>Gazebo/Grey</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
+    </gazebo>
+
+    <gazebo reference="${robot_name}_link_grabber">
+      <material>Gazebo/White</material>
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <minDepth>0.003</minDepth>  
+      <maxVel>0</maxVel>
+
+      <collision>
+      <surface>
+        <friction>
+          <torsional>
+            <coefficient>1.0</coefficient>
+            <use_patch_radius>true</use_patch_radius>
+            <patch_radius>0.05</patch_radius>
+          </torsional>
+        </friction>
+      </surface>
+    </collision>
+
+      <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
+    </gazebo>
+
+    
+    
+
+  </xacro:macro>
+
+</robot>
+

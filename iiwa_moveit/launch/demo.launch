@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+    <!-- You can disable the RViz graphical user interface -->
+    <arg name="gui" default="true"/>
+
+    <!-- Set to true if you also want to start the FRI driver in order to drive a real IIWA -->
+    <arg name="driver" default="false"/>
+
+    <!-- By default, we do not start a database (it can be large) -->
+    <arg name="db" default="false" />
+
+    <!-- hardware_interface to use : PositionJointInterface, EffortJointInterface, VelocityJointInterface. -->
+    <arg name="hardware_interface" default="PositionJointInterface"/>
+    <!-- name of the iiwa to use, useful in case of multiple robots. Every robot is gonna have its nodees/topics under a namespace with the same name. -->
+    <arg name="robot_name" default="iiwa"/>
+    <!-- Model of the iiwa to use : iiwa7, iiwa14 -->
+    <arg name="model" default="iiwa14"/>
+
+    <!-- By default, we are not in debug mode -->
+    <arg name="debug" default="false" />
+
+    <remap from="robot_description" to="/$(arg robot_name)/robot_description" />
+    <remap from="/move_group/fake_controller_joint_states" to="/$(arg robot_name)/move_group/fake_controller_joint_states" />
+    <remap from="/get_planning_scene" to="/$(arg robot_name)/get_planning_scene" />
+
+    <!-- Start the FRI driver, if requested -->
+    <include if="$(arg driver)" file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="controller" value="PositionTrajectoryController"/>
+    </include>
+
+    <!--Put in a namespace to allow many instances to run-->
+    <group ns="$(arg robot_name)" >
+        <!-- Load move_group -->
+        <include file="$(find iiwa_moveit)/launch/move_group.launch">
+            <arg name="publish_monitored_planning_scene" value="false" />
+            <arg name="fake_execution" value="false"/>
+            <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+            <arg name="robot_name" value="$(arg robot_name)"/>
+            <arg name="model" value="$(arg model)" />
+        </include>
+
+        <!-- Run Rviz and load the default config to see the state of the move_group node -->
+        <include if="$(arg gui)" file="$(find iiwa_moveit)/launch/moveit_rviz.launch">
+            <arg name="config" value="true"/>
+            <arg name="debug" value="$(arg debug)"/>
+        </include>
+
+        <!-- If database loading was enabled, start mongodb as well -->
+        <include file="$(find iiwa_moveit)/launch/default_warehouse_db.launch" if="$(arg db)"/>
+    </group>
+</launch>

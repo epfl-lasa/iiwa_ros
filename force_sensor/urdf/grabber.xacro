@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Patrick Sgrò (maintainer)
+    email:    patrick.sgro@hotmail.com
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- The following macro is used to add the force/torque sensor to the iiwa robot -->
+  <xacro:macro name="grabber" params="robot_name parent_link_name size_parent_link">
+    <joint name="${robot_name}_joint_grabber" type="fixed">
+      <parent link="${parent_link_name}"/>
+      <child link="${robot_name}_link_grabber"/>
+      <origin xyz="${size_parent_link}" rpy="0 0 0"/> <!-- 0 0 0.0212 -->
+    </joint>
+
+    <link name="${robot_name}_link_grabber">
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/collision/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+
+        <!-- <mu1>1.0</mu1>
+        <mu2>1.0</mu2> -->
+        <surface>
+          <friction>
+            <ode>
+              <mu>1</mu>
+              <mu2>1</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+            <torsional>
+              <coefficient>1</coefficient>
+              <patch_radius>0.05</patch_radius>
+              <surface_radius>0</surface_radius>
+              <use_patch_radius>1</use_patch_radius>
+              <ode>
+                <slip>0</slip>
+              </ode>
+            </torsional>
+          </friction>
+          <bounce>
+            <restitution_coefficient>0</restitution_coefficient>
+            <threshold>1e+06</threshold>
+          </bounce>
+          <contact>
+            <collide_without_contact>0</collide_without_contact>
+            <collide_without_contact_bitmask>1</collide_without_contact_bitmask>
+            <collide_bitmask>1</collide_bitmask>
+             <ode>
+                <soft_cfm>0.1</soft_cfm>
+                <soft_erp>0.2</soft_erp>
+                <kp>1e+7</kp>
+                <kd>1</kd>
+                <max_vel>0.01</max_vel>
+                <min_depth>0.001</min_depth>
+              </ode>
+          </contact>
+        </surface>
+
+      </collision>
+
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+          <mesh filename="package://force_sensor/meshes/visual/grabber.stl"/>
+        </geometry>
+        <material name="White"/>
+      </visual>
+
+      <inertial>
+        <mass value="1e-5" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+      </inertial>
+    </link>
+  </xacro:macro>
+
+</robot>
