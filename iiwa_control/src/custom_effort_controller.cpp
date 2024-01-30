@@ -177,10 +177,7 @@ namespace iiwa_control {
     bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n)
     {
         // List of controlled joints
-        std::cout << n.getNamespace() << std::endl;
-        std::string delimiter = "CustomControllers";
-        std::string ns = n.getNamespace();
-        ns = ns.substr(0, ns.find(delimiter)); // token is "scott"
+    	std::string ns = ros::names::parentNamespace(n.getNamespace()) + "/";
         std::string param_name = "joints";
         if (!n.getParam(param_name, joint_names_)) {
             ROS_ERROR_STREAM("Failed to getParam '" << param_name << "' (namespace: " << n.getNamespace() << ").");
