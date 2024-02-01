@@ -3,3 +3,6 @@ CMakeLists.txt.user
 *.pyc
 .vscode
 .DS_Store
+iiwa_ros/paper/paper.jats
+iiwa_ros/paper/paper.pdf
+iiwa_ros/paper/media/*
