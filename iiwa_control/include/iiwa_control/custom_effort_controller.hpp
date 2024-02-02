@@ -37,6 +37,7 @@
 #include <realtime_tools/realtime_publisher.h>
 
 // msgs
+#include <iiwa_control/EefState.h>
 #include <std_msgs/Float64MultiArray.h>
 
 // URDF
@@ -48,56 +49,64 @@
 // RobotControllers
 #include <robot_controllers/AbstractController.hpp>
 
-namespace iiwa_control {
-    class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
-    public:
-        using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
+namespace iiwa_control
+{
+class CustomEffortController : public controller_interface::Controller<
+                                   hardware_interface::EffortJointInterface>
+{
+ public:
+    using ControllerPtr =
+        Corrade::Containers::Pointer<robot_controllers::AbstractController>;
 
-        CustomEffortController();
-        ~CustomEffortController();
+    CustomEffortController();
+    ~CustomEffortController();
 
-        bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
+    bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
 
-        void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
+    void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
-        std::vector<hardware_interface::JointHandle> joints_;
+    std::vector<hardware_interface::JointHandle> joints_;
 
-        realtime_tools::RealtimeBuffer<std::vector<double>> commands_buffer_;
+    realtime_tools::RealtimeBuffer<std::vector<double>> commands_buffer_;
 
-        unsigned int n_joints_;
+    unsigned int n_joints_;
 
-        std::vector<std::string> joint_names_;
+    std::vector<std::string> joint_names_;
 
-    protected:
-        ros::Subscriber sub_command_;
+ protected:
+    ros::Subscriber sub_command_;
 
-        // Controller
-        ControllerPtr controller_;
-        // Plugin controller manager
-        Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
+    // Controller
+    ControllerPtr controller_;
+    // Plugin controller manager
+    Corrade::PluginManager::Manager<robot_controllers::AbstractController>
+        manager_;
 
-        // Controller's settings
-        unsigned int space_dim_;
-        unsigned int cmd_dim_;
-        bool has_orientation_, null_space_control_;
-        std::string operation_space_, gravity_comp_;
+    // Controller's settings
+    unsigned int space_dim_;
+    unsigned int cmd_dim_;
+    bool has_orientation_, null_space_control_, publish_eef_state_;
+    std::string operation_space_, gravity_comp_;
 
-        // Iiwa tools
-        iiwa_tools::IiwaTools tools_;
+    // End effector state publisher
+    realtime_tools::RealtimePublisher<iiwa_control::EefState> _pub_eef_state;
 
-        // URDF
-        std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
+    // Iiwa tools
+    iiwa_tools::IiwaTools tools_;
 
-        // Null-space control
-        Eigen::VectorXd null_space_joint_config_;
-        double null_space_Kp_, null_space_Kd_, null_space_max_torque_;
+    // URDF
+    std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
 
-        // Command callback
-        void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
+    // Null-space control
+    Eigen::VectorXd null_space_joint_config_;
+    double null_space_Kp_, null_space_Kd_, null_space_max_torque_;
 
-        // Enforce effort limits
-        void enforceJointLimits(double& command, unsigned int index);
-    };
-} // namespace iiwa_control
+    // Command callback
+    void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
+
+    // Enforce effort limits
+    void enforceJointLimits(double& command, unsigned int index);
+};
+}  // namespace iiwa_control
 
 #endif
