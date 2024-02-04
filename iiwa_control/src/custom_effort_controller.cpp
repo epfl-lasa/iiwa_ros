@@ -23,6 +23,7 @@
 //|    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //|    GNU General Public License for more details.
 //|
+#include <eigen_conversions/eigen_msg.h>
 #include <Eigen/Dense>
 
 #include <pluginlib/class_list_macros.hpp>
@@ -283,10 +284,20 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
         n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
         if (publish_eef_state_)
         {
+            ext_torque_.setZero();
+            // TODO(William) Check how to avoid this subscriber.
+            // See if can pass external wrench through joints_ interface.
+            // Not clean like this, best not to subscribe controller to robot.
+            // End-effector transformations IN/OUT controller should be made
+            // a level above (e.g. extra node that subsribe to iiwa_tools
+            // services, and interface task_controller with iiwa_control).
+            _subEefExtTorque = n.subscribe<iiwa_driver::AdditionalOutputs>(
+                ns + "additional_outputs",
+                1,
+                boost::bind(&CustomEffortController::updateExtTorque, this, _1),
+                ros::VoidPtr(),
+                ros::TransportHints().reliable().tcpNoDelay());
             _pub_eef_state.init(n, "eef_state", 20);
-            _pub_eef_state.msg_.pose.resize(space_dim_ * 2);
-            _pub_eef_state.msg_.twist.resize(space_dim_ * 2);
-            _pub_eef_state.msg_.wrench.resize(space_dim_ * 2);
             ROS_INFO(
                 "End effector state will be published under topic %seef_state",
                 ns.c_str());
@@ -635,53 +646,47 @@ void CustomEffortController::update(const ros::Time& time,
                                                  curr_robot_state.velocity_,
                                                  curr_robot_state.torque_});
         // Forwards to compute EEF pose
-        Eigen::Vector6d pose;
         auto ee_state = tools_.perform_fk(robot_state_tool);
-        Eigen::AngleAxisd aa(ee_state.orientation);
-        pose.head(3) = aa.axis() * aa.angle();
-        pose.tail(3) = ee_state.translation;
         // Jacobians
         std::tie(jac, jac_deriv) = tools_.jacobians(robot_state_tool);
         jac_t_pinv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
         // Compute the twist and acceleration vectors using jacobian
-        Eigen::VectorXd twist = jac * current_cont_state.velocity_;
-        Eigen::VectorXd accel = jac * current_cont_state.acceleration_ +
+        Eigen::Vector6d twist = jac * current_cont_state.velocity_,
+                        accel = jac * current_cont_state.acceleration_ +
                                 jac_deriv * current_cont_state.velocity_;
         // Compute the end effector wrench using the inverse jacobian
-        Eigen::VectorXd wrench =
-            jac_t_pinv *
-            current_cont_state
-                .force_;  // TO-DO: This is not perfect, but should be enough
-        // TODO Compute external wrench if external force measurement available
-        Eigen::VectorXd wrench_ext =
-            jac_t_pinv *
-            current_cont_state
-                .force_;  // TO-DO: This is not perfect, but should be enough
+        Eigen::VectorXd wrench = jac_t_pinv * current_cont_state.force_,
+                        external_wrench = jac_t_pinv * ext_torque_;
 
         // Optional, publish the end effector state
         if (publish_eef_state_)
         {
             if (_pub_eef_state.trylock())
             {
+                // Fill in state message
                 _pub_eef_state.msg_.header.stamp = ros::Time::now();
-                for (size_t i = 0; i < pose.size(); ++i)
-                {
-                    _pub_eef_state.msg_.pose[i] = pose[i];
-                    _pub_eef_state.msg_.twist[i] = twist[i];
-                    _pub_eef_state.msg_.wrench[i] = wrench[i];
-                }
+                tf::vectorEigenToMsg(ee_state.translation,
+                                     _pub_eef_state.msg_.position);
+                tf::quaternionEigenToMsg(ee_state.orientation,
+                                         _pub_eef_state.msg_.orientation);
+                tf::twistEigenToMsg(twist, _pub_eef_state.msg_.twist);
+                tf::wrenchEigenToMsg(wrench, _pub_eef_state.msg_.wrench);
+                tf::wrenchEigenToMsg(external_wrench,
+                                     _pub_eef_state.msg_.external_wrench);
                 _pub_eef_state.unlockAndPublish();
             }
         }
 
         // Control based on the current end effector state
-        current_cont_state.position_ = pose.tail(3);
+        current_cont_state.position_ = ee_state.translation;
         current_cont_state.velocity_ = twist.tail(3);
         current_cont_state.acceleration_ = accel.tail(3);
         current_cont_state.force_ = wrench.tail(3);
         if (has_orientation_)
         {
-            current_cont_state.orientation_ = pose.head(3);
+            // Orientation target
+            Eigen::AngleAxisd aa(ee_state.orientation);
+            current_cont_state.orientation_ = aa.axis() * aa.angle();
             current_cont_state.angular_velocity_ = twist.head(3);
             current_cont_state.angular_acceleration_ = accel.head(3);
             current_cont_state.torque_ = wrench.head(3);
@@ -795,6 +800,13 @@ void CustomEffortController::update(const ros::Time& time,
         enforceJointLimits(command, i);
         joints_[i].setCommand(command);
     }
+}
+
+void CustomEffortController::updateExtTorque(
+    const iiwa_driver::AdditionalOutputs::ConstPtr& msg)
+{
+    // Update with latest external torque
+    ext_torque_ = Eigen::Vector6d(msg->external_torques.data.data());
 }
 
 void CustomEffortController::commandCB(

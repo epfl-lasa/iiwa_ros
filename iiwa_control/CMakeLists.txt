@@ -37,8 +37,8 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 ## Find catkin
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  message_generation
   std_msgs
+  eigen_conversions
   hardware_interface
   controller_manager
   controller_interface
@@ -57,20 +57,9 @@ pkg_search_module(Eigen3 REQUIRED eigen3)
 # Find Corrade
 find_package(Corrade REQUIRED Utility PluginManager)
 
-# Message files
-add_message_files(
-  FILES
-  EefState.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
-
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp message_runtime std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
+  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
   DEPENDS RobotControllers
   LIBRARIES CustomEffortController
 )

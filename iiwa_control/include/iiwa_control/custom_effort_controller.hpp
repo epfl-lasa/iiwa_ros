@@ -37,7 +37,8 @@
 #include <realtime_tools/realtime_publisher.h>
 
 // msgs
-#include <iiwa_control/EefState.h>
+#include <iiwa_driver/AdditionalOutputs.h>
+#include <iiwa_tools/MsgEefState.h>
 #include <std_msgs/Float64MultiArray.h>
 
 // URDF
@@ -65,6 +66,8 @@ class CustomEffortController : public controller_interface::Controller<
 
     void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
+    void updateExtTorque(const iiwa_driver::AdditionalOutputs::ConstPtr& msg);
+
     std::vector<hardware_interface::JointHandle> joints_;
 
     realtime_tools::RealtimeBuffer<std::vector<double>> commands_buffer_;
@@ -88,8 +91,12 @@ class CustomEffortController : public controller_interface::Controller<
     bool has_orientation_, null_space_control_, publish_eef_state_;
     std::string operation_space_, gravity_comp_;
 
+    // External torque vector and subscriber
+    Eigen::Vector6d ext_torque_;
+    ros::Subscriber _subEefExtTorque;
+
     // End effector state publisher
-    realtime_tools::RealtimePublisher<iiwa_control::EefState> _pub_eef_state;
+    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState> _pub_eef_state;
 
     // Iiwa tools
     iiwa_tools::IiwaTools tools_;

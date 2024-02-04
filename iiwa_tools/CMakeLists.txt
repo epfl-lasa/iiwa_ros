@@ -53,6 +53,12 @@ add_service_files(
   GetMassMatrix.srv
 )
 
+# Message files
+add_message_files(
+  FILES
+  MsgEefState.msg
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs
