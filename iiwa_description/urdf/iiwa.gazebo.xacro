@@ -28,7 +28,7 @@
 
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="iiwa_gazebo" params="robot_name">
+  <xacro:macro name="iiwa_gazebo">
 
     <!-- Load Gazebo lib and set the robot namespace -->
     <gazebo>
@@ -38,28 +38,28 @@
     </gazebo>
 
     <!-- Link0 -->
-    <gazebo reference="${robot_name}_link_0">
+    <gazebo reference="link_0">
       <material>Gazebo/Grey</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link1 -->
-    <gazebo reference="${robot_name}_link_1">
+    <gazebo reference="link_1">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link2 -->
-    <gazebo reference="${robot_name}_link_2">
+    <gazebo reference="link_2">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link3 -->
-    <gazebo reference="${robot_name}_link_3">
+    <gazebo reference="link_3">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
@@ -67,39 +67,39 @@
 
 
     <!-- Link4 -->
-    <gazebo reference="${robot_name}_link_4">
+    <gazebo reference="link_4">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link5 -->
-    <gazebo reference="${robot_name}_link_5">
+    <gazebo reference="link_5">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link6 -->
-    <gazebo reference="${robot_name}_link_6">
+    <gazebo reference="link_6">
       <material>Gazebo/Orange</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
     <!-- Link7 -->
-    <gazebo reference="${robot_name}_link_7">
+    <gazebo reference="link_7">
       <material>Gazebo/Grey</material>
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
-    <gazebo reference="${robot_name}_link_ee">
+    <gazebo reference="link_ee">
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>
     </gazebo>
 
-    <gazebo reference="${robot_name}_link_FTS">
+    <gazebo reference="link_FTS">
       <material>Gazebo/Grey</material>
       <mu1>1.0</mu1>
       <mu2>1.0</mu2>
@@ -107,7 +107,7 @@
       <!--<xacro:include filename="$(find force_sensor)/urdf/force_sensor_tag.xacro"/>-->
     </gazebo>
 
-    <gazebo reference="${robot_name}_link_grabber">
+    <gazebo reference="link_grabber">
       <material>Gazebo/White</material>
       <mu1>1.0</mu1>
       <mu2>1.0</mu2>

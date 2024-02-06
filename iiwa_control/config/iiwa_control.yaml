@@ -7,74 +7,74 @@ joint_state_controller:
 TorqueController:
   type: effort_controllers/JointGroupEffortController
   joints:
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    - joint_7
 
 PositionTorqueController:
   type: effort_controllers/JointGroupPositionController
   joints:
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
-  $(arg robot_name)_joint_1:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    - joint_7
+  joint_1:
     pid: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_2:
+  joint_2:
     pid: {p: 800.0, i: 1000, d: 100.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_3:
+  joint_3:
     pid: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_4:
+  joint_4:
     pid: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_5:
+  joint_5:
     pid: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_6:
+  joint_6:
     pid: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
-  $(arg robot_name)_joint_7:
+  joint_7:
     pid: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
 
 PositionController:
   type: position_controllers/JointGroupPositionController
   joints:
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    - joint_7
   pid_gains:
-    $(arg robot_name)_joint_1: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_2: {p: 800.0, i: 1000, d: 100.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_3: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_4: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_5: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_6: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
-    $(arg robot_name)_joint_7: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_1: {p: 800.0, i: 100, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_2: {p: 800.0, i: 1000, d: 100.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_3: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_4: {p: 800.0, i: 10, d: 80.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_5: {p: 300.0, i: 5, d: 10.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_6: {p: 50.0, i: 1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
+    joint_7: {p: 10.0, i: 0.1, d: 1.0, i_clamp_min: -10000, i_clamp_max: 10000}
 
 # Custom Controllers ------------------------------------------------
 # The space variable can be either set to "task" or "joint"
 CustomControllers:
   type: iiwa_control/CustomEffortController
   joints:
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    - joint_7
   params:
     space: task
     # end_effector is only needed in task space
-    end_effector: $(arg robot_name)_link_ee
+    end_effector: link_ee
     null_space:
       joints: [0.044752691045324394, 0.6951627023357917, -0.01416978801753847, -1.0922311725109015, -0.0050429618456282, 1.1717338014778385, -0.01502630060305613]
       Kp: 20.
@@ -96,13 +96,13 @@ CustomControllers:
 PositionTrajectoryController:
   type: position_controllers/JointTrajectoryController
   joints: 
-    - $(arg robot_name)_joint_1
-    - $(arg robot_name)_joint_2
-    - $(arg robot_name)_joint_3
-    - $(arg robot_name)_joint_4
-    - $(arg robot_name)_joint_5
-    - $(arg robot_name)_joint_6
-    - $(arg robot_name)_joint_7
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    - joint_7
 
   constraints:
     goal_time: 0.5                   # Override default

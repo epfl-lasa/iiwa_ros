@@ -67,24 +67,18 @@
   <xacro:property name="max_velocity_6" value="${PI}"/>
   <xacro:property name="max_velocity_7" value="${PI}"/>
 
-  <xacro:macro name="iiwa7" params="parent hardware_interface robot_name force_sensor grabber collision_postfix *origin">
+  <xacro:macro name="iiwa7" params="parent hardware_interface force_sensor grabber collision_postfix *origin">
 
-    <link name="${robot_name}_base_link">
-      <inertial>
-        <origin xyz="-0.1 0 0.07" rpy="0 0 0"/>
-        <mass value="5"/>
-        <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.06" iyz="0" izz="0.03" />
-      </inertial>
-    </link>
+    <link name="base_link"/>
 
     <!--joint between base_link and link_0-->
-    <joint name="${robot_name}_base_joint" type="fixed">
+    <joint name="base_joint" type="fixed">
       <xacro:insert_block name="origin"/>
-      <parent link="${robot_name}_base_link"/>
-      <child link="${robot_name}_link_0"/>
+      <parent link="base_link"/>
+      <child link="link_0"/>
     </joint>
 
-    <link name="${robot_name}_link_0">
+    <link name="link_0">
       <inertial>
         <origin xyz="-0.1 0 0.07" rpy="0 0 0"/>
         <mass value="5"/>
@@ -117,9 +111,9 @@
     </link>
 
     <!-- joint between link_0 and link_1 -->
-    <joint name="${robot_name}_joint_1" type="revolute">
-      <parent link="${robot_name}_link_0"/>
-      <child link="${robot_name}_link_1"/>
+    <joint name="joint_1" type="revolute">
+      <parent link="link_0"/>
+      <child link="link_1"/>
       <origin xyz="0 0 0.15" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_1 * PI / 180}" upper="${joint_limit_1 * PI / 180}" effort="${max_effort_1}" velocity="${max_velocity_1}" />
@@ -127,7 +121,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_1">
+    <link name="link_1">
       <inertial>
         <origin xyz="0 -0.03 0.12" rpy="0 0 0"/>
         <mass value="3.4525"/>
@@ -149,9 +143,9 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_2" type="revolute">
-      <parent link="${robot_name}_link_1"/>
-      <child link="${robot_name}_link_2"/>
+    <joint name="joint_2" type="revolute">
+      <parent link="link_1"/>
+      <child link="link_2"/>
       <origin xyz="0 0 0.19" rpy="${PI / 2}   0 ${PI}"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_2 * PI / 180}" upper="${joint_limit_2 * PI / 180}" effort="${max_effort_2}" velocity="${max_velocity_2}" />
@@ -159,7 +153,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_2">
+    <link name="link_2">
       <inertial>
         <origin xyz="0.0003 0.059 0.042" rpy="0 0 0"/>
         <mass value="3.4821"/>
@@ -182,9 +176,9 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_3" type="revolute">
-      <parent link="${robot_name}_link_2"/>
-      <child link="${robot_name}_link_3"/>
+    <joint name="joint_3" type="revolute">
+      <parent link="link_2"/>
+      <child link="link_3"/>
       <origin xyz="0 0.21 0" rpy="${PI / 2} 0 ${PI}"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_3 * PI / 180}" upper="${joint_limit_3 * PI / 180}" effort="${max_effort_3}" velocity="${max_velocity_3}" />
@@ -192,7 +186,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_3">
+    <link name="link_3">
       <inertial>
         <origin xyz="0 0.03 0.13" rpy="0 0 0"/>
         <mass value="4.05623"/>
@@ -217,9 +211,9 @@
 
     </link>
 
-    <joint name="${robot_name}_joint_4" type="revolute">
-      <parent link="${robot_name}_link_3"/>
-      <child link="${robot_name}_link_4"/>
+    <joint name="joint_4" type="revolute">
+      <parent link="link_3"/>
+      <child link="link_4"/>
       <origin xyz="0 0 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_4 * PI / 180}" upper="${joint_limit_4 * PI / 180}" effort="${max_effort_4}" velocity="${max_velocity_4}" />
@@ -227,7 +221,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_4">
+    <link name="link_4">
       <inertial>
         <origin xyz="0 0.067 0.034" rpy="0 0 0"/>
         <mass value="3.4822"/>
@@ -251,9 +245,9 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_5" type="revolute">
-      <parent link="${robot_name}_link_4"/>
-      <child link="${robot_name}_link_5"/>
+    <joint name="joint_5" type="revolute">
+      <parent link="link_4"/>
+      <child link="link_5"/>
       <origin xyz="0 0.21 0" rpy="${-PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_5 * PI / 180}" upper="${joint_limit_5 * PI / 180}" effort="${max_effort_5}" velocity="${max_velocity_5}" />
@@ -261,7 +255,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_5">
+    <link name="link_5">
       <inertial>
         <origin xyz="0.0001 0.021 0.076" rpy="0 0 0"/>
         <mass value="2.1633"/>
@@ -285,9 +279,9 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_6" type="revolute">
-      <parent link="${robot_name}_link_5"/>
-      <child link="${robot_name}_link_6"/>
+    <joint name="joint_6" type="revolute">
+      <parent link="link_5"/>
+      <child link="link_6"/>
       <origin xyz="0 0.06070 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_6 * PI / 180}" upper="${joint_limit_6 * PI / 180}" effort="${max_effort_6}" velocity="${max_velocity_6}" />
@@ -295,7 +289,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_6">
+    <link name="link_6">
       <inertial>
         <origin xyz="0 0.0006 0.0004" rpy="0 0 0"/>
         <mass value="2.3466"/>
@@ -319,9 +313,9 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_7" type="revolute">
-      <parent link="${robot_name}_link_6"/>
-      <child link="${robot_name}_link_7"/>
+    <joint name="joint_7" type="revolute">
+      <parent link="link_6"/>
+      <child link="link_7"/>
       <origin xyz="0 0.081 0.06070" rpy="${- PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_7 * PI / 180}" upper="${joint_limit_7 * PI / 180}" effort="${max_effort_7}" velocity="${max_velocity_7}" />
@@ -329,7 +323,7 @@
       <dynamics damping="${joint_damping}"/>
     </joint>
 
-    <link name="${robot_name}_link_7">
+    <link name="link_7">
       <inertial>
         <origin xyz="0 0 0.02" rpy="0 0 0"/>
         <mass value="3.129"/>
@@ -353,13 +347,13 @@
       </collision>
     </link>
 
-    <joint name="${robot_name}_joint_ee" type="fixed">
-      <parent link="${robot_name}_link_7"/>
-      <child link="${robot_name}_link_ee"/>
+    <joint name="joint_ee" type="fixed">
+      <parent link="link_7"/>
+      <child link="link_ee"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
-    <link name="${robot_name}_link_ee">
+    <link name="link_ee">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="1e-6"/>
@@ -368,22 +362,22 @@
     </link>
 
     <xacro:if value="${force_sensor == True}">
-      <xacro:force_torque_sensor robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" topic_name="${robot_name}_FTS_topic" size_parent_link="0 0 0.045">
+      <xacro:force_torque_sensor parent_link_name="link_7" topic_name="FTS_topic" size_parent_link="0 0 0.045">
       </xacro:force_torque_sensor>
       <xacro:if value="${grabber == True}">
-        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
+        <xacro:grabber parent_link_name="link_FTS" size_parent_link="0 0 0.0212">
         </xacro:grabber>
       </xacro:if>
     </xacro:if>
     <xacro:if value="${force_sensor == False}">
       <xacro:if value="${grabber == True}">
-        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" size_parent_link="0 0 0.045">
+        <xacro:grabber parent_link_name="link_7" size_parent_link="0 0 0.045">
         </xacro:grabber>
       </xacro:if>
     </xacro:if>
 
     <!--Extensions -->
-    <xacro:iiwa_gazebo robot_name="${robot_name}" />
+    <xacro:iiwa_gazebo />
     <xacro:iiwa_transmission hardware_interface="${hardware_interface}"/>
 
   </xacro:macro>

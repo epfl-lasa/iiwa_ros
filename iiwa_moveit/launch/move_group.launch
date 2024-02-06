@@ -28,26 +28,23 @@
 <launch>
 
   <arg name="hardware_interface" default="PositionJointInterface"/>
-  <arg name="robot_name" default="iiwa"/>
   <arg name="model" default="iiwa14"/>
 
   <include file="$(find iiwa_moveit)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true"/>
     <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-    <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="model" value="$(arg model)"/>
   </include>
 
   <!-- GDB Debug Option -->
   <arg name="debug" default="false" />
   <arg unless="$(arg debug)" name="launch_prefix" value="" />
-  <arg     if="$(arg debug)" name="launch_prefix"
-	   value="gdb -x $(find iiwa_moveit)/launch/gdb_settings.gdb --ex run --args" />
+  <arg if="$(arg debug)" name="launch_prefix" value="gdb -x $(find iiwa_moveit)/launch/gdb_settings.gdb --ex run --args" />
 
   <!-- Verbose Mode Option -->
   <arg name="info" default="$(arg debug)" />
   <arg unless="$(arg info)" name="command_args" value="" />
-  <arg     if="$(arg info)" name="command_args" value="--debug" />
+  <arg if="$(arg info)" name="command_args" value="--debug" />
 
   <!-- move_group settings -->
   <arg name="allow_trajectory_execution" default="true"/>

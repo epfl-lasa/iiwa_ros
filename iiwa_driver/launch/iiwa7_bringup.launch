@@ -26,14 +26,12 @@
 |-->
 <launch>
   <!-- Select the robot -->
-  <arg name="robot_name_1" default="iiwa1"/>
   <arg name="model_1" default="7" />
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
 
   <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
-    <arg name="robot_name" value="$(arg robot_name_1)"/>
     <arg name="model" value="$(arg model_1)"/>
     <arg name="controller" value="$(arg controller)"/>
   </include>
