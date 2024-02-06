@@ -284,7 +284,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
         n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
         if (publish_eef_state_)
         {
-            ext_torque_.setZero();
+            ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
             // TODO(William) Check how to avoid this subscriber.
             // See if can pass external wrench through joints_ interface.
             // Not clean like this, best not to subscribe controller to robot.
@@ -806,7 +806,8 @@ void CustomEffortController::updateExtTorque(
     const iiwa_driver::AdditionalOutputs::ConstPtr& msg)
 {
     // Update with latest external torque
-    ext_torque_ = Eigen::Vector6d(msg->external_torques.data.data());
+    ext_torque_ =
+        Eigen::VectorXd::Map(msg->external_torques.data.data(), n_joints_);
 }
 
 void CustomEffortController::commandCB(

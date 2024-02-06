@@ -54,7 +54,5 @@
     </include>
 
     <!-- Spawn iiwa service -->
-    <include file="$(find iiwa_tools)/launch/iiwa_service.launch">
-        <arg name="robot_name" value="$(arg robot_name)"/>
-    </include>
+    <include file="$(find iiwa_tools)/launch/iiwa_service.launch"/>
 </launch>

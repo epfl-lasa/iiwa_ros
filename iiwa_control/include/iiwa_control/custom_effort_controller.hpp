@@ -92,7 +92,7 @@ class CustomEffortController : public controller_interface::Controller<
     std::string operation_space_, gravity_comp_;
 
     // External torque vector and subscriber
-    Eigen::Vector6d ext_torque_;
+    Eigen::VectorXd ext_torque_;
     ros::Subscriber _subEefExtTorque;
 
     // End effector state publisher
