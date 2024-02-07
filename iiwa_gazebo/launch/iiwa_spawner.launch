@@ -32,10 +32,8 @@
         <arg name="model" value="$(arg iiwa_model)"/>
         <arg name="force_sensor" value="$(arg force_sensor)"/>
         <arg name="grabber" value="$(arg grabber)"/>
-        <!-- <arg name="namespace" value="/iiwa1"/> -->
         <arg name="controller" value="$(arg controller)"/>
-        <!--TorqueController-->
-        <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
+
     </include>
 
     <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
@@ -45,7 +43,6 @@
     <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="$(arg controller) joint_state_controller"/>
 
     <!-- convert joint states to TF transforms for rviz, etc -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen">
-    </node>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
 </launch>
 

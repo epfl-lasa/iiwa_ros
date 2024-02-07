@@ -665,8 +665,8 @@ void CustomEffortController::update(const ros::Time& time,
             {
                 // Fill in state message
                 _pub_eef_state.msg_.header.stamp = ros::Time::now();
-                tf::vectorEigenToMsg(ee_state.translation,
-                                     _pub_eef_state.msg_.position);
+                tf::pointEigenToMsg(ee_state.translation,
+                                    _pub_eef_state.msg_.position);
                 tf::quaternionEigenToMsg(ee_state.orientation,
                                          _pub_eef_state.msg_.orientation);
                 tf::twistEigenToMsg(twist, _pub_eef_state.msg_.twist);
