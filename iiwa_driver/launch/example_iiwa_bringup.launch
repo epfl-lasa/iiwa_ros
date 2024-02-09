@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--|
+    Copyright (C) 2019-2022 Learning Algorithms and Systems Laboratory, EPFL, Switzerland
+    Authors:  Konstantinos Chatzilygeroudis (maintainer)
+              Matthias Mayr
+              Bernardo Fichera
+    email:    costashatz@gmail.com
+              matthias.mayr@cs.lth.se
+              bernardo.fichera@epfl.ch
+    Other contributors:
+              Yoan Mollard (yoan@aubrune.eu)
+              Walid Amanhoud (walid.amanhoud@epfl.ch)
+    website:  lasa.epfl.ch
+
+    This file is part of iiwa_ros.
+
+    iiwa_ros is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    iiwa_ros is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+|-->
+<launch>
+    <!-- Select the robot -->
+    <arg name="model" default="7" />
+
+    <!-- Select the controller -->
+    <arg name="controller" default="TorqueController"/>
+
+    <!-- Configure the cobots connection-->
+    <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" ns="iiwa_driver" command="load" subst_value="True"/>
+
+    <!-- Configure the controllers -->
+    <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+    <!-- Bringup the IIWA -->
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="model" value="$(arg model)"/>
+        <arg name="controller" value="$(arg controller)"/>
+    </include>
+
+</launch>

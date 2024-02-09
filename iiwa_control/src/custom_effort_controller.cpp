@@ -282,9 +282,9 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
         // Publish the end effector state
         n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
+        ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
         if (publish_eef_state_)
         {
-            ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
             // TODO(William) Check how to avoid this subscriber.
             // See if can pass external wrench through joints_ interface.
             // Not clean like this, best not to subscribe controller to robot.
