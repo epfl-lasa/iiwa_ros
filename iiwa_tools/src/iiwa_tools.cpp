@@ -466,4 +466,47 @@ void IiwaTools::_update_urdf_state(mc_rbdyn_urdf::URDFParserResult &rbdyn_urdf,
     }
 }
 
+void twistMsgToEigen(const geometry_msgs::Twist &m,
+                     Eigen::Matrix<double, 6, 1> &e)
+{
+    e[0] = m.angular.x;
+    e[1] = m.angular.y;
+    e[2] = m.angular.z;
+    e[3] = m.linear.x;
+    e[4] = m.linear.y;
+    e[5] = m.linear.z;
+}
+
+void twistEigenToMsg(const Eigen::Matrix<double, 6, 1> &e,
+                     geometry_msgs::Twist &m)
+{
+    m.angular.x = e[0];
+    m.angular.y = e[1];
+    m.angular.z = e[2];
+    m.linear.x = e[3];
+    m.linear.y = e[4];
+    m.linear.z = e[5];
+}
+void wrenchMsgToEigen(const geometry_msgs::Wrench &m,
+                      Eigen::Matrix<double, 6, 1> &e)
+{
+    e[0] = m.torque.x;
+    e[1] = m.torque.y;
+    e[2] = m.torque.z;
+    e[3] = m.force.x;
+    e[4] = m.force.y;
+    e[5] = m.force.z;
+}
+
+void wrenchEigenToMsg(const Eigen::Matrix<double, 6, 1> &e,
+                      geometry_msgs::Wrench &m)
+{
+    m.torque.x = e[0];
+    m.torque.y = e[1];
+    m.torque.z = e[2];
+    m.force.x = e[3];
+    m.force.y = e[4];
+    m.force.z = e[5];
+}
+
 }  // namespace iiwa_tools

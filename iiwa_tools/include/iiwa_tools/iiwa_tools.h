@@ -34,6 +34,10 @@
 #include <RBDyn/IK.h>
 #include <mc_rbdyn_urdf/urdf.h>
 
+// Messages
+#include <geometry_msgs/Twist.h>
+#include <geometry_msgs/Wrench.h>
+
 namespace iiwa_tools
 {
 struct RobotState
@@ -84,6 +88,16 @@ class IiwaTools
     size_t _ef_index;
 
 };  // class IiwaTools
+
+void twistMsgToEigen(const geometry_msgs::Twist &m,
+                     Eigen::Matrix<double, 6, 1> &e);
+void twistEigenToMsg(const Eigen::Matrix<double, 6, 1> &e,
+                     geometry_msgs::Twist &m);
+void wrenchMsgToEigen(const geometry_msgs::Wrench &m,
+                      Eigen::Matrix<double, 6, 1> &e);
+void wrenchEigenToMsg(const Eigen::Matrix<double, 6, 1> &e,
+                      geometry_msgs::Wrench &m);
+
 }  // namespace iiwa_tools
 
 #endif

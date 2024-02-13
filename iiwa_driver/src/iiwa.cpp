@@ -330,27 +330,33 @@ void Iiwa::_init()
 
 void Iiwa::_ctrl_loop()
 {
-    ros::Time time = ros::Time::now();
+    ros::Time timePrev = ros::Time::now(), timeRead = timePrev,
+              timeWrite = timePrev, timePublish = timePrev;
     const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
     // Time since the last call of update
-    ros::Duration elapsed_time;
-    auto prev = std::chrono::high_resolution_clock::now();
+    ros::Duration elapsed_time, elapsed_read, elapsed_write, elapsed_publish;
     while (ros::ok())
     {
-        auto now = std::chrono::high_resolution_clock::now();
-        ROS_INFO(
-            "Control period: %.3f ms",
-            std::chrono::duration_cast<std::chrono::microseconds>(now - prev)
-                    .count() /
-                1000.0f);
-        prev = now;
         // Read is blocking until FRI has replied
+        timeRead = ros::Time::now();
         _read(ctrl_duration);
-        elapsed_time = ros::Time::now() - time;
-        time = ros::Time::now();
-        _controller_manager->update(ros::Time::now(), elapsed_time);
+        elapsed_read = ros::Time::now() - timeRead;
+        elapsed_time = ros::Time::now() - timePrev;
+        // TODO(William) Temp for monitoring debug
+        if (elapsed_time.toSec() > 6e-3)
+            ROS_INFO(
+                "Control period: %.3f ms Read: %.3f Write: %.3f Publish: %.3f",
+                elapsed_time.toSec() * 1e3,
+                elapsed_read.toSec() * 1e3,
+                elapsed_write.toSec() * 1e3,
+                elapsed_publish.toSec() * 1e3);
+        timePrev = ros::Time::now();
+        timeWrite = ros::Time::now();
         _write(ctrl_duration);
+        elapsed_write = ros::Time::now() - timeWrite;
+        timePublish = ros::Time::now();
         _publish();
+        elapsed_publish = ros::Time::now() - timePublish;
     }
 }
 
@@ -429,9 +435,14 @@ void Iiwa::_load_params()
 
 void Iiwa::_read(const ros::Duration &ctrl_duration)
 {
+    ros::Time timeRead = ros::Time::now();
+    ros::Duration elapsed_read;
     // Read data from robot (via FRI)
     kuka::fri::ESessionState fri_state;
     _read_fri(fri_state);
+    elapsed_read = ros::Time::now() - timeRead;
+    if (elapsed_read.toSec() > 6e-3)
+        ROS_INFO("Kuka read block: %.3f ms", elapsed_read.toSec() * 1e3);
 
     switch (fri_state)
     {

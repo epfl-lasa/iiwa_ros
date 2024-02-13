@@ -669,10 +669,11 @@ void CustomEffortController::update(const ros::Time& time,
                                     _pub_eef_state.msg_.position);
                 tf::quaternionEigenToMsg(ee_state.orientation,
                                          _pub_eef_state.msg_.orientation);
-                tf::twistEigenToMsg(twist, _pub_eef_state.msg_.twist);
-                tf::wrenchEigenToMsg(wrench, _pub_eef_state.msg_.wrench);
-                tf::wrenchEigenToMsg(external_wrench,
-                                     _pub_eef_state.msg_.external_wrench);
+                iiwa_tools::twistEigenToMsg(twist, _pub_eef_state.msg_.twist);
+                iiwa_tools::wrenchEigenToMsg(wrench,
+                                             _pub_eef_state.msg_.wrench);
+                iiwa_tools::wrenchEigenToMsg(
+                    external_wrench, _pub_eef_state.msg_.external_wrench);
                 _pub_eef_state.unlockAndPublish();
             }
         }
