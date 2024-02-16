@@ -51,6 +51,7 @@ add_service_files(
   GetJacobians.srv
   GetGravity.srv
   GetMassMatrix.srv
+  UpdateWeight.srv
 )
 
 # Message files

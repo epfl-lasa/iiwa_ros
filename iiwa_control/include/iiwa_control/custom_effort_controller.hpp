@@ -28,6 +28,8 @@
 
 // ROS headers
 #include <ros/node_handle.h>
+#include <ros/service_server.h>
+
 // ros control
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
@@ -39,13 +41,19 @@
 // msgs
 #include <iiwa_driver/AdditionalOutputs.h>
 #include <iiwa_tools/MsgEefState.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
 
 // URDF
 #include <urdf/model.h>
 
 // Iiwa tools
+#include <iiwa_tools/UpdateWeight.h>
 #include <iiwa_tools/iiwa_tools.h>
+
+// STD
+#include <string>
+#include <vector>
 
 // RobotControllers
 #include <robot_controllers/AbstractController.hpp>
@@ -65,6 +73,9 @@ class CustomEffortController : public controller_interface::Controller<
     bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
 
     void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
+
+    bool updateWeight(iiwa_tools::UpdateWeight::Request& request,
+                      iiwa_tools::UpdateWeight::Response& response);
 
     void updateExtTorque(const iiwa_driver::AdditionalOutputs::ConstPtr& msg);
 
@@ -91,13 +102,17 @@ class CustomEffortController : public controller_interface::Controller<
     bool has_orientation_, null_space_control_, publish_eef_state_;
     std::string operation_space_, gravity_comp_;
 
+    // WeightedSumController
+    std::vector<std::string> ctrl_names_;
+    ros::ServiceServer server_update_weight_;
+
     // External torque vector and subscriber
     bool robot_emitting_;
     Eigen::VectorXd ext_torque_;
-    ros::Subscriber _subEefExtTorque;
+    ros::Subscriber sub_eef_ext_torque_;
 
     // End effector state publisher
-    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState> _pub_eef_state;
+    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState> pub_eef_state_;
 
     // Iiwa tools
     iiwa_tools::IiwaTools tools_;

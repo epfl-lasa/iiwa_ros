@@ -35,6 +35,78 @@
 #include <robot_controllers/CascadeController.hpp>
 #include <robot_controllers/SumController.hpp>
 
+#define WEIGHT_DEFAULT 1.0  ///< Default weight for a controller output.
+
+class WeightedSumController : public robot_controllers::SumController
+{
+ public:
+    void Update(const robot_controllers::RobotState& state)
+    {
+        robot_controllers::RobotState result;
+#define add_result(name)                                          \
+    {                                                             \
+        if (result.name.size() == 0)                              \
+            result.name = Eigen::VectorXd::Zero(out.name.size()); \
+        result.name += weight * out.name;                         \
+    }
+
+        for (unsigned int i = 0; i < controllers_.size(); i++)
+        {
+            auto& ctrl = controllers_[i];
+            ctrl->SetInput(input_.desired_);
+            ctrl->Update(state);
+            robot_controllers::RobotState out = ctrl->GetOutput().desired_;
+            const float& weight = weights_[i];
+
+            robot_controllers::IOTypes t = ctrl->GetOutput().GetType();
+            if (t & robot_controllers::IOType::Position) add_result(position_);
+            if (t & robot_controllers::IOType::Orientation)
+                add_result(orientation_);
+            if (t & robot_controllers::IOType::Velocity) add_result(velocity_);
+            if (t & robot_controllers::IOType::AngularVelocity)
+                add_result(angular_velocity_);
+            if (t & robot_controllers::IOType::Acceleration)
+                add_result(acceleration_);
+            if (t & robot_controllers::IOType::AngularAcceleration)
+                add_result(angular_acceleration_);
+            if (t & robot_controllers::IOType::Force) add_result(force_);
+            if (t & robot_controllers::IOType::Torque) add_result(torque_);
+        }
+#undef add_result
+        output_.desired_ = result;
+    }
+
+    void AddController(std::unique_ptr<AbstractController> controller)
+    {
+        weights_.emplace_back(WEIGHT_DEFAULT);
+        robot_controllers::SumController::AddController(std::move(controller));
+    }
+
+    template <typename T, typename... Args>
+    void AddController(Args... args)
+    {
+        weights_.emplace_back(WEIGHT_DEFAULT);
+        robot_controllers::SumController::AddController(
+            std::forward<Args>(args)...);
+    }
+
+    void SetWeight(float weight, unsigned int index)
+    {
+        assert(index < weights_.size());
+        weights_[index] = weight;
+    }
+
+    void SetWeights(const std::vector<float>& weights)
+    {
+        assert(weights.size() == weights_.size());
+        weights_ = weights;
+    }
+
+ protected:
+    std::vector<float>
+        weights_;  ///< Weigths on the outputs of each controllers.
+};  // WeightedSumController
+
 namespace iiwa_control
 {
 template <class MatT>
@@ -276,13 +348,13 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             // End-effector transformations IN/OUT controller should be made
             // a level above (e.g. extra node that subsribe to iiwa_tools
             // services, and interface task_controller with iiwa_control).
-            _subEefExtTorque = n.subscribe<iiwa_driver::AdditionalOutputs>(
+            sub_eef_ext_torque_ = n.subscribe<iiwa_driver::AdditionalOutputs>(
                 ns + "additional_outputs",
                 1,
                 boost::bind(&CustomEffortController::updateExtTorque, this, _1),
                 ros::VoidPtr(),
                 ros::TransportHints().reliable().tcpNoDelay());
-            _pub_eef_state.init(n, "eef_state", 20);
+            pub_eef_state_.init(n, "eef_state", 20);
             ROS_INFO(
                 "End effector state will be published under topic %seef_state",
                 ns.c_str());
@@ -306,8 +378,10 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end();
          ++i)
     {
-        // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
         std::string name = i->first;
+        ROS_INFO_STREAM("[CustomEffortController]: Trying to load controller '"
+                        << name << "'.");
+        // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
         std::string type, input, output;
         std::vector<double> param_values;
         n.getParam("controllers/" + name + "/type", type);
@@ -368,8 +442,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             bool is_sum = false;
             if (name.find("Add") == 0)
             {
-                controllers[name] =
-                    ControllerPtr(new robot_controllers::SumController);
+                controllers[name] = ControllerPtr(new WeightedSumController);
                 is_sum = true;
             }
             else if (name.find("Cascade") == 0)
@@ -389,8 +462,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             {
                 // ROS_WARN_STREAM("    " << sub[k]);
                 if (is_sum)
-                    static_cast<robot_controllers::SumController*>(
-                        controllers[name].get())
+                    static_cast<WeightedSumController*>(controllers[name].get())
                         ->AddController(std::move(controllers[sub[k]]));
                 else
                     static_cast<robot_controllers::CascadeController*>(
@@ -455,15 +527,21 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     }
     else
     {
-        controller_.reset(new robot_controllers::SumController);
+        controller_.reset(new WeightedSumController);
         for (unsigned int i = 0; i < ctrl_size; i++)
         {
-            static_cast<robot_controllers::SumController*>(controller_.get())
+            static_cast<WeightedSumController*>(controller_.get())
                 ->AddController(std::move(controllers[ctrl_names[i]]));
+            ctrl_names_.emplace_back(ctrl_names[i]);
         }
 
         set_input_space(controller_, space_dim_);
     }
+
+    // Update the weights of the controllers
+    server_update_weight_ = n.advertiseService(
+        "update_weight", &CustomEffortController::updateWeight, this);
+    ROS_INFO_STREAM("[CustomEffortController]: Started Update weight server..");
 
     // Initialize the controller(s)
     if (!controller_->Init())
@@ -661,20 +739,20 @@ void CustomEffortController::update(const ros::Time& time,
         // Optional, publish the end effector state in addition to joints
         if (publish_eef_state_ && robot_emitting_)
         {
-            if (_pub_eef_state.trylock())
+            if (pub_eef_state_.trylock())
             {
                 // Fill in state message
-                _pub_eef_state.msg_.header.stamp = ros::Time::now();
+                pub_eef_state_.msg_.header.stamp = ros::Time::now();
                 tf::pointEigenToMsg(ee_state.translation,
-                                    _pub_eef_state.msg_.position);
+                                    pub_eef_state_.msg_.position);
                 tf::quaternionEigenToMsg(ee_state.orientation,
-                                         _pub_eef_state.msg_.orientation);
-                iiwa_tools::twistEigenToMsg(twist, _pub_eef_state.msg_.twist);
+                                         pub_eef_state_.msg_.orientation);
+                iiwa_tools::twistEigenToMsg(twist, pub_eef_state_.msg_.twist);
                 iiwa_tools::wrenchEigenToMsg(wrench,
-                                             _pub_eef_state.msg_.wrench);
+                                             pub_eef_state_.msg_.wrench);
                 iiwa_tools::wrenchEigenToMsg(
-                    external_wrench, _pub_eef_state.msg_.external_wrench);
-                _pub_eef_state.unlockAndPublish();
+                    external_wrench, pub_eef_state_.msg_.external_wrench);
+                pub_eef_state_.unlockAndPublish();
             }
         }
     }
@@ -786,6 +864,43 @@ void CustomEffortController::update(const ros::Time& time,
         enforceJointLimits(command, i);
         joints_[i].setCommand(command);
     }
+}
+
+bool CustomEffortController::updateWeight(
+    iiwa_tools::UpdateWeight::Request& request,
+    iiwa_tools::UpdateWeight::Response& response)
+{
+    ROS_INFO_STREAM(
+        "[CustomEffortController]: Trying to update weight of controller '"
+        << request.controller_name.data << "' with value "
+        << request.weight.data);
+    WeightedSumController* weightedSumController =
+        dynamic_cast<WeightedSumController*>(&*controller_);
+    // Update weights if controller is of type weighted sum
+    if (weightedSumController)
+    {
+        // Find controller index in sum controller
+        auto it = find(ctrl_names_.begin(),
+                       ctrl_names_.end(),
+                       request.controller_name.data);
+        if (it != ctrl_names_.end())
+        {
+            // Set weight
+            weightedSumController->SetWeight(request.weight.data,
+                                             it - ctrl_names_.begin());
+            ROS_INFO("[CustomEffortController]: Controller weight updated.");
+            return true;
+        }
+        else
+            ROS_WARN_STREAM(
+                "[CustomEffortController]: Could not find controller with name "
+                << request.controller_name.data << ".");
+    }
+    else
+        ROS_WARN(
+            "[CustomEffortController]: Attempted to set weight but controller "
+            "is not of type WeightedSumController");
+    return false;
 }
 
 void CustomEffortController::updateExtTorque(
