@@ -265,6 +265,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
                              ns.substr(1, ns.length() - 2) + "_link_ee");
 
         // Publish the end effector state
+        robot_emitting_ = false;
         n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
         ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
         if (publish_eef_state_)
@@ -642,8 +643,23 @@ void CustomEffortController::update(const ros::Time& time,
         Eigen::VectorXd wrench = jac_t_pinv * current_cont_state.force_,
                         external_wrench = jac_t_pinv * ext_torque_;
 
-        // Optional, publish the end effector state
-        if (publish_eef_state_)
+        // Control based on the current end effector state
+        current_cont_state.position_ = ee_state.translation;
+        current_cont_state.velocity_ = twist.tail(3);
+        current_cont_state.acceleration_ = accel.tail(3);
+        current_cont_state.force_ = wrench.tail(3);
+        if (has_orientation_)
+        {
+            // Orientation target
+            Eigen::AngleAxisd aa(ee_state.orientation);
+            current_cont_state.orientation_ = aa.axis() * aa.angle();
+            current_cont_state.angular_velocity_ = twist.head(3);
+            current_cont_state.angular_acceleration_ = accel.head(3);
+            current_cont_state.torque_ = wrench.head(3);
+        }
+
+        // Optional, publish the end effector state in addition to joints
+        if (publish_eef_state_ && robot_emitting_)
         {
             if (_pub_eef_state.trylock())
             {
@@ -660,21 +676,6 @@ void CustomEffortController::update(const ros::Time& time,
                     external_wrench, _pub_eef_state.msg_.external_wrench);
                 _pub_eef_state.unlockAndPublish();
             }
-        }
-
-        // Control based on the current end effector state
-        current_cont_state.position_ = ee_state.translation;
-        current_cont_state.velocity_ = twist.tail(3);
-        current_cont_state.acceleration_ = accel.tail(3);
-        current_cont_state.force_ = wrench.tail(3);
-        if (has_orientation_)
-        {
-            // Orientation target
-            Eigen::AngleAxisd aa(ee_state.orientation);
-            current_cont_state.orientation_ = aa.axis() * aa.angle();
-            current_cont_state.angular_velocity_ = twist.head(3);
-            current_cont_state.angular_acceleration_ = accel.head(3);
-            current_cont_state.torque_ = wrench.head(3);
         }
     }
 
@@ -790,6 +791,8 @@ void CustomEffortController::update(const ros::Time& time,
 void CustomEffortController::updateExtTorque(
     const iiwa_driver::AdditionalOutputs::ConstPtr& msg)
 {
+    // Data was published by robot on some topic
+    if (!robot_emitting_) robot_emitting_ = true;
     // Update with latest external torque
     ext_torque_ =
         Eigen::VectorXd::Map(msg->external_torques.data.data(), n_joints_);
