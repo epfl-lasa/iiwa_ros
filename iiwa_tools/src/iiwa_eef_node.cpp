@@ -43,11 +43,22 @@ pseudo_inverse(const MatT& mat)
     return mat.completeOrthogonalDecomposition().pseudoInverse();
 }
 
+/**
+ * @brief Transforms the robot joint states to the end effector state.
+ * 
+ */
 class EefPublisher
 {
  public:
     EefPublisher() : _syncJointState(AprxmtSyncJointState(QUEUE_SIZE)) {}
     ~EefPublisher() = default;
+    /**
+     * @brief Initialize the instance components, subscribers and publishers.
+     * 
+     * @param nh Handle to the ROS node on which the instance is running.
+     * @return true If successful.
+     * @return false Otherwise.
+     */
     bool init(ros::NodeHandle& nh)
     {
         // RBDyn
@@ -110,6 +121,12 @@ class EefPublisher
 
         return true;
     }
+    /**
+     * @brief Callback for synchronized joint state subscribers.
+     * 
+     * @param msgJointState State of the robot's joints.
+     * @param msgAddOutputs External torque on the robot's joints.
+     */
     void onJointState(
         const sensor_msgs::JointStateConstPtr& msgJointState,
         const iiwa_driver::AdditionalOutputsConstPtr& msgAddOutputs)
@@ -169,7 +186,7 @@ class EefPublisher
         _pubEefState;  ///< End effector state.
 
     // Iiwa tools
-    iiwa_tools::IiwaTools _iiwaTools;
+    iiwa_tools::IiwaTools _iiwaTools;  ///< IIWA tools to compute FK, jacobians.
 };
 
 int main(int argc, char** argv)
