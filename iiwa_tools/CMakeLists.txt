@@ -41,6 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   geometry_msgs
+  message_filters
 )
 
 add_service_files(
@@ -69,7 +70,7 @@ generate_messages(
 
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs
+ CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs message_filters
  LIBRARIES iiwa_tools
 )
 
@@ -79,6 +80,7 @@ target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} mc_rbdyn_urdf::mc_rbdyn_urdf)
 
 add_executable(iiwa_service src/iiwa_service.cpp src/iiwa_service_node.cpp)
+add_executable(iiwa_eef_node src/iiwa_tools.cpp src/iiwa_eef_node.cpp)
 
 if(ENABLE_SIMD)
   if(CMAKE_COMPILER_IS_GNUCXX)
@@ -99,12 +101,18 @@ endif()
 
 target_compile_options(iiwa_service PUBLIC -std=c++11)
 target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS})
-target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} iiwa_tools)
 
+## Add cmake target dependencies of the executable
+## same as for the library above
 add_dependencies(iiwa_service iiwa_tools_generate_messages_cpp)
+add_dependencies(iiwa_eef_node iiwa_tools_generate_messages_cpp ${iiwa_tools_EXPORTED_TARGETS})
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} iiwa_tools)
+target_link_libraries(iiwa_eef_node PUBLIC ${catkin_LIBRARIES} iiwa_tools)
 
 # Install
-install(TARGETS iiwa_service iiwa_tools
+install(TARGETS iiwa_service iiwa_eef_node iiwa_tools
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

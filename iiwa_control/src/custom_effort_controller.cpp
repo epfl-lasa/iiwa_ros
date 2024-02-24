@@ -337,6 +337,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
                              ns.substr(1, ns.length() - 2) + "_link_ee");
 
         // Publish the end effector state
+        // TODO(William) Remove EEF state publisher after testing the iiwa_eef_node.
         robot_emitting_ = false;
         n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
         ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
