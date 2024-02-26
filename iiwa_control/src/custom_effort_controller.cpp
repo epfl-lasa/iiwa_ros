@@ -43,11 +43,10 @@ class WeightedSumController : public robot_controllers::SumController
     void Update(const robot_controllers::RobotState& state)
     {
         robot_controllers::RobotState result;
-#define add_result(name)                                          \
-    {                                                             \
-        if (result.name.size() == 0)                              \
-            result.name = Eigen::VectorXd::Zero(out.name.size()); \
-        result.name += weight * out.name;                         \
+#define add_result(name)                                                                   \
+    {                                                                                      \
+        if (result.name.size() == 0) result.name = Eigen::VectorXd::Zero(out.name.size()); \
+        result.name += weight * out.name;                                                  \
     }
 
         for (unsigned int i = 0; i < controllers_.size(); i++)
@@ -60,15 +59,11 @@ class WeightedSumController : public robot_controllers::SumController
 
             robot_controllers::IOTypes t = ctrl->GetOutput().GetType();
             if (t & robot_controllers::IOType::Position) add_result(position_);
-            if (t & robot_controllers::IOType::Orientation)
-                add_result(orientation_);
+            if (t & robot_controllers::IOType::Orientation) add_result(orientation_);
             if (t & robot_controllers::IOType::Velocity) add_result(velocity_);
-            if (t & robot_controllers::IOType::AngularVelocity)
-                add_result(angular_velocity_);
-            if (t & robot_controllers::IOType::Acceleration)
-                add_result(acceleration_);
-            if (t & robot_controllers::IOType::AngularAcceleration)
-                add_result(angular_acceleration_);
+            if (t & robot_controllers::IOType::AngularVelocity) add_result(angular_velocity_);
+            if (t & robot_controllers::IOType::Acceleration) add_result(acceleration_);
+            if (t & robot_controllers::IOType::AngularAcceleration) add_result(angular_acceleration_);
             if (t & robot_controllers::IOType::Force) add_result(force_);
             if (t & robot_controllers::IOType::Torque) add_result(torque_);
         }
@@ -86,8 +81,7 @@ class WeightedSumController : public robot_controllers::SumController
     void AddController(Args... args)
     {
         weights_.emplace_back(WEIGHT_DEFAULT);
-        robot_controllers::SumController::AddController(
-            std::forward<Args>(args)...);
+        robot_controllers::SumController::AddController(std::forward<Args>(args)...);
     }
 
     void SetWeight(float weight, unsigned int index)
@@ -103,26 +97,20 @@ class WeightedSumController : public robot_controllers::SumController
     }
 
  protected:
-    std::vector<float>
-        weights_;  ///< Weigths on the outputs of each controllers.
+    std::vector<float> weights_;  ///< Weigths on the outputs of each controllers.
 };  // WeightedSumController
 
 namespace iiwa_control
 {
 template <class MatT>
-Eigen::Matrix<typename MatT::Scalar,
-              MatT::ColsAtCompileTime,
-              MatT::RowsAtCompileTime>
-pseudo_inverse(const MatT& mat,
-               typename MatT::Scalar tolerance = typename MatT::Scalar{
-                   1e-4})  // choose appropriately
+Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> pseudo_inverse(
+    const MatT& mat, typename MatT::Scalar tolerance = typename MatT::Scalar{1e-4})  // choose appropriately
 {
     // More efficient (~2x) and numerically stable than with jacobiSvd
     return mat.completeOrthogonalDecomposition().pseudoInverse();
 }
 
-std::vector<std::vector<std::string>> get_types(const std::string& input,
-                                                const std::string& output)
+std::vector<std::vector<std::string>> get_types(const std::string& input, const std::string& output)
 {
     std::vector<std::vector<std::string>> result(2);
 
@@ -173,13 +161,11 @@ void set_types(CustomEffortController::ControllerPtr& ctrl,
         else if (s == "Velocity")
             input_type = input_type | robot_controllers::IOType::Velocity;
         else if (s == "AngularVelocity")
-            input_type =
-                input_type | robot_controllers::IOType::AngularVelocity;
+            input_type = input_type | robot_controllers::IOType::AngularVelocity;
         else if (s == "Acceleration")
             input_type = input_type | robot_controllers::IOType::Acceleration;
         else if (s == "AngularAcceleration")
-            input_type =
-                input_type | robot_controllers::IOType::AngularAcceleration;
+            input_type = input_type | robot_controllers::IOType::AngularAcceleration;
         else if (s == "Force")
             input_type = input_type | robot_controllers::IOType::Force;
         else if (s == "Torque")
@@ -195,13 +181,11 @@ void set_types(CustomEffortController::ControllerPtr& ctrl,
         else if (s == "Velocity")
             output_type = output_type | robot_controllers::IOType::Velocity;
         else if (s == "AngularVelocity")
-            output_type =
-                output_type | robot_controllers::IOType::AngularVelocity;
+            output_type = output_type | robot_controllers::IOType::AngularVelocity;
         else if (s == "Acceleration")
             output_type = output_type | robot_controllers::IOType::Acceleration;
         else if (s == "AngularAcceleration")
-            output_type =
-                output_type | robot_controllers::IOType::AngularAcceleration;
+            output_type = output_type | robot_controllers::IOType::AngularAcceleration;
         else if (s == "Force")
             output_type = output_type | robot_controllers::IOType::Force;
         else if (s == "Torque")
@@ -211,8 +195,7 @@ void set_types(CustomEffortController::ControllerPtr& ctrl,
     ctrl->SetIOTypes(input_type, output_type);
 }
 
-void set_input_space(CustomEffortController::ControllerPtr& ctrl,
-                     size_t space_dim)
+void set_input_space(CustomEffortController::ControllerPtr& ctrl, size_t space_dim)
 {
     size_t input_dim = 0;
 
@@ -236,8 +219,7 @@ void set_input_space(CustomEffortController::ControllerPtr& ctrl,
     {
         input_dim += space_dim;
     }
-    if (ctrl->GetInput().GetType() &
-        robot_controllers::IOType::AngularAcceleration)
+    if (ctrl->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration)
     {
         input_dim += 3;  // This is fixed to 3D
     }
@@ -262,17 +244,14 @@ CustomEffortController::CustomEffortController() {}
 
 CustomEffortController::~CustomEffortController() { sub_command_.shutdown(); }
 
-bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
-                                  ros::NodeHandle& n)
+bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n)
 {
     // List of controlled joints
     std::string ns = ros::names::parentNamespace(n.getNamespace()) + "/";
     std::string param_name = "joints";
     if (!n.getParam(param_name, joint_names_))
     {
-        ROS_ERROR_STREAM("Failed to getParam '"
-                         << param_name << "' (namespace: " << n.getNamespace()
-                         << ").");
+        ROS_ERROR_STREAM("Failed to getParam '" << param_name << "' (namespace: " << n.getNamespace() << ").");
         return false;
     }
     n_joints_ = joint_names_.size();
@@ -293,10 +272,8 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
     // Get basic parameters
     // Check the operational space
-    n.param<std::string>("params/space",
-                         operation_space_,
+    n.param<std::string>("params/space", operation_space_,
                          "joint");  // Default operation space is task-space
-    publish_eef_state_ = false;
     if (operation_space_ == "task")
     {
         space_dim_ = 3;
@@ -309,57 +286,27 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
         // gets the location of the robot description on the parameter server
         if (!n.searchParam(robot_description, full_param))
         {
-            ROS_ERROR("Could not find parameter %s on parameter server",
-                      robot_description.c_str());
+            ROS_ERROR("Could not find parameter %s on parameter server", robot_description.c_str());
             return false;
         }
 
         // search and wait for robot_description on param server
         while (urdf_string.empty())
         {
-            ROS_INFO_ONCE_NAMED(
-                "CustomEffortController",
-                "CustomEffortController is waiting for model"
-                " URDF in parameter [%s] on the ROS param server.",
-                robot_description.c_str());
+            ROS_INFO_ONCE_NAMED("CustomEffortController",
+                                "CustomEffortController is waiting for model"
+                                " URDF in parameter [%s] on the ROS param server.",
+                                robot_description.c_str());
 
             n.getParam(full_param, urdf_string);
 
             usleep(100000);
         }
-        ROS_INFO_STREAM_NAMED("CustomEffortController",
-                              "Received urdf from param server, parsing...");
+        ROS_INFO_STREAM_NAMED("CustomEffortController", "Received urdf from param server, parsing...");
 
         // Get the end-effector
         std::cerr << ns.substr(1, ns.length() - 2) << std::endl;
-        n.param<std::string>("params/end_effector",
-                             end_effector,
-                             ns.substr(1, ns.length() - 2) + "_link_ee");
-
-        // Publish the end effector state
-        // TODO(William) Remove EEF state publisher after testing the iiwa_eef_node.
-        robot_emitting_ = false;
-        n.param<bool>("params/publish_eef_state", publish_eef_state_, false);
-        ext_torque_ = Eigen::VectorXd::Zero(n_joints_);
-        if (publish_eef_state_)
-        {
-            // TODO(William) Check how to avoid this subscriber.
-            // See if can pass external wrench through joints_ interface.
-            // Not clean like this, best not to subscribe controller to robot.
-            // End-effector transformations IN/OUT controller should be made
-            // a level above (e.g. extra node that subsribe to iiwa_tools
-            // services, and interface task_controller with iiwa_control).
-            sub_eef_ext_torque_ = n.subscribe<iiwa_driver::AdditionalOutputs>(
-                ns + "additional_outputs",
-                1,
-                boost::bind(&CustomEffortController::updateExtTorque, this, _1),
-                ros::VoidPtr(),
-                ros::TransportHints().reliable().tcpNoDelay());
-            pub_eef_state_.init(n, "eef_state", 20);
-            ROS_INFO(
-                "End effector state will be published under topic %seef_state",
-                ns.c_str());
-        }
+        n.param<std::string>("params/end_effector", end_effector, "link_ee");
 
         // Initialize iiwa tools
         tools_.init_rbdyn(urdf_string, end_effector);
@@ -376,12 +323,10 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     n.getParam("controllers", symbols);
 
     assert(symbols.getType() == XmlRpc::XmlRpcValue::TypeStruct);
-    for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end();
-         ++i)
+    for (XmlRpc::XmlRpcValue::iterator i = symbols.begin(); i != symbols.end(); ++i)
     {
         std::string name = i->first;
-        ROS_INFO_STREAM("[CustomEffortController]: Trying to load controller '"
-                        << name << "'.");
+        ROS_INFO_STREAM("[CustomEffortController]: Trying to load controller '" << name << "'.");
         // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
         std::string type, input, output;
         std::vector<double> param_values;
@@ -392,8 +337,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
         if (type.size() == 0)
         {
-            ROS_WARN_STREAM("Could not find type of controller '"
-                            << name << "'. Skipping this controller!");
+            ROS_WARN_STREAM("Could not find type of controller '" << name << "'. Skipping this controller!");
             continue;
         }
 
@@ -405,8 +349,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             params.input_dim_ = space_dim_;
             params.output_dim_ = space_dim_;
 
-            params.time_step_ =
-                0.01;  // TO-DO: Get this from controller manager or yaml
+            params.time_step_ = 0.01;  // TO-DO: Get this from controller manager or yaml
 
             params.values_ = param_values;
 
@@ -415,8 +358,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             // TO-DO: Maybe separate input and output
             if (input.size() > 0 && output.size() > 0)
             {
-                std::vector<std::vector<std::string>> tt =
-                    get_types(input, output);
+                std::vector<std::vector<std::string>> tt = get_types(input, output);
                 if (tt.size() == 2) set_types(ctrl, tt[0], tt[1]);
             }
 
@@ -432,9 +374,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
     if (symbols_structure.getType() == XmlRpc::XmlRpcValue::TypeStruct)
     {
-        for (XmlRpc::XmlRpcValue::iterator i = symbols_structure.begin();
-             i != symbols_structure.end();
-             ++i)
+        for (XmlRpc::XmlRpcValue::iterator i = symbols_structure.begin(); i != symbols_structure.end(); ++i)
         {
             // ROS_WARN_STREAM(i->first << ": " << i->second.getType());
             std::string name = i->first;
@@ -448,14 +388,11 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             }
             else if (name.find("Cascade") == 0)
             {
-                controllers[name] =
-                    ControllerPtr(new robot_controllers::CascadeController);
+                controllers[name] = ControllerPtr(new robot_controllers::CascadeController);
             }
             else
             {
-                ROS_WARN_STREAM(
-                    "Cannot identify the type of the controller by the name: '"
-                    << name << "'. Ignoring!");
+                ROS_WARN_STREAM("Cannot identify the type of the controller by the name: '" << name << "'. Ignoring!");
                 continue;
             }
             // std::cout << sub.size() << std::endl;
@@ -466,12 +403,9 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
                     static_cast<WeightedSumController*>(controllers[name].get())
                         ->AddController(std::move(controllers[sub[k]]));
                 else
-                    static_cast<robot_controllers::CascadeController*>(
-                        controllers[name].get())
+                    static_cast<robot_controllers::CascadeController*>(controllers[name].get())
                         ->AddController(std::move(controllers[sub[k]]));
-                ctrl_names.erase(
-                    std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]),
-                    ctrl_names.end());
+                ctrl_names.erase(std::remove(ctrl_names.begin(), ctrl_names.end(), sub[k]), ctrl_names.end());
                 controllers.erase(sub[k]);
             }
 
@@ -480,8 +414,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
             params.input_dim_ = space_dim_;
             params.output_dim_ = space_dim_;
 
-            params.time_step_ =
-                0.01;  // TO-DO: Get this from controller manager or yaml
+            params.time_step_ = 0.01;  // TO-DO: Get this from controller manager or yaml
             controllers[name]->SetParams(params);
 
             set_input_space(controllers[name], space_dim_);
@@ -499,8 +432,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
         if (null_space_control_)
         {
-            null_space_joint_config_ =
-                Eigen::VectorXd::Map(joints.data(), joints.size());
+            null_space_joint_config_ = Eigen::VectorXd::Map(joints.data(), joints.size());
 
             null_space_Kp_ = 20.;
             null_space_Kd_ = 0.1;
@@ -540,8 +472,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     }
 
     // Update the weights of the controllers
-    server_update_weight_ = n.advertiseService(
-        "update_weight", &CustomEffortController::updateWeight, this);
+    server_update_weight_ = n.advertiseService("update_weight", &CustomEffortController::updateWeight, this);
     ROS_INFO_STREAM("[CustomEffortController]: Started Update weight server..");
 
     // Initialize the controller(s)
@@ -553,10 +484,8 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
 
     // Info on the controller(s)
     ROS_INFO("Controller output:\n\t-has force: %d\n\t-has torque: %d",
-             static_cast<bool>(controller_->GetOutput().GetType() &
-                               robot_controllers::IOType::Force),
-             static_cast<bool>(controller_->GetOutput().GetType() &
-                               robot_controllers::IOType::Force));
+             static_cast<bool>(controller_->GetOutput().GetType() & robot_controllers::IOType::Force),
+             static_cast<bool>(controller_->GetOutput().GetType() & robot_controllers::IOType::Force));
 
     for (unsigned int i = 0; i < n_joints_; i++)
     {
@@ -573,8 +502,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
         urdf::JointConstSharedPtr joint_urdf = urdf.getJoint(joint_names_[i]);
         if (!joint_urdf)
         {
-            ROS_ERROR("Could not find joint '%s' in urdf",
-                      joint_names_[i].c_str());
+            ROS_ERROR("Could not find joint '%s' in urdf", joint_names_[i].c_str());
             return false;
         }
         joint_urdfs_.push_back(joint_urdf);
@@ -587,8 +515,7 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     {
         cmd_dim_ += space_dim_;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::Orientation)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)
     {
         cmd_dim_ += 3;  // This is fixed to 3D
     }
@@ -596,18 +523,15 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     {
         cmd_dim_ += space_dim_;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::AngularVelocity)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity)
     {
         cmd_dim_ += 3;  // This is fixed to 3D
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::Acceleration)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration)
     {
         cmd_dim_ += space_dim_;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::AngularAcceleration)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration)
     {
         cmd_dim_ += 3;  // This is fixed to 3D
     }
@@ -624,14 +548,9 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
     has_orientation_ = false;
     if (operation_space_ == "task")
     {
-        has_orientation_ = ((controller_->GetInput().GetType() &
-                             robot_controllers::IOType::Orientation))
-                               ? true
-                               : false;
-        bool has_position = ((controller_->GetInput().GetType() &
-                              robot_controllers::IOType::Position))
-                                ? true
-                                : false;
+        has_orientation_ =
+            ((controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)) ? true : false;
+        bool has_position = ((controller_->GetInput().GetType() & robot_controllers::IOType::Position)) ? true : false;
         if (has_position || has_orientation_)
         {
             // if task space, we need to alter the initial command
@@ -661,20 +580,16 @@ bool CustomEffortController::init(hardware_interface::EffortJointInterface* hw,
         }
     }
 
-    ROS_INFO_STREAM(
-        "Initial command: "
-        << Eigen::VectorXd::Map(init_cmd.data(), init_cmd.size()).transpose());
+    ROS_INFO_STREAM("Initial command: " << Eigen::VectorXd::Map(init_cmd.data(), init_cmd.size()).transpose());
 
     commands_buffer_.writeFromNonRT(init_cmd);
 
-    sub_command_ = n.subscribe<std_msgs::Float64MultiArray>(
-        "command", 1, &CustomEffortController::commandCB, this);
+    sub_command_ = n.subscribe<std_msgs::Float64MultiArray>("command", 1, &CustomEffortController::commandCB, this);
 
     return true;
 }
 
-void CustomEffortController::update(const ros::Time& time,
-                                    const ros::Duration& period)
+void CustomEffortController::update(const ros::Time& time, const ros::Duration& period)
 {
     std::vector<double>& commands = *commands_buffer_.readFromRT();
 
@@ -705,22 +620,19 @@ void CustomEffortController::update(const ros::Time& time,
     if (operation_space_ == "task")
     {
         // Compute the current end effector state (joints)
-
-        iiwa_tools::RobotState robot_state_tool({curr_robot_state.position_,
-                                                 curr_robot_state.velocity_,
-                                                 curr_robot_state.torque_});
+        iiwa_tools::RobotState robot_state_tool(
+            {curr_robot_state.position_, curr_robot_state.velocity_, curr_robot_state.torque_});
         // Forwards to compute EEF pose
         auto ee_state = tools_.perform_fk(robot_state_tool);
         // Jacobians
+        // TODO(William) Jacobians computed here and in iiwa_tools/EefPublisher, not efficient. Regroup and share.
         std::tie(jac, jac_deriv) = tools_.jacobians(robot_state_tool);
         jac_t_pinv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
         // Compute the twist and acceleration vectors using jacobian
         Eigen::Vector6d twist = jac * current_cont_state.velocity_,
-                        accel = jac * current_cont_state.acceleration_ +
-                                jac_deriv * current_cont_state.velocity_;
+                        accel = jac * current_cont_state.acceleration_ + jac_deriv * current_cont_state.velocity_;
         // Compute the end effector wrench using the inverse jacobian
-        Eigen::VectorXd wrench = jac_t_pinv * current_cont_state.force_,
-                        external_wrench = jac_t_pinv * ext_torque_;
+        Eigen::VectorXd wrench = jac_t_pinv * current_cont_state.force_;
 
         // Control based on the current end effector state
         current_cont_state.position_ = ee_state.translation;
@@ -736,26 +648,6 @@ void CustomEffortController::update(const ros::Time& time,
             current_cont_state.angular_acceleration_ = accel.head(3);
             current_cont_state.torque_ = wrench.head(3);
         }
-
-        // Optional, publish the end effector state in addition to joints
-        if (publish_eef_state_ && robot_emitting_)
-        {
-            if (pub_eef_state_.trylock())
-            {
-                // Fill in state message
-                pub_eef_state_.msg_.header.stamp = ros::Time::now();
-                tf::pointEigenToMsg(ee_state.translation,
-                                    pub_eef_state_.msg_.position);
-                tf::quaternionEigenToMsg(ee_state.orientation,
-                                         pub_eef_state_.msg_.orientation);
-                iiwa_tools::twistEigenToMsg(twist, pub_eef_state_.msg_.twist);
-                iiwa_tools::wrenchEigenToMsg(wrench,
-                                             pub_eef_state_.msg_.wrench);
-                iiwa_tools::wrenchEigenToMsg(
-                    external_wrench, pub_eef_state_.msg_.external_wrench);
-                pub_eef_state_.unlockAndPublish();
-            }
-        }
     }
 
     // Decode current command to get the desired state
@@ -766,8 +658,7 @@ void CustomEffortController::update(const ros::Time& time,
 
     // Command data depends on controller type
     cmd = Eigen::VectorXd::Map(commands.data(), commands.size());
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::Orientation)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::Orientation)
     {
         desired_state.orientation_ = cmd.segment(index, 3);
         index += 3;
@@ -777,8 +668,7 @@ void CustomEffortController::update(const ros::Time& time,
         desired_state.position_ = cmd.segment(index, size);
         index += size;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::AngularVelocity)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularVelocity)
     {
         desired_state.angular_velocity_ = cmd.segment(index, 3);
         index += 3;
@@ -788,14 +678,12 @@ void CustomEffortController::update(const ros::Time& time,
         desired_state.velocity_ = cmd.segment(index, size);
         index += size;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::AngularAcceleration)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::AngularAcceleration)
     {
         desired_state.angular_acceleration_ = cmd.segment(index, 3);
         index += 3;
     }
-    if (controller_->GetInput().GetType() &
-        robot_controllers::IOType::Acceleration)
+    if (controller_->GetInput().GetType() & robot_controllers::IOType::Acceleration)
     {
         desired_state.acceleration_ = cmd.segment(index, size);
         index += size;
@@ -821,12 +709,10 @@ void CustomEffortController::update(const ros::Time& time,
     {
         output = Eigen::VectorXd::Zero(2 * space_dim_);
         // Enable control for the EEF force
-        if (controller_->GetOutput().GetType() &
-            robot_controllers::IOType::Force)
+        if (controller_->GetOutput().GetType() & robot_controllers::IOType::Force)
             output.tail(3) = controller_->GetOutput().desired_.force_;
         // Enable control for the EEF torque
-        if (controller_->GetOutput().GetType() &
-            robot_controllers::IOType::Torque)
+        if (controller_->GetOutput().GetType() & robot_controllers::IOType::Torque)
             output.head(3) = controller_->GetOutput().desired_.torque_;
 
         // Compute joints' effort, based on jacobian
@@ -836,13 +722,10 @@ void CustomEffortController::update(const ros::Time& time,
         if (null_space_control_)
         {
             Eigen::VectorXd null_space_signal =
-                null_space_Kp_ *
-                    (null_space_joint_config_ - curr_robot_state.position_) -
+                null_space_Kp_ * (null_space_joint_config_ - curr_robot_state.position_) -
                 null_space_Kd_ * curr_robot_state.velocity_;
             Eigen::VectorXd null_space_force =
-                (Eigen::MatrixXd::Identity(n_joints_, n_joints_) -
-                 jac.transpose() * jac_t_pinv) *
-                null_space_signal;
+                (Eigen::MatrixXd::Identity(n_joints_, n_joints_) - jac.transpose() * jac_t_pinv) * null_space_signal;
             for (int i = 0; i < null_space_force.size(); i++)
             {
                 if (null_space_force(i) > null_space_max_torque_)
@@ -867,35 +750,27 @@ void CustomEffortController::update(const ros::Time& time,
     }
 }
 
-bool CustomEffortController::updateWeight(
-    iiwa_tools::UpdateWeight::Request& request,
-    iiwa_tools::UpdateWeight::Response& response)
+bool CustomEffortController::updateWeight(iiwa_tools::UpdateWeight::Request& request,
+                                          iiwa_tools::UpdateWeight::Response& response)
 {
-    ROS_INFO_STREAM(
-        "[CustomEffortController]: Trying to update weight of controller '"
-        << request.controller_name.data << "' with value "
-        << request.weight.data);
-    WeightedSumController* weightedSumController =
-        dynamic_cast<WeightedSumController*>(&*controller_);
+    ROS_INFO_STREAM("[CustomEffortController]: Trying to update weight of controller '"
+                    << request.controller_name.data << "' with value " << request.weight.data);
+    WeightedSumController* weightedSumController = dynamic_cast<WeightedSumController*>(&*controller_);
     // Update weights if controller is of type weighted sum
     if (weightedSumController)
     {
         // Find controller index in sum controller
-        auto it = find(ctrl_names_.begin(),
-                       ctrl_names_.end(),
-                       request.controller_name.data);
+        auto it = find(ctrl_names_.begin(), ctrl_names_.end(), request.controller_name.data);
         if (it != ctrl_names_.end())
         {
             // Set weight
-            weightedSumController->SetWeight(request.weight.data,
-                                             it - ctrl_names_.begin());
+            weightedSumController->SetWeight(request.weight.data, it - ctrl_names_.begin());
             ROS_INFO("[CustomEffortController]: Controller weight updated.");
             return true;
         }
         else
-            ROS_WARN_STREAM(
-                "[CustomEffortController]: Could not find controller with name "
-                << request.controller_name.data << ".");
+            ROS_WARN_STREAM("[CustomEffortController]: Could not find controller with name "
+                            << request.controller_name.data << ".");
     }
     else
         ROS_WARN(
@@ -904,45 +779,29 @@ bool CustomEffortController::updateWeight(
     return false;
 }
 
-void CustomEffortController::updateExtTorque(
-    const iiwa_driver::AdditionalOutputs::ConstPtr& msg)
-{
-    // Data was published by robot on some topic
-    if (!robot_emitting_) robot_emitting_ = true;
-    // Update with latest external torque
-    ext_torque_ =
-        Eigen::VectorXd::Map(msg->external_torques.data.data(), n_joints_);
-}
-
-void CustomEffortController::commandCB(
-    const std_msgs::Float64MultiArrayConstPtr& msg)
+void CustomEffortController::commandCB(const std_msgs::Float64MultiArrayConstPtr& msg)
 {
     if (msg->data.size() != cmd_dim_)
     {
-        ROS_ERROR_STREAM("Dimension of command ("
-                         << msg->data.size()
-                         << ") is not correct! Not executing!");
+        ROS_ERROR_STREAM("Dimension of command (" << msg->data.size() << ") is not correct! Not executing!");
         return;
     }
 
     commands_buffer_.writeFromNonRT(msg->data);
 }
 
-void CustomEffortController::enforceJointLimits(double& command,
-                                                unsigned int index)
+void CustomEffortController::enforceJointLimits(double& command, unsigned int index)
 {
     // Check that this joint has applicable limits
     if (command > joint_urdfs_[index]->limits->effort)  // above upper limit
     {
         command = joint_urdfs_[index]->limits->effort;
     }
-    else if (command <
-             -joint_urdfs_[index]->limits->effort)  // below lower limit
+    else if (command < -joint_urdfs_[index]->limits->effort)  // below lower limit
     {
         command = -joint_urdfs_[index]->limits->effort;
     }
 }
 }  // namespace iiwa_control
 
-PLUGINLIB_EXPORT_CLASS(iiwa_control::CustomEffortController,
-                       controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(iiwa_control::CustomEffortController, controller_interface::ControllerBase)

@@ -29,15 +29,11 @@
 #define QUEUE_SIZE 1
 #define NB_DIM 6
 
-typedef message_filters::sync_policies::
-    ApproximateTime<sensor_msgs::JointState, iiwa_driver::AdditionalOutputs>
-        AprxmtSyncJointState;
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::JointState, iiwa_driver::AdditionalOutputs>
+    AprxmtSyncJointState;
 
 template <class MatT>
-Eigen::Matrix<typename MatT::Scalar,
-              MatT::ColsAtCompileTime,
-              MatT::RowsAtCompileTime>
-pseudo_inverse(const MatT& mat)
+Eigen::Matrix<typename MatT::Scalar, MatT::ColsAtCompileTime, MatT::RowsAtCompileTime> pseudo_inverse(const MatT& mat)
 {
     // More efficient (~2x) and numerically stable than with jacobiSvd
     return mat.completeOrthogonalDecomposition().pseudoInverse();
@@ -72,9 +68,7 @@ class EefPublisher
         if (!nh.searchParam(robot_description, full_param))
         {
             ROS_ERROR_ONCE_NAMED(
-                "EefPublisher",
-                "Could not find parameter %s on parameter server",
-                robot_description.c_str());
+                "EefPublisher", "Could not find parameter %s on parameter server", robot_description.c_str());
             return false;
         }
 
@@ -90,31 +84,23 @@ class EefPublisher
 
             usleep(100000);
         }
-        ROS_INFO_STREAM_NAMED("EefPublisher",
-                              "Received urdf from param server, parsing...");
+        ROS_INFO_STREAM_NAMED("EefPublisher", "Received urdf from param server, parsing...");
 
         // Get the end-effector
         std::string end_effector;
-        nh.param<std::string>("params/end_effector",
-                              end_effector,
-                              ns.substr(1, ns.length() - 2) + "_link_ee");
+        nh.param<std::string>("params/end_effector", end_effector, "link_ee");
 
         // Initialize iiwa tools
         _iiwaTools.init_rbdyn(urdf_string, end_effector);
 
         // Init subscribers
-        _subJointState.subscribe(nh,
-                                 "joint_states",
-                                 QUEUE_SIZE,
-                                 ros::TransportHints().reliable().tcpNoDelay());
+        _subJointState.subscribe(nh, "joint_states", QUEUE_SIZE, ros::TransportHints().reliable().tcpNoDelay());
         _subAdditionalOutputs.subscribe(
-            nh,
-            "additional_outputs",
-            QUEUE_SIZE,
-            ros::TransportHints().reliable().tcpNoDelay());
+            nh, "additional_outputs", QUEUE_SIZE, ros::TransportHints().reliable().tcpNoDelay());
 
         // Synchronizer
         _syncJointState.connectInput(_subJointState, _subAdditionalOutputs);
+        _syncJointState.registerCallback(boost::bind(&EefPublisher::onJointState, this, _1, _2));
 
         // Init publishers
         _pubEefState.init(nh, "eef_state", QUEUE_SIZE);
@@ -127,18 +113,14 @@ class EefPublisher
      * @param msgJointState State of the robot's joints.
      * @param msgAddOutputs External torque on the robot's joints.
      */
-    void onJointState(
-        const sensor_msgs::JointStateConstPtr& msgJointState,
-        const iiwa_driver::AdditionalOutputsConstPtr& msgAddOutputs)
+    void onJointState(const sensor_msgs::JointStateConstPtr& msgJointState,
+                      const iiwa_driver::AdditionalOutputsConstPtr& msgAddOutputs)
     {
         // Extract joint state from msgs
-        Eigen::Map<const Eigen::VectorXd> position(
-            msgJointState->position.data(), msgJointState->position.size()),
-            velocity(msgJointState->velocity.data(),
-                     msgJointState->velocity.size()),
+        Eigen::Map<const Eigen::VectorXd> position(msgJointState->position.data(), msgJointState->position.size()),
+            velocity(msgJointState->velocity.data(), msgJointState->velocity.size()),
             torque(msgJointState->effort.data(), msgJointState->effort.size()),
-            externalTorque(msgAddOutputs->external_torques.data.data(),
-                           msgAddOutputs->external_torques.data.size());
+            externalTorque(msgAddOutputs->external_torques.data.data(), msgAddOutputs->external_torques.data.size());
         iiwa_tools::RobotState robot_state_tool({position, velocity, torque});
 
         // Forward kinematics to compute EEF pose
@@ -149,13 +131,12 @@ class EefPublisher
         Eigen::MatrixXd jacDeriv(NB_DIM, position.size());
         Eigen::MatrixXd jacTPInv(position.size(), NB_DIM);
         std::tie(jac, jacDeriv) = _iiwaTools.jacobians(robot_state_tool);
-        jacTPInv = pseudo_inverse(Eigen::MatrixXd(jac.transpose()));
+        jacTPInv = pseudo_inverse(jac.transpose());
 
         // Compute the end effector state
         Eigen::Vector3d eefPosition = eefPose.translation;
         Eigen::Quaterniond eefOrientation = eefPose.orientation;
-        Eigen::Vector6d eefTwist = jac * velocity,
-                        eefWrench = jacTPInv * torque,
+        Eigen::Vector6d eefTwist = jac * velocity, eefWrench = jacTPInv * torque,
                         eefExtWrench = jacTPInv * externalTorque;
 
         // Publish the end effector state
@@ -163,27 +144,21 @@ class EefPublisher
         {
             _pubEefState.msg_.header.stamp = ros::Time::now();
             tf::pointEigenToMsg(eefPosition, _pubEefState.msg_.position);
-            tf::quaternionEigenToMsg(eefOrientation,
-                                     _pubEefState.msg_.orientation);
+            tf::quaternionEigenToMsg(eefOrientation, _pubEefState.msg_.orientation);
             iiwa_tools::twistEigenToMsg(eefTwist, _pubEefState.msg_.twist);
             iiwa_tools::wrenchEigenToMsg(eefWrench, _pubEefState.msg_.wrench);
-            iiwa_tools::wrenchEigenToMsg(eefExtWrench,
-                                         _pubEefState.msg_.external_wrench);
+            iiwa_tools::wrenchEigenToMsg(eefExtWrench, _pubEefState.msg_.external_wrench);
             _pubEefState.unlockAndPublish();
         }
     }
 
  protected:
     // Topics
-    message_filters::Subscriber<sensor_msgs::JointState>
-        _subJointState;  ///< Joint state subscriber.
-    message_filters::Subscriber<iiwa_driver::AdditionalOutputs>
-        _subAdditionalOutputs;  ///< External torque subscriber.
-    message_filters::Synchronizer<AprxmtSyncJointState>
-        _syncJointState;  ///< Publisher synchronizer.
+    message_filters::Subscriber<sensor_msgs::JointState> _subJointState;                ///< Joint state subscriber.
+    message_filters::Subscriber<iiwa_driver::AdditionalOutputs> _subAdditionalOutputs;  ///< External torque subscriber.
+    message_filters::Synchronizer<AprxmtSyncJointState> _syncJointState;                ///< Publisher synchronizer.
     // Debug/Test
-    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState>
-        _pubEefState;  ///< End effector state.
+    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState> _pubEefState;  ///< End effector state.
 
     // Iiwa tools
     iiwa_tools::IiwaTools _iiwaTools;  ///< IIWA tools to compute FK, jacobians.

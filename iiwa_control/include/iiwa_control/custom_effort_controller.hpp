@@ -36,7 +36,6 @@
 
 // realtime tools
 #include <realtime_tools/realtime_buffer.h>
-#include <realtime_tools/realtime_publisher.h>
 
 // msgs
 #include <iiwa_driver/AdditionalOutputs.h>
@@ -60,12 +59,10 @@
 
 namespace iiwa_control
 {
-class CustomEffortController : public controller_interface::Controller<
-                                   hardware_interface::EffortJointInterface>
+class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface>
 {
  public:
-    using ControllerPtr =
-        Corrade::Containers::Pointer<robot_controllers::AbstractController>;
+    using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
 
     CustomEffortController();
     ~CustomEffortController();
@@ -74,10 +71,7 @@ class CustomEffortController : public controller_interface::Controller<
 
     void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
-    bool updateWeight(iiwa_tools::UpdateWeight::Request& request,
-                      iiwa_tools::UpdateWeight::Response& response);
-
-    void updateExtTorque(const iiwa_driver::AdditionalOutputs::ConstPtr& msg);
+    bool updateWeight(iiwa_tools::UpdateWeight::Request& request, iiwa_tools::UpdateWeight::Response& response);
 
     std::vector<hardware_interface::JointHandle> joints_;
 
@@ -93,26 +87,17 @@ class CustomEffortController : public controller_interface::Controller<
     // Controller
     ControllerPtr controller_;
     // Plugin controller manager
-    Corrade::PluginManager::Manager<robot_controllers::AbstractController>
-        manager_;
+    Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
 
     // Controller's settings
     unsigned int space_dim_;
     unsigned int cmd_dim_;
-    bool has_orientation_, null_space_control_, publish_eef_state_;
+    bool has_orientation_, null_space_control_;
     std::string operation_space_, gravity_comp_;
 
     // WeightedSumController
     std::vector<std::string> ctrl_names_;
     ros::ServiceServer server_update_weight_;
-
-    // External torque vector and subscriber
-    bool robot_emitting_;
-    Eigen::VectorXd ext_torque_;
-    ros::Subscriber sub_eef_ext_torque_;
-
-    // End effector state publisher
-    realtime_tools::RealtimePublisher<iiwa_tools::MsgEefState> pub_eef_state_;
 
     // Iiwa tools
     iiwa_tools::IiwaTools tools_;

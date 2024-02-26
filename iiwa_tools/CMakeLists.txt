@@ -41,6 +41,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   sensor_msgs
   geometry_msgs
+  eigen_conversions
   message_filters
   iiwa_driver
 )
@@ -71,7 +72,7 @@ generate_messages(
 
 catkin_package(
  INCLUDE_DIRS include
- CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs message_filters
+ CATKIN_DEPENDS roscpp message_runtime std_msgs sensor_msgs geometry_msgs eigen_conversions message_filters
  LIBRARIES iiwa_tools
 )
 
