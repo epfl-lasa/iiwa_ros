@@ -43,7 +43,8 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   controller_interface
   urdf
-  iiwa_tools)
+  iiwa_tools
+  iiwa_driver)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS

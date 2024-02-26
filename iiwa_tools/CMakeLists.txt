@@ -42,6 +42,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   geometry_msgs
   message_filters
+  iiwa_driver
 )
 
 add_service_files(
