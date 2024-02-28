@@ -107,15 +107,11 @@ class Iiwa : public hardware_interface::RobotHW
     bool _read_fri(kuka::fri::ESessionState& current_state);
     bool _write_fri();
     void _publish();
-    void _on_fri_state_change(kuka::fri::ESessionState old_state,
-                              kuka::fri::ESessionState current_state)
-    {
-    }
+    void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
     void _loopUpdateControl();
 
     // External torque and commanding status publishers
-    realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs>
-        _additional_pub;
+    realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
     realtime_tools::RealtimePublisher<iiwa_driver::FRIState> _fri_state_pub;
     realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
 
@@ -125,18 +121,12 @@ class Iiwa : public hardware_interface::RobotHW
     hardware_interface::VelocityJointInterface _velocity_joint_interface;
     hardware_interface::EffortJointInterface _effort_joint_interface;
 
-    joint_limits_interface::EffortJointSaturationInterface
-        _effort_joint_saturation_interface;
-    joint_limits_interface::EffortJointSoftLimitsInterface
-        _effort_joint_limits_interface;
-    joint_limits_interface::PositionJointSaturationInterface
-        _position_joint_saturation_interface;
-    joint_limits_interface::PositionJointSoftLimitsInterface
-        _position_joint_limits_interface;
-    joint_limits_interface::VelocityJointSaturationInterface
-        _velocity_joint_saturation_interface;
-    joint_limits_interface::VelocityJointSoftLimitsInterface
-        _velocity_joint_limits_interface;
+    joint_limits_interface::EffortJointSaturationInterface _effort_joint_saturation_interface;
+    joint_limits_interface::EffortJointSoftLimitsInterface _effort_joint_limits_interface;
+    joint_limits_interface::PositionJointSaturationInterface _position_joint_saturation_interface;
+    joint_limits_interface::PositionJointSoftLimitsInterface _position_joint_limits_interface;
+    joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
+    joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
 
     // Shared memory
     size_t _num_joints;
@@ -155,16 +145,15 @@ class Iiwa : public hardware_interface::RobotHW
     // Controller manager
     std::thread _threadUpdateControl;
     bool _threadUCTerminate;
-    std::mutex _mutCommand;
+    bool _firstRead;
+    std::mutex _mutRead, _mutCommand;
     std::shared_ptr<controller_manager::ControllerManager> _controller_manager;
 
     // FRI Connection
     kuka::fri::UdpConnection _fri_connection;
     kuka::fri::ClientData* _fri_message_data;
-    kuka::fri::DummyState
-        _robot_state;  //!< wrapper class for the FRI monitoring message
-    kuka::fri::DummyCommand
-        _robot_command;  //!< wrapper class for the FRI command message
+    kuka::fri::DummyState _robot_state;      //!< wrapper class for the FRI monitoring message
+    kuka::fri::DummyCommand _robot_command;  //!< wrapper class for the FRI command message
     int _message_size;
     bool _idle, _commanding;
 
