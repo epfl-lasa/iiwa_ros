@@ -51,23 +51,23 @@
   <xacro:property name="joint_limit_6" value="120"/>
   <xacro:property name="joint_limit_7" value="175"/>
   <!-- max torques per joint -->
-  <xacro:property name="max_effort_1" value="320"/>
-  <xacro:property name="max_effort_2" value="320"/>
-  <xacro:property name="max_effort_3" value="176"/>
-  <xacro:property name="max_effort_4" value="176"/>
+  <xacro:property name="max_effort_1" value="176"/>
+  <xacro:property name="max_effort_2" value="176"/>
+  <xacro:property name="max_effort_3" value="110"/>
+  <xacro:property name="max_effort_4" value="110"/>
   <xacro:property name="max_effort_5" value="110"/>
   <xacro:property name="max_effort_6" value="40"/>
   <xacro:property name="max_effort_7" value="40"/>
   <!-- max velocities per joint -->
-  <xacro:property name="max_velocity_1" value="${85 * PI / 180.}"/>
-  <xacro:property name="max_velocity_2" value="${85 * PI / 180.}"/>
+  <xacro:property name="max_velocity_1" value="${98 * PI / 180.}"/>
+  <xacro:property name="max_velocity_2" value="${98 * PI / 180.}"/>
   <xacro:property name="max_velocity_3" value="${100 * PI / 180.}"/>
-  <xacro:property name="max_velocity_4" value="${75 * PI/ 180.}"/>
-  <xacro:property name="max_velocity_5" value="${130 * PI / 180.}"/>
-  <xacro:property name="max_velocity_6" value="${135 * PI / 180.}"/>
-  <xacro:property name="max_velocity_7" value="${135 * PI / 180.}"/>
+  <xacro:property name="max_velocity_4" value="${130 * PI / 180.}"/>
+  <xacro:property name="max_velocity_5" value="${140 * PI / 180.}"/>
+  <xacro:property name="max_velocity_6" value="${PI}"/>
+  <xacro:property name="max_velocity_7" value="${PI}"/>
 
-  <xacro:macro name="iiwa14" params="parent hardware_interface robot_name force_sensor grabber collision_postfix *origin">
+  <xacro:macro name="iiwa7" params="parent hardware_interface robot_name force_sensor grabber collision_postfix *origin">
 
     <!--joint between {parent} and link_0-->
     <joint name="${parent}_${robot_name}_joint" type="fixed">
@@ -86,7 +86,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_0.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_0.stl"/>
         </geometry>
         <material name="Grey"/>
       </visual>
@@ -94,7 +94,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_0${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_0.stl"/>
         </geometry>
         <material name="Grey"/>
       </collision>
@@ -112,7 +112,7 @@
     <joint name="${robot_name}_joint_1" type="revolute">
       <parent link="${robot_name}_link_0"/>
       <child link="${robot_name}_link_1"/>
-      <origin xyz="0 0 0.1575" rpy="0 0 0"/>
+      <origin xyz="0 0 0.15" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_1 * PI / 180}" upper="${joint_limit_1 * PI / 180}"
              effort="${max_effort_1}" velocity="${max_velocity_1}" />
@@ -127,33 +127,29 @@
     <link name="${robot_name}_link_1">
       <inertial>
         <origin xyz="0 -0.03 0.12" rpy="0 0 0"/>
-        <mass value="5.76"/>
-        <!-- <mass value="4"/> -->
-        <inertia ixx="0.1"  ixy="0"  ixz="0" iyy="0.09" iyz="0" izz="0.02" />
+        <mass value="3.4525"/>
+        <inertia ixx="0.02183"  ixy="0"  ixz="0" iyy="0.007703" iyz="-0.003887" izz="0.02083" />
       </inertial>
-
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 0.0075" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_1.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_1.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
-
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 0.0075" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_1${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_1.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
     </link>
 
-    <!-- joint between link_1 and link_2 -->
     <joint name="${robot_name}_joint_2" type="revolute">
       <parent link="${robot_name}_link_1"/>
       <child link="${robot_name}_link_2"/>
-      <origin xyz="0 0 0.2025" rpy="${PI / 2}   0 ${PI}"/>
+      <origin xyz="0 0 0.19" rpy="${PI / 2}   0 ${PI}"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_2 * PI / 180}" upper="${joint_limit_2 * PI / 180}"
              effort="${max_effort_2}" velocity="${max_velocity_2}" />
@@ -168,15 +164,13 @@
     <link name="${robot_name}_link_2">
       <inertial>
         <origin xyz="0.0003 0.059 0.042" rpy="0 0 0"/>
-        <mass value="6.35"/>
-        <!-- <mass value="4"/> -->
-        <inertia ixx="0.05"  ixy="0"  ixz="0" iyy="0.018" iyz="0" izz="0.044" />
+        <mass value="3.4821"/>
+        <inertia ixx="0.02076"  ixy="0"  ixz="-0.003626" iyy="0.02179" iyz="0" izz="0.00779" />
       </inertial>
-
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_2.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_2.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -184,17 +178,16 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_2${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_2.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
     </link>
 
-    <!-- joint between link_2 and link_3 -->
     <joint name="${robot_name}_joint_3" type="revolute">
       <parent link="${robot_name}_link_2"/>
       <child link="${robot_name}_link_3"/>
-      <origin xyz="0 0.2045 0" rpy="${PI / 2} 0 ${PI}"/>
+      <origin xyz="0 0.21 0" rpy="${PI / 2} 0 ${PI}"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_3 * PI / 180}" upper="${joint_limit_3 * PI / 180}"
              effort="${max_effort_3}" velocity="${max_velocity_3}" />
@@ -209,33 +202,32 @@
     <link name="${robot_name}_link_3">
       <inertial>
         <origin xyz="0 0.03 0.13" rpy="0 0 0"/>
-        <mass value="3.5"/>
-        <!-- <mass value="3"/> -->
-        <inertia ixx="0.08"  ixy="0"  ixz="0" iyy="0.075" iyz="0" izz="0.01" />
+        <mass value="4.05623"/>
+        <inertia ixx="0.03204"  ixy="0"  ixz="0" iyy="0.00972" iyz="0.006227" izz="0.03042" />
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_3.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_3.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_3${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_3.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
+
     </link>
 
-    <!-- joint between link_3 and link_4 -->
     <joint name="${robot_name}_joint_4" type="revolute">
       <parent link="${robot_name}_link_3"/>
       <child link="${robot_name}_link_4"/>
-      <origin xyz="0 0 0.2155" rpy="${PI / 2} 0 0"/>
+      <origin xyz="0 0 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_4 * PI / 180}" upper="${joint_limit_4 * PI / 180}"
              effort="${max_effort_4}" velocity="${max_velocity_4}" />
@@ -250,15 +242,14 @@
     <link name="${robot_name}_link_4">
       <inertial>
         <origin xyz="0 0.067 0.034" rpy="0 0 0"/>
-        <mass value="3.5"/>
-        <!-- <mass value="2.7"/> -->
-        <inertia ixx="0.03"  ixy="0"  ixz="0" iyy="0.01" iyz="0" izz="0.029" />
+        <mass value="3.4822"/>
+        <inertia ixx="0.02178"  ixy="0"  ixz="0" iyy="0.02075" iyz="-0.003625" izz="0.007785" />
       </inertial>
 
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_4.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_4.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -266,17 +257,16 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_4${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_4.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
     </link>
 
-    <!-- joint between link_4 and link_5 -->
     <joint name="${robot_name}_joint_5" type="revolute">
       <parent link="${robot_name}_link_4"/>
       <child link="${robot_name}_link_5"/>
-      <origin xyz="0 0.1845 0" rpy="${-PI / 2} ${PI} 0"/>
+      <origin xyz="0 0.21 0" rpy="${-PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_5 * PI / 180}" upper="${joint_limit_5 * PI / 180}"
              effort="${max_effort_5}" velocity="${max_velocity_5}" />
@@ -291,33 +281,31 @@
     <link name="${robot_name}_link_5">
       <inertial>
         <origin xyz="0.0001 0.021 0.076" rpy="0 0 0"/>
-        <mass value="3.5"/>
-        <!-- <mass value="1.7"/> -->
-        <inertia ixx="0.02"  ixy="0"  ixz="0" iyy="0.018" iyz="0" izz="0.005" />
+        <mass value="2.1633"/>
+        <inertia ixx="0.01287"  ixy="0"  ixz="0" iyy="0.005708" iyz="-0.003946" izz="0.01112" />
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_5.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_5.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.026" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_5${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_5.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
     </link>
 
-    <!-- joint between link_5 and link_6 -->
     <joint name="${robot_name}_joint_6" type="revolute">
       <parent link="${robot_name}_link_5"/>
       <child link="${robot_name}_link_6"/>
-      <origin xyz="0 0 0.2155" rpy="${PI / 2} 0 0"/>
+      <origin xyz="0 0.06070 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_6 * PI / 180}" upper="${joint_limit_6 * PI / 180}"
              effort="${max_effort_6}" velocity="${max_velocity_6}" />
@@ -332,15 +320,14 @@
     <link name="${robot_name}_link_6">
       <inertial>
         <origin xyz="0 0.0006 0.0004" rpy="0 0 0"/>
-        <mass value="1.8"/>
-        <!-- <mass value="1.8"/> -->
-        <inertia ixx="0.005"  ixy="0"  ixz="0" iyy="0.0036" iyz="0" izz="0.0047" />
+        <mass value="2.3466"/>
+        <inertia ixx="0.006509"  ixy="0"  ixz="0" iyy="0.006259" iyz="0.00031891" izz="0.004527" />
       </inertial>
 
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_6.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_6.stl"/>
         </geometry>
         <material name="Orange"/>
       </visual>
@@ -348,17 +335,16 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_6${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_6.stl"/>
         </geometry>
         <material name="Orange"/>
       </collision>
     </link>
 
-    <!-- joint between link_6 and link_7 -->
     <joint name="${robot_name}_joint_7" type="revolute">
       <parent link="${robot_name}_link_6"/>
       <child link="${robot_name}_link_7"/>
-      <origin xyz="0 0.081 0" rpy="${- PI / 2} ${PI} 0"/>
+      <origin xyz="0 0.081 0.06070" rpy="${- PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
       <limit lower="${-joint_limit_7 * PI / 180}" upper="${joint_limit_7 * PI / 180}"
              effort="${max_effort_7}" velocity="${max_velocity_7}" />
@@ -373,23 +359,22 @@
     <link name="${robot_name}_link_7">
       <inertial>
         <origin xyz="0 0 0.02" rpy="0 0 0"/>
-        <mass value="1.2"/>
-        <!-- <mass value="0.3"/> -->
-        <inertia ixx="0.001"  ixy="0"  ixz="0" iyy="0.001" iyz="0" izz="0.001" />
+        <mass value="3.129"/>
+        <inertia ixx="0.01464"  ixy="0.0005912"  ixz="0" iyy="0.01465" iyz="0" izz="0.002872" />
       </inertial>
 
       <visual>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.0005" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/visual/link_7.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/visual/link_7.stl"/>
         </geometry>
         <material name="Grey"/>
       </visual>
 
       <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <origin xyz="0 0 -0.0005" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://iiwa_description/meshes/iiwa14/collision/link_7${collision_postfix}.stl"/>
+          <mesh filename="package://iiwa_description/meshes/iiwa7/collision/link_7.stl"/>
         </geometry>
         <material name="Grey"/>
       </collision>
@@ -398,7 +383,7 @@
     <joint name="${robot_name}_joint_ee" type="fixed">
       <parent link="${robot_name}_link_7"/>
       <child link="${robot_name}_link_ee"/>
-      <origin xyz="0 0 0.15" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
     </joint>
 
     <link name="${robot_name}_link_ee">
