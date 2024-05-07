@@ -80,8 +80,9 @@ Iiwa::Iiwa(ros::NodeHandle &nh) { init(nh); }
 
 Iiwa::~Iiwa()
 {
-    // Stop the controller update
-    _threadUCTerminate = true;
+    // Cleanly stop the control
+    _threadTerminate = true;
+    _threadUpdateState.join();
     _threadUpdateControl.join();
 
     // Disconnect from robot
@@ -128,7 +129,7 @@ void Iiwa::init(ros::NodeHandle &nh)
         _initialized = false;
 }
 
-void Iiwa::run()
+void Iiwa::async_run()
 {
     if (!_initialized)
     {
@@ -137,9 +138,8 @@ void Iiwa::run()
     }
 
     _firstRead = false;
+    _threadUpdateState = std::thread(&Iiwa::_ctrl_loop, this);
     _threadUpdateControl = std::thread(&Iiwa::_loopUpdateControl, this);
-    std::thread t1(&Iiwa::_ctrl_loop, this);
-    t1.join();
 }
 
 bool Iiwa::initialized() { return _initialized; }
@@ -331,33 +331,17 @@ void Iiwa::_init()
 
 void Iiwa::_ctrl_loop()
 {
-    ros::Time timePrev = ros::Time::now(), timeRead = timePrev,
-              timeWrite = timePrev, timePublish = timePrev;
-    const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
+    ros::Time timePrev = ros::Time::now();
     // Time since the last call of update
-    ros::Duration elapsed_time, elapsed_read, elapsed_write, elapsed_publish;
-    while (ros::ok())
+    ros::Duration elapsed_time = ros::Duration(1. / _control_freq);
+    while (!_threadTerminate && ros::ok())
     {
         // Read is blocking until FRI has replied
-        timeRead = ros::Time::now();
-        if (!_read(ctrl_duration)) break;
-        elapsed_read = ros::Time::now() - timeRead;
+        if (!_read(elapsed_time)) break;
         elapsed_time = ros::Time::now() - timePrev;
-        // TODO(William) Temp for monitoring debug
-        if (elapsed_time.toSec() > 6e-3)
-            ROS_INFO(
-                "Control period: %.3f ms Read: %.3f Write: %.3f Publish: %.3f",
-                elapsed_time.toSec() * 1e3,
-                elapsed_read.toSec() * 1e3,
-                elapsed_write.toSec() * 1e3,
-                elapsed_publish.toSec() * 1e3);
         timePrev = ros::Time::now();
-        timeWrite = ros::Time::now();
-        _write(ctrl_duration);
-        elapsed_write = ros::Time::now() - timeWrite;
-        timePublish = ros::Time::now();
+        _write(elapsed_time);
         _publish();
-        elapsed_publish = ros::Time::now() - timePublish;
     }
 }
 
@@ -653,13 +637,13 @@ void Iiwa::_loopUpdateControl()
     // Update controller command in thread to not delay write to kuka
     _controller_manager.reset(
         new controller_manager::ControllerManager(this, _nh));
-    _threadUCTerminate = false;
+    _threadTerminate = false;
     // Constant update rate
     ros::Rate rate(_control_freq);
 
     ros::Duration elapsed_time = rate.expectedCycleTime();
     ros::Time timeNow = ros::Time::now(), timePrev = timeNow;
-    while (!_threadUCTerminate && ros::ok())
+    while (!_threadTerminate && ros::ok())
     {
         // Control rate
         rate.sleep();

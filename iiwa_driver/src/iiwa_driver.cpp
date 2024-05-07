@@ -30,14 +30,12 @@ int main(int argc, char** argv)
     ros::init(argc, argv, "iiwa_hardware_interface");
 
     ros::NodeHandle nh;
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
 
     iiwa_ros::Iiwa iiwa(nh);
 
-    iiwa.run();
+    iiwa.async_run();  // Start update threads
 
-    spinner.stop();
+    ros::spin();
 
     return 0;
 }

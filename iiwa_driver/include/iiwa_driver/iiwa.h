@@ -92,7 +92,7 @@ class Iiwa : public hardware_interface::RobotHW
     ~Iiwa();
 
     void init(ros::NodeHandle& nh);
-    void run();
+    void async_run();
     bool initialized();
 
  protected:
@@ -153,8 +153,8 @@ class Iiwa : public hardware_interface::RobotHW
     std::vector<double> _kuka_effort_command;
 
     // Controller manager
-    std::thread _threadUpdateControl;
-    bool _threadUCTerminate;
+    std::thread _threadUpdateState, _threadUpdateControl;
+    bool _threadTerminate;
     bool _firstRead;
     std::mutex _mutRead, _mutCommand;
     std::shared_ptr<controller_manager::ControllerManager> _controller_manager;
