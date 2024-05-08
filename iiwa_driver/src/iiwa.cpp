@@ -422,17 +422,12 @@ bool Iiwa::_read(const ros::Duration &ctrl_duration)
 {
     // Read data from robot (via FRI)
     kuka::fri::ESessionState fri_state;
-    ros::Duration elapsed_read;
-    ros::Time timeRead = ros::Time::now();
     {
         // Mutex is locked by FRI::read when reading. Suspend controller update when read is blocking.
         std::lock_guard<std::mutex> lock_guard(_mutRead);
         if (!_read_fri(fri_state)) return false;
         _firstRead = true;
     }
-    elapsed_read = ros::Time::now() - timeRead;
-    if (elapsed_read.toSec() > 6e-3)
-        ROS_INFO("Kuka read block: %.3f ms", elapsed_read.toSec() * 1e3);
 
     switch (fri_state)
     {
