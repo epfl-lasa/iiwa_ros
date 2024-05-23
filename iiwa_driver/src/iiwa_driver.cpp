@@ -31,11 +31,14 @@ int main(int argc, char** argv)
 
     ros::NodeHandle nh;
 
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
+
     iiwa_ros::Iiwa iiwa(nh);
 
-    iiwa.async_run();  // Start update threads
+    iiwa.run();
 
-    ros::spin();
+    spinner.stop();
 
     return 0;
 }

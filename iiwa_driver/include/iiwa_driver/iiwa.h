@@ -53,6 +53,7 @@
 
 // STD headers
 #include <mutex>
+#include <string>
 
 namespace controller_manager
 {
@@ -92,7 +93,7 @@ class Iiwa : public hardware_interface::RobotHW
     ~Iiwa();
 
     void init(ros::NodeHandle& nh);
-    void async_run();
+    void run();
     bool initialized();
 
  protected:
@@ -153,7 +154,7 @@ class Iiwa : public hardware_interface::RobotHW
     std::vector<double> _kuka_effort_command;
 
     // Controller manager
-    std::thread _threadUpdateState, _threadUpdateControl;
+    std::thread _threadUpdateControl;
     bool _threadTerminate;
     bool _firstRead;
     std::mutex _mutRead, _mutCommand;

@@ -82,7 +82,6 @@ Iiwa::~Iiwa()
 {
     // Cleanly stop the control
     _threadTerminate = true;
-    _threadUpdateState.join();
     _threadUpdateControl.join();
 
     // Disconnect from robot
@@ -129,7 +128,7 @@ void Iiwa::init(ros::NodeHandle &nh)
         _initialized = false;
 }
 
-void Iiwa::async_run()
+void Iiwa::run()
 {
     if (!_initialized)
     {
@@ -138,8 +137,9 @@ void Iiwa::async_run()
     }
 
     _firstRead = false;
-    _threadUpdateState = std::thread(&Iiwa::_ctrl_loop, this);
     _threadUpdateControl = std::thread(&Iiwa::_loopUpdateControl, this);
+    std::thread t1(&Iiwa::_ctrl_loop, this);
+    t1.join();
 }
 
 bool Iiwa::initialized() { return _initialized; }
@@ -334,13 +334,14 @@ void Iiwa::_ctrl_loop()
     ros::Time timePrev = ros::Time::now();
     // Time since the last call of update
     ros::Duration elapsed_time = ros::Duration(1. / _control_freq);
+    const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
     while (!_threadTerminate && ros::ok())
     {
         // Read is blocking until FRI has replied
-        if (!_read(elapsed_time)) break;
+        if (!_read(ctrl_duration)) break;
         elapsed_time = ros::Time::now() - timePrev;
         timePrev = ros::Time::now();
-        _write(elapsed_time);
+        _write(ctrl_duration);
         _publish();
     }
 }
