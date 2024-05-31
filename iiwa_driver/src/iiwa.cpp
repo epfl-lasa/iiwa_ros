@@ -80,8 +80,8 @@ Iiwa::Iiwa(ros::NodeHandle &nh) { init(nh); }
 
 Iiwa::~Iiwa()
 {
-    // Stop the controller update
-    _threadUCTerminate = true;
+    // Cleanly stop the control
+    _threadTerminate = true;
     _threadUpdateControl.join();
 
     // Disconnect from robot
@@ -331,33 +331,18 @@ void Iiwa::_init()
 
 void Iiwa::_ctrl_loop()
 {
-    ros::Time timePrev = ros::Time::now(), timeRead = timePrev,
-              timeWrite = timePrev, timePublish = timePrev;
-    const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
+    ros::Time timePrev = ros::Time::now();
     // Time since the last call of update
-    ros::Duration elapsed_time, elapsed_read, elapsed_write, elapsed_publish;
-    while (ros::ok())
+    ros::Duration elapsed_time = ros::Duration(1. / _control_freq);
+    const ros::Duration ctrl_duration = ros::Duration(1. / _control_freq);
+    while (!_threadTerminate && ros::ok())
     {
         // Read is blocking until FRI has replied
-        timeRead = ros::Time::now();
-        _read(ctrl_duration);
-        elapsed_read = ros::Time::now() - timeRead;
+        if (!_read(ctrl_duration)) break;
         elapsed_time = ros::Time::now() - timePrev;
-        // TODO(William) Temp for monitoring debug
-        if (elapsed_time.toSec() > 6e-3)
-            ROS_INFO(
-                "Control period: %.3f ms Read: %.3f Write: %.3f Publish: %.3f",
-                elapsed_time.toSec() * 1e3,
-                elapsed_read.toSec() * 1e3,
-                elapsed_write.toSec() * 1e3,
-                elapsed_publish.toSec() * 1e3);
         timePrev = ros::Time::now();
-        timeWrite = ros::Time::now();
         _write(ctrl_duration);
-        elapsed_write = ros::Time::now() - timeWrite;
-        timePublish = ros::Time::now();
         _publish();
-        elapsed_publish = ros::Time::now() - timePublish;
     }
 }
 
@@ -430,27 +415,20 @@ void Iiwa::_load_params()
     else
     {
         ROS_ERROR_STREAM_ONCE_NAMED(
-            "Iiwa",
-            "Parameter not found: "
-                << _ns + "/iiwa_driver/hardware_interface/joints");
+            "Iiwa", "Parameter hardware_interface/joints not found");
     }
 }
 
-void Iiwa::_read(const ros::Duration &ctrl_duration)
+bool Iiwa::_read(const ros::Duration &ctrl_duration)
 {
     // Read data from robot (via FRI)
     kuka::fri::ESessionState fri_state;
-    ros::Duration elapsed_read;
-    ros::Time timeRead = ros::Time::now();
     {
         // Mutex is locked by FRI::read when reading. Suspend controller update when read is blocking.
         std::lock_guard<std::mutex> lock_guard(_mutRead);
-        _read_fri(fri_state);
+        if (!_read_fri(fri_state)) return false;
         _firstRead = true;
     }
-    elapsed_read = ros::Time::now() - timeRead;
-    if (elapsed_read.toSec() > 6e-3)
-        ROS_INFO("Kuka read block: %.3f ms", elapsed_read.toSec() * 1e3);
 
     switch (fri_state)
     {
@@ -468,7 +446,7 @@ void Iiwa::_read(const ros::Duration &ctrl_duration)
         default:
             _idle = true;
             _commanding = false;
-            return;
+            return true;
     }
 
     // Update ROS structures
@@ -484,6 +462,8 @@ void Iiwa::_read(const ros::Duration &ctrl_duration)
             0.2);
         _joint_effort[i] = _robot_state.getMeasuredTorque()[i];
     }
+
+    return true;
 }
 
 void Iiwa::_write(const ros::Duration &ctrl_duration)
@@ -653,13 +633,13 @@ void Iiwa::_loopUpdateControl()
     // Update controller command in thread to not delay write to kuka
     _controller_manager.reset(
         new controller_manager::ControllerManager(this, _nh));
-    _threadUCTerminate = false;
+    _threadTerminate = false;
     // Constant update rate
     ros::Rate rate(_control_freq);
 
     ros::Duration elapsed_time = rate.expectedCycleTime();
     ros::Time timeNow = ros::Time::now(), timePrev = timeNow;
-    while (!_threadUCTerminate && ros::ok())
+    while (!_threadTerminate && ros::ok())
     {
         // Control rate
         rate.sleep();
