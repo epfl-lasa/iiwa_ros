@@ -28,76 +28,93 @@
 
 // ROS headers
 #include <ros/node_handle.h>
+#include <ros/service_server.h>
+
 // ros control
 #include <controller_interface/controller.h>
 #include <hardware_interface/joint_command_interface.h>
 
 // realtime tools
 #include <realtime_tools/realtime_buffer.h>
-#include <realtime_tools/realtime_publisher.h>
 
 // msgs
+#include <iiwa_driver/AdditionalOutputs.h>
+#include <iiwa_tools/MsgEefState.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64MultiArray.h>
 
 // URDF
 #include <urdf/model.h>
 
 // Iiwa tools
+#include <iiwa_tools/UpdateWeight.h>
 #include <iiwa_tools/iiwa_tools.h>
+
+// STD
+#include <string>
+#include <vector>
 
 // RobotControllers
 #include <robot_controllers/AbstractController.hpp>
 
-namespace iiwa_control {
-    class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface> {
-    public:
-        using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
+namespace iiwa_control
+{
+class CustomEffortController : public controller_interface::Controller<hardware_interface::EffortJointInterface>
+{
+ public:
+    using ControllerPtr = Corrade::Containers::Pointer<robot_controllers::AbstractController>;
 
-        CustomEffortController();
-        ~CustomEffortController();
+    CustomEffortController();
+    ~CustomEffortController();
 
-        bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
+    bool init(hardware_interface::EffortJointInterface* hw, ros::NodeHandle& n);
 
-        void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
+    void update(const ros::Time& /*time*/, const ros::Duration& /*period*/);
 
-        std::vector<hardware_interface::JointHandle> joints_;
+    bool updateWeight(iiwa_tools::UpdateWeight::Request& request, iiwa_tools::UpdateWeight::Response& response);
 
-        realtime_tools::RealtimeBuffer<std::vector<double>> commands_buffer_;
+    std::vector<hardware_interface::JointHandle> joints_;
 
-        unsigned int n_joints_;
+    realtime_tools::RealtimeBuffer<std::vector<double>> commands_buffer_;
 
-        std::vector<std::string> joint_names_;
+    unsigned int n_joints_;
 
-    protected:
-        ros::Subscriber sub_command_;
+    std::vector<std::string> joint_names_;
 
-        // Controller
-        ControllerPtr controller_;
-        // Plugin controller manager
-        Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
+ protected:
+    ros::Subscriber sub_command_;
 
-        // Controller's settings
-        unsigned int space_dim_;
-        unsigned int cmd_dim_;
-        bool has_orientation_, null_space_control_;
-        std::string operation_space_, gravity_comp_;
+    // Controller
+    ControllerPtr controller_;
+    // Plugin controller manager
+    Corrade::PluginManager::Manager<robot_controllers::AbstractController> manager_;
 
-        // Iiwa tools
-        iiwa_tools::IiwaTools tools_;
+    // Controller's settings
+    unsigned int space_dim_;
+    unsigned int cmd_dim_;
+    bool has_orientation_, null_space_control_;
+    std::string operation_space_, gravity_comp_;
 
-        // URDF
-        std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
+    // WeightedSumController
+    std::vector<std::string> ctrl_names_;
+    ros::ServiceServer server_update_weight_;
 
-        // Null-space control
-        Eigen::VectorXd null_space_joint_config_;
-        double null_space_Kp_, null_space_Kd_, null_space_max_torque_;
+    // Iiwa tools
+    iiwa_tools::IiwaTools tools_;
 
-        // Command callback
-        void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
+    // URDF
+    std::vector<urdf::JointConstSharedPtr> joint_urdfs_;
 
-        // Enforce effort limits
-        void enforceJointLimits(double& command, unsigned int index);
-    };
-} // namespace iiwa_control
+    // Null-space control
+    Eigen::VectorXd null_space_joint_config_;
+    double null_space_Kp_, null_space_Kd_, null_space_max_torque_;
+
+    // Command callback
+    void commandCB(const std_msgs::Float64MultiArrayConstPtr& msg);
+
+    // Enforce effort limits
+    void enforceJointLimits(double& command, unsigned int index);
+};
+}  // namespace iiwa_control
 
 #endif

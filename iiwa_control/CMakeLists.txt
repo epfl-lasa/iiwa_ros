@@ -38,11 +38,13 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
+  eigen_conversions
   hardware_interface
   controller_manager
   controller_interface
   urdf
-  iiwa_tools)
+  iiwa_tools
+  iiwa_driver)
 
 ## Find control_stack
 find_package(RobotControllers REQUIRED COMPONENTS
@@ -58,7 +60,7 @@ find_package(Corrade REQUIRED Utility PluginManager)
 
 ##Needed for ros packages
 catkin_package(
-  CATKIN_DEPENDS roscpp std_msgs hardware_interface controller_interface controller_manager urdf iiwa_tools
+  CATKIN_DEPENDS roscpp std_msgs eigen_conversions hardware_interface controller_interface controller_manager urdf iiwa_tools
   DEPENDS RobotControllers
   LIBRARIES CustomEffortController
 )

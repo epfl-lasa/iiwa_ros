@@ -51,108 +51,138 @@
 #include <kuka/fri/LBRState.h>
 #include <kuka/fri/UdpConnection.h>
 
-namespace controller_manager {
-    class ControllerManager;
+// STD headers
+#include <mutex>
+#include <string>
+
+namespace controller_manager
+{
+class ControllerManager;
 }
 
-namespace kuka {
-    namespace fri {
-        class ClientData;
+namespace kuka
+{
+namespace fri
+{
+class ClientData;
 
-        class DummyState : public LBRState {
-        public:
-            FRIMonitoringMessage* message() { return _message; }
-            void set_message(FRIMonitoringMessage* msg) { _message = msg; }
-            int monitoring_message_id() { return LBRMONITORMESSAGEID; }
-        };
+class DummyState : public LBRState
+{
+ public:
+    FRIMonitoringMessage* message() { return _message; }
+    void set_message(FRIMonitoringMessage* msg) { _message = msg; }
+    int monitoring_message_id() { return LBRMONITORMESSAGEID; }
+};
 
-        class DummyCommand : public LBRCommand {
-        public:
-            FRICommandMessage* message() { return _message; }
-            void set_message(FRICommandMessage* msg) { _message = msg; }
-            int command_message_id() { return LBRCOMMANDMESSAGEID; }
-        };
-    } // namespace fri
-} // namespace kuka
+class DummyCommand : public LBRCommand
+{
+ public:
+    FRICommandMessage* message() { return _message; }
+    void set_message(FRICommandMessage* msg) { _message = msg; }
+    int command_message_id() { return LBRCOMMANDMESSAGEID; }
+};
+}  // namespace fri
+}  // namespace kuka
 
-namespace iiwa_ros {
-    class Iiwa : public hardware_interface::RobotHW {
-    public:
-        Iiwa(ros::NodeHandle& nh);
-        ~Iiwa();
+namespace iiwa_ros
+{
+class Iiwa : public hardware_interface::RobotHW
+{
+ public:
+    Iiwa(ros::NodeHandle& nh);
+    ~Iiwa();
 
-        void init(ros::NodeHandle& nh);
-        void run();
-        bool initialized();
+    void init(ros::NodeHandle& nh);
+    void run();
+    bool initialized();
 
-    protected:
-        void _init();
-        void _ctrl_loop();
-        void _load_params();
-        void _read(const ros::Duration& ctrl_duration);
-        void _write(const ros::Duration& ctrl_duration);
-        bool _init_fri();
-        bool _connect_fri();
-        void _disconnect_fri();
-        bool _read_fri(kuka::fri::ESessionState& current_state);
-        bool _write_fri();
-        void _publish();
-        void _on_fri_state_change(kuka::fri::ESessionState old_state, kuka::fri::ESessionState current_state) {}
+ protected:
+    void _init();
+    void _ctrl_loop();
+    void _load_params();
+    bool _read(const ros::Duration& ctrl_duration);
+    void _write(const ros::Duration& ctrl_duration);
+    bool _init_fri();
+    bool _connect_fri();
+    void _disconnect_fri();
+    bool _read_fri(kuka::fri::ESessionState& current_state);
+    bool _write_fri();
+    void _publish();
+    void _on_fri_state_change(kuka::fri::ESessionState old_state,
+                              kuka::fri::ESessionState current_state)
+    {
+    }
+    void _loopUpdateControl();
 
-        // External torque and commanding status publishers
-        realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs> _additional_pub;
-        realtime_tools::RealtimePublisher<iiwa_driver::FRIState> _fri_state_pub;
-        realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
+    // External torque and commanding status publishers
+    realtime_tools::RealtimePublisher<iiwa_driver::AdditionalOutputs>
+        _additional_pub;
+    realtime_tools::RealtimePublisher<iiwa_driver::FRIState> _fri_state_pub;
+    realtime_tools::RealtimePublisher<std_msgs::Bool> _commanding_status_pub;
 
-        // Interfaces
-        hardware_interface::JointStateInterface _joint_state_interface;
-        hardware_interface::PositionJointInterface _position_joint_interface;
-        hardware_interface::VelocityJointInterface _velocity_joint_interface;
-        hardware_interface::EffortJointInterface _effort_joint_interface;
+    // Interfaces
+    hardware_interface::JointStateInterface _joint_state_interface;
+    hardware_interface::PositionJointInterface _position_joint_interface;
+    hardware_interface::VelocityJointInterface _velocity_joint_interface;
+    hardware_interface::EffortJointInterface _effort_joint_interface;
 
-        joint_limits_interface::EffortJointSaturationInterface _effort_joint_saturation_interface;
-        joint_limits_interface::EffortJointSoftLimitsInterface _effort_joint_limits_interface;
-        joint_limits_interface::PositionJointSaturationInterface _position_joint_saturation_interface;
-        joint_limits_interface::PositionJointSoftLimitsInterface _position_joint_limits_interface;
-        joint_limits_interface::VelocityJointSaturationInterface _velocity_joint_saturation_interface;
-        joint_limits_interface::VelocityJointSoftLimitsInterface _velocity_joint_limits_interface;
+    joint_limits_interface::EffortJointSaturationInterface
+        _effort_joint_saturation_interface;
+    joint_limits_interface::EffortJointSoftLimitsInterface
+        _effort_joint_limits_interface;
+    joint_limits_interface::PositionJointSaturationInterface
+        _position_joint_saturation_interface;
+    joint_limits_interface::PositionJointSoftLimitsInterface
+        _position_joint_limits_interface;
+    joint_limits_interface::VelocityJointSaturationInterface
+        _velocity_joint_saturation_interface;
+    joint_limits_interface::VelocityJointSoftLimitsInterface
+        _velocity_joint_limits_interface;
 
-        // Shared memory
-        size_t _num_joints;
-        int _joint_mode; // position, velocity, or effort
-        std::vector<std::string> _joint_names;
-        std::vector<int> _joint_types;
-        std::vector<double> _joint_position, _joint_position_prev;
-        std::vector<double> _joint_velocity;
-        std::vector<double> _joint_effort;
-        std::vector<double> _joint_position_command;
-        std::vector<double> _joint_velocity_command;
-        std::vector<double> _joint_effort_command;
+    // Shared memory
+    size_t _num_joints;
+    int _joint_mode;  // position, velocity, or effort
+    std::vector<std::string> _joint_names;
+    std::vector<int> _joint_types;
+    std::vector<double> _joint_position, _joint_position_prev;
+    std::vector<double> _joint_velocity;
+    std::vector<double> _joint_effort;
+    std::vector<double> _joint_position_command;
+    std::vector<double> _joint_velocity_command;
+    std::vector<double> _joint_effort_command;
+    std::vector<double> _kuka_position_command;
+    std::vector<double> _kuka_effort_command;
 
-        // Controller manager
-        std::shared_ptr<controller_manager::ControllerManager> _controller_manager;
+    // Controller manager
+    std::thread _threadUpdateControl;
+    bool _threadTerminate;
+    bool _firstRead;
+    std::mutex _mutRead, _mutCommand;
+    std::shared_ptr<controller_manager::ControllerManager> _controller_manager;
 
-        // FRI Connection
-        kuka::fri::UdpConnection _fri_connection;
-        kuka::fri::ClientData* _fri_message_data;
-        kuka::fri::DummyState _robot_state; //!< wrapper class for the FRI monitoring message
-        kuka::fri::DummyCommand _robot_command; //!< wrapper class for the FRI command message
-        int _message_size;
-        bool _idle, _commanding;
+    // FRI Connection
+    kuka::fri::UdpConnection _fri_connection;
+    kuka::fri::ClientData* _fri_message_data;
+    kuka::fri::DummyState
+        _robot_state;  //!< wrapper class for the FRI monitoring message
+    kuka::fri::DummyCommand
+        _robot_command;  //!< wrapper class for the FRI command message
+    int _message_size;
+    bool _idle, _commanding;
 
-        int _port;
-        std::string _remote_host;
+    int _port;
+    std::string _remote_host;
 
-        // ROS communication/timing related
-        ros::NodeHandle _nh;
-        std::string _ns;
-        std::string _robot_description;
-        ros::Duration _control_period;
-        double _control_freq;
-        bool _initialized;
-        bool _publish_additional_info{false};
-        bool _publish_commanding_status{false};
-    };
-} // namespace iiwa_ros
+    // ROS communication/timing related
+    ros::NodeHandle _nh;
+    std::string _ns;
+    std::string _robot_description;
+    ros::Duration _control_period;
+    double _control_freq;
+    bool _initialized;
+    bool _publish_additional_info{false};
+    bool _publish_commanding_status{false};
+};
+}  // namespace iiwa_ros
 
 #endif

@@ -26,13 +26,25 @@
 
 |-->
 <launch>
+    <!-- Select the robot -->
+    <arg name="model" default="7" />
 
-    <!-- This lauch file just loads the URDF with the given hardware interface and robot name into the ROS Parameter Server -->
-    <arg name="hardware_interface" default="EffortJointInterface"/>
+    <!-- Select the controller -->
+    <arg name="controller" default="TorqueController"/>
 
-    <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
-    <arg name="force_sensor" default="False"/>
-    <arg name="grabber" default="False"/>
+    <!-- Setup iiwa -->
+    <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
+        <arg name="model" value="$(arg model)"/>
+        <arg name="controller" value="$(arg controller)"/>
+    </include>
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find iiwa_description)/urdf/iiwa14.urdf.xacro' hardware_interface:=$(arg hardware_interface) force_sensor:=$(arg force_sensor) grabber:=$(arg grabber)"/>
+    <!-- Spawn iiwa FRI driver -->
+    <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen"/>
+
+    <!-- Publish the end effector state -->
+    <node name="iiwa_eef_node" pkg="iiwa_tools" type="iiwa_eef_node" output="screen"/>
+
+    <!-- convert joint states to TF transforms for rviz, etc -->
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+
 </launch>

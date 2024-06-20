@@ -27,7 +27,6 @@
 |-->
 <launch>
     <!-- Select the robot -->
-    <arg name="robot_name" default="iiwa"/>
     <arg name="model" default="14" />
 
     <!-- Select the controller -->
@@ -48,13 +47,10 @@
     <!-- Upload iiwa URDF -->
     <include file="$(find iiwa_description)/launch/iiwa$(arg model)_upload.launch">
         <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-        <arg name="robot_name" value="$(arg robot_name)"/>
         <arg name="force_sensor" value="$(arg force_sensor)"/>
         <arg name="grabber" value="$(arg grabber)"/>
     </include>
 
     <!-- Spawn iiwa service -->
-    <include file="$(find iiwa_tools)/launch/iiwa_service.launch">
-        <arg name="robot_name" value="$(arg robot_name)"/>
-    </include>
+    <include file="$(find iiwa_tools)/launch/iiwa_service.launch"/>
 </launch>

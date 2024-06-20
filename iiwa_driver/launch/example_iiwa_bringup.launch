@@ -26,13 +26,22 @@
 
 |-->
 <launch>
+    <!-- Select the robot -->
+    <arg name="model" default="7" />
 
-    <!-- This lauch file just loads the URDF with the given hardware interface and robot name into the ROS Parameter Server -->
-    <arg name="hardware_interface" default="EffortJointInterface"/>
+    <!-- Select the controller -->
+    <arg name="controller" default="TorqueController"/>
 
-    <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
-    <arg name="force_sensor" default="False"/>
-    <arg name="grabber" default="False"/>
+    <!-- Configure the cobots connection-->
+    <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" ns="iiwa_driver" command="load" subst_value="True"/>
 
-    <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find iiwa_description)/urdf/iiwa14.urdf.xacro' hardware_interface:=$(arg hardware_interface) force_sensor:=$(arg force_sensor) grabber:=$(arg grabber)"/>
+    <!-- Configure the controllers -->
+    <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
+    <!-- Bringup the IIWA -->
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+        <arg name="model" value="$(arg model)"/>
+        <arg name="controller" value="$(arg controller)"/>
+    </include>
+
 </launch>

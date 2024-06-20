@@ -1,0 +1,3 @@
+std_msgs/String controller_name
+std_msgs/Float32 weight
+---
