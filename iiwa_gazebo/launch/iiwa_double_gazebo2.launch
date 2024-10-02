@@ -29,7 +29,7 @@
     <arg name="gui" default="true"/>
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
-    <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+    <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/>
 
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
@@ -43,8 +43,10 @@
     <arg name="iiwa_model_2" default="7"/>
 
     <!-- Select the position of the robot -->
-    <arg name="position_1" default="-y -0.65"/>
-    <arg name="position_2" default="-y 0.65"/>
+    <arg name="position_1" default="-y -0.53"/>
+    <arg name="position_2" default="-y 0.53"/>
+    <!-- <arg name="position_1" default="-y -0.65"/>
+    <arg name="position_2" default="-y 0.65"/> -->
 
     <arg name="position_base_1" default="0.15"/>
     <arg name="position_base_2" default="-0.15"/>
@@ -87,7 +89,7 @@
 
     <!-- Loads the Gazebo world -->
     <include file="$(find gazebo_ros)/launch/empty_world.launch">
-        <arg name="world_name" value="$(arg world_name)"/> 
+        <arg name="world_name" value="$(arg world_name)"/>
         <arg name="debug" value="$(arg debug)" />
         <arg name="gui" value="$(arg gui)" />
         <arg name="paused" value="$(arg paused)"/>

@@ -79,7 +79,7 @@
       <inertial>
         <origin xyz="-0.1 0 0.07" rpy="0 0 0"/>
         <mass value="5"/>
-        <inertia ixx="0.05"  ixy="0"  ixz="0" iyy="0.06" iyz="0" izz="0.03" />
+        <inertia ixx="0.05" ixy="0" ixz="0" iyy="0.06" iyz="0" izz="0.03" />
       </inertial>
 
       <visual>
@@ -113,13 +113,8 @@
       <child link="${robot_name}_link_1"/>
       <origin xyz="0 0 0.15" rpy="0 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_1 * PI / 180}" upper="${joint_limit_1 * PI / 180}"
-             effort="${max_effort_1}" velocity="${max_velocity_1}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_1 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_1 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_1 * PI / 180}" upper="${joint_limit_1 * PI / 180}" effort="${max_effort_1}" velocity="${max_velocity_1}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_1 * PI / 180}" upper="${safety_percentage * joint_limit_1 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -127,7 +122,7 @@
       <inertial>
         <origin xyz="0 -0.03 0.12" rpy="0 0 0"/>
         <mass value="3.4525"/>
-        <inertia ixx="0.02183"  ixy="0"  ixz="0" iyy="0.007703" iyz="-0.003887" izz="0.02083" />
+        <inertia ixx="0.02183" ixy="0" ixz="0" iyy="0.007703" iyz="-0.003887" izz="0.02083" />
       </inertial>
       <visual>
         <origin xyz="0 0 0.0075" rpy="0 0 0"/>
@@ -150,13 +145,8 @@
       <child link="${robot_name}_link_2"/>
       <origin xyz="0 0 0.19" rpy="${PI / 2}   0 ${PI}"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_2 * PI / 180}" upper="${joint_limit_2 * PI / 180}"
-             effort="${max_effort_2}" velocity="${max_velocity_2}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_2 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_2 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_2 * PI / 180}" upper="${joint_limit_2 * PI / 180}" effort="${max_effort_2}" velocity="${max_velocity_2}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_2 * PI / 180}" upper="${safety_percentage * joint_limit_2 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -164,7 +154,7 @@
       <inertial>
         <origin xyz="0.0003 0.059 0.042" rpy="0 0 0"/>
         <mass value="3.4821"/>
-        <inertia ixx="0.02076"  ixy="0"  ixz="-0.003626" iyy="0.02179" iyz="0" izz="0.00779" />
+        <inertia ixx="0.02076" ixy="0" ixz="-0.003626" iyy="0.02179" iyz="0" izz="0.00779" />
       </inertial>
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -188,13 +178,8 @@
       <child link="${robot_name}_link_3"/>
       <origin xyz="0 0.21 0" rpy="${PI / 2} 0 ${PI}"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_3 * PI / 180}" upper="${joint_limit_3 * PI / 180}"
-             effort="${max_effort_3}" velocity="${max_velocity_3}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_3 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_3 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_3 * PI / 180}" upper="${joint_limit_3 * PI / 180}" effort="${max_effort_3}" velocity="${max_velocity_3}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_3 * PI / 180}" upper="${safety_percentage * joint_limit_3 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -202,7 +187,7 @@
       <inertial>
         <origin xyz="0 0.03 0.13" rpy="0 0 0"/>
         <mass value="4.05623"/>
-        <inertia ixx="0.03204"  ixy="0"  ixz="0" iyy="0.00972" iyz="0.006227" izz="0.03042" />
+        <inertia ixx="0.03204" ixy="0" ixz="0" iyy="0.00972" iyz="0.006227" izz="0.03042" />
       </inertial>
 
       <visual>
@@ -228,13 +213,8 @@
       <child link="${robot_name}_link_4"/>
       <origin xyz="0 0 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_4 * PI / 180}" upper="${joint_limit_4 * PI / 180}"
-             effort="${max_effort_4}" velocity="${max_velocity_4}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_4 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_4 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_4 * PI / 180}" upper="${joint_limit_4 * PI / 180}" effort="${max_effort_4}" velocity="${max_velocity_4}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_4 * PI / 180}" upper="${safety_percentage * joint_limit_4 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -242,7 +222,7 @@
       <inertial>
         <origin xyz="0 0.067 0.034" rpy="0 0 0"/>
         <mass value="3.4822"/>
-        <inertia ixx="0.02178"  ixy="0"  ixz="0" iyy="0.02075" iyz="-0.003625" izz="0.007785" />
+        <inertia ixx="0.02178" ixy="0" ixz="0" iyy="0.02075" iyz="-0.003625" izz="0.007785" />
       </inertial>
 
       <visual>
@@ -267,13 +247,8 @@
       <child link="${robot_name}_link_5"/>
       <origin xyz="0 0.21 0" rpy="${-PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_5 * PI / 180}" upper="${joint_limit_5 * PI / 180}"
-             effort="${max_effort_5}" velocity="${max_velocity_5}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_5 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_5 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_5 * PI / 180}" upper="${joint_limit_5 * PI / 180}" effort="${max_effort_5}" velocity="${max_velocity_5}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_5 * PI / 180}" upper="${safety_percentage * joint_limit_5 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -281,7 +256,7 @@
       <inertial>
         <origin xyz="0.0001 0.021 0.076" rpy="0 0 0"/>
         <mass value="2.1633"/>
-        <inertia ixx="0.01287"  ixy="0"  ixz="0" iyy="0.005708" iyz="-0.003946" izz="0.01112" />
+        <inertia ixx="0.01287" ixy="0" ixz="0" iyy="0.005708" iyz="-0.003946" izz="0.01112" />
       </inertial>
 
       <visual>
@@ -306,13 +281,8 @@
       <child link="${robot_name}_link_6"/>
       <origin xyz="0 0.06070 0.19" rpy="${PI / 2} 0 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_6 * PI / 180}" upper="${joint_limit_6 * PI / 180}"
-             effort="${max_effort_6}" velocity="${max_velocity_6}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_6 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_6 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_6 * PI / 180}" upper="${joint_limit_6 * PI / 180}" effort="${max_effort_6}" velocity="${max_velocity_6}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_6 * PI / 180}" upper="${safety_percentage * joint_limit_6 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -320,7 +290,7 @@
       <inertial>
         <origin xyz="0 0.0006 0.0004" rpy="0 0 0"/>
         <mass value="2.3466"/>
-        <inertia ixx="0.006509"  ixy="0"  ixz="0" iyy="0.006259" iyz="0.00031891" izz="0.004527" />
+        <inertia ixx="0.006509" ixy="0" ixz="0" iyy="0.006259" iyz="0.00031891" izz="0.004527" />
       </inertial>
 
       <visual>
@@ -345,13 +315,8 @@
       <child link="${robot_name}_link_7"/>
       <origin xyz="0 0.081 0.06070" rpy="${- PI / 2} ${PI} 0"/>
       <axis xyz="0 0 1"/>
-      <limit lower="${-joint_limit_7 * PI / 180}" upper="${joint_limit_7 * PI / 180}"
-             effort="${max_effort_7}" velocity="${max_velocity_7}" />
-      <xacro:safe_controller safety="${safety}"
-                               lower="${-safety_percentage * joint_limit_7 * PI / 180}"
-                               upper="${safety_percentage * joint_limit_7 * PI / 180}"
-                               k_p="${safety_controller_k_pos}"
-                               k_v="${safety_controller_k_vel}"/>
+      <limit lower="${-joint_limit_7 * PI / 180}" upper="${joint_limit_7 * PI / 180}" effort="${max_effort_7}" velocity="${max_velocity_7}" />
+      <xacro:safe_controller safety="${safety}" lower="${-safety_percentage * joint_limit_7 * PI / 180}" upper="${safety_percentage * joint_limit_7 * PI / 180}" k_p="${safety_controller_k_pos}" k_v="${safety_controller_k_vel}"/>
       <dynamics damping="${joint_damping}"/>
     </joint>
 
@@ -359,7 +324,7 @@
       <inertial>
         <origin xyz="0 0 0.02" rpy="0 0 0"/>
         <mass value="3.129"/>
-        <inertia ixx="0.01464"  ixy="0.0005912"  ixz="0" iyy="0.01465" iyz="0" izz="0.002872" />
+        <inertia ixx="0.01464" ixy="0.0005912" ixz="0" iyy="0.01465" iyz="0" izz="0.002872" />
       </inertial>
 
       <visual>
@@ -382,18 +347,20 @@
     <joint name="${robot_name}_joint_ee" type="fixed">
       <parent link="${robot_name}_link_7"/>
       <child link="${robot_name}_link_ee"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <!-- <origin xyz="0 0 0" rpy="0 0 0"/> -->
+      <!-- <origin xyz="0 0 0.15" rpy="0 0 0"/> -->
+      <origin xyz="0 0 0.18" rpy="0 0 0"/>
     </joint>
 
     <link name="${robot_name}_link_ee">
       <inertial>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <mass value="1e-6"/>
-        <inertia ixx="1"  ixy="0"  ixz="0" iyy="1" iyz="0" izz="1" />
+        <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1" />
       </inertial>
     </link>
 
-    <xacro:if value="${force_sensor == True}"> 
+    <xacro:if value="${force_sensor == True}">
       <xacro:force_torque_sensor robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" topic_name="${robot_name}_FTS_topic" size_parent_link="0 0 0.045">
       </xacro:force_torque_sensor>
       <xacro:if value="${grabber == True}">
@@ -401,7 +368,7 @@
         </xacro:grabber>
       </xacro:if>
     </xacro:if>
-    <xacro:if value="${force_sensor == False}"> 
+    <xacro:if value="${force_sensor == False}">
       <xacro:if value="${grabber == True}">
         <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" size_parent_link="0 0 0.045">
         </xacro:grabber>
