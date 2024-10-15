@@ -14,6 +14,8 @@ TorqueController:
     - joint_5
     - joint_6
     - joint_7
+  params:
+    end_effector: link_ee
 
 PositionTorqueController:
   type: effort_controllers/JointGroupPositionController

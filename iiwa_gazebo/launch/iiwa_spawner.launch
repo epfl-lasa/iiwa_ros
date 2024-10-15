@@ -39,6 +39,8 @@
     <!-- Run a python script to send a service call to gazebo_ros to spawn a URDF robot -->
     <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen" args="-urdf -model $(arg model_name) -param robot_description $(arg position)"/>
 
+    <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
+
     <!-- load the controllers -->
     <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="$(arg controller) joint_state_controller"/>
 

@@ -46,11 +46,15 @@
   <!-- collision shapes -->
   <xacro:if value="$(arg simple_collision)">
     <xacro:arg name="collision_postfix" default="_s"/>
-    <!-- TO-DO: Create simple collision shapes for iiwa 7 -->
+    <!-- TO-Diiwa_control/config/iiwa_control.yamlO: Create simple collision shapes for iiwa 7 -->
   </xacro:if>
   <xacro:unless value="$(arg simple_collision)">
     <xacro:arg name="collision_postfix" default=""/>
   </xacro:unless>
+
+  <!-- Fix to world just for testing -->
+  <link name="world"/>
+
 
   <!--iiwa-->
   <xacro:iiwa7 hardware_interface="$(arg hardware_interface)" force_sensor="$(arg force_sensor)" grabber="$(arg grabber)" parent="world" collision_postfix="$(arg collision_postfix)">
