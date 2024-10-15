@@ -28,26 +28,36 @@
 <launch>
     <!-- Select the robot -->
     <arg name="model" default="14" />
+    <arg name="robot_name" default="iiwa2"/>
 
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
 
-    <!-- Setup iiwa -->
-    <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
-        <arg name="model" value="$(arg model)"/>
-        <arg name="controller" value="$(arg controller)"/>
-    </include>
+  <!-- <group ns="$(arg robot_name)">
+    <param name="tf_prefix" value="$(arg robot_name)" /> -->
 
-    <!-- Spawn iiwa FRI driver -->
-    <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen"/>
+        <!-- Setup iiwa -->
+        <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
+            <arg name="model" value="$(arg model)"/>
+            <arg name="controller" value="$(arg controller)"/>
+        </include>
 
-    <!-- load the controllers -->
-    <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="$(arg controller) joint_state_controller"/>
+        <!-- Spawn iiwa FRI driver -->
+        <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
+            <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
+        </node>
 
-    <!-- Publish the end effector state -->
-    <node name="iiwa_eef_node" pkg="iiwa_tools" type="iiwa_eef_node" output="screen"/>
+        <!-- Load joint controller configurations from YAML file to parameter server -->
+        <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
 
-    <!-- convert joint states to TF transforms for rviz, etc -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+        <!-- load the controllers -->
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/$(arg robot_name)" args="$(arg controller) joint_state_controller"/>
 
+        <!-- Publish the end effector state -->
+        <node name="iiwa_eef_node" pkg="iiwa_tools" type="iiwa_eef_node" output="screen"/>
+
+        <!-- convert joint states to TF transforms for rviz, etc -->
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="false" output="screen"/>
+
+    <!-- </group> -->
 </launch>

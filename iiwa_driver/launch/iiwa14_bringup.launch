@@ -30,10 +30,15 @@
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
+  <arg name="robot_name" default="iiwa2"/>
 
-  <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
-    <arg name="model" value="$(arg model_2)"/>
-    <arg name="controller" value="$(arg controller)"/>
-  </include>
+  <group ns="$(arg robot_name)">
+    <param name="tf_prefix" value="$(arg robot_name)" />
+
+    <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
+      <arg name="model" value="$(arg model_2)"/>
+      <arg name="controller" value="$(arg controller)"/>
+    </include>
+  </group>
 
 </launch>
