@@ -28,11 +28,13 @@
 <launch>
 
   <arg name="hardware_interface" default="PositionJointInterface"/>
-  <arg name="model" default="iiwa14"/>
+  <arg name="robot_name" default="iiwa1"/>
+  <arg name="model" default="iiwa7"/>
 
   <include file="$(find iiwa_moveit)/launch/planning_context.launch">
     <arg name="load_robot_description" value="true"/>
     <arg name="hardware_interface" value="$(arg hardware_interface)"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="model" value="$(arg model)"/>
   </include>
 

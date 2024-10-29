@@ -1,8 +1,8 @@
 gazebo_ros_control/pid_gains:
-  joint_1:  {p: 700,  i: 0.01, d: 100}
-  joint_2:  {p: 10000,  i: 100, d: 100}
-  joint_3: {p: 4500,  i: 35, d: 1}
-  joint_4:  {p: 5500,  i: 60, d: 2}
-  joint_5: {p: 1000,  i: 30, d: 0.01}
-  joint_6:  {p: 500,  i: 0.1, d: 0.01}
-  joint_7: {p: 100,  i: 0.1, d: 0.01}
+  ${robot_name}_joint_1:  {p: 700,  i: 0.01, d: 100}
+  ${robot_name}_joint_2:  {p: 10000,  i: 100, d: 100}
+  ${robot_name}_joint_3: {p: 4500,  i: 35, d: 1}
+  ${robot_name}_joint_4:  {p: 5500,  i: 60, d: 2}
+  ${robot_name}_joint_5: {p: 1000,  i: 30, d: 0.01}
+  ${robot_name}_joint_6:  {p: 500,  i: 0.1, d: 0.01}
+  ${robot_name}_joint_7: {p: 100,  i: 0.1, d: 0.01}

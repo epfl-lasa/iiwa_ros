@@ -6,13 +6,13 @@ fri:
 hardware_interface:
   control_freq: 200 # in Hz
   joints:
-    - joint_1
-    - joint_2
-    - joint_3
-    - joint_4
-    - joint_5
-    - joint_6
-    - joint_7
+    - ${robot_name}_joint_1
+    - ${robot_name}_joint_2
+    - ${robot_name}_joint_3
+    - ${robot_name}_joint_4
+    - ${robot_name}_joint_5
+    - ${robot_name}_joint_6
+    - ${robot_name}_joint_7
 
 publish:
   additional_info: true
