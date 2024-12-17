@@ -10,13 +10,13 @@
 |-->
 <launch>
     <!-- Select the robot -->
-    <arg name="robot_name" default="iiwa2"/>
+    <arg name="robot_name" default="iiwa1"/>
 
     <!-- Select the model of the iiwa -->
-    <arg name="iiwa_model" default="14"/>
+    <arg name="iiwa_model" default="7"/>
 
     <!-- Select the name of the gazebo model -->
-    <arg name="model_name" default="iiwa"/>
+    <arg name="model_name" default="$(arg robot_name)"/>
 
     <!-- Select the controller -->
     <!-- ex: <arg name="controller" default="TorqueController"/> -->
@@ -30,8 +30,9 @@
     <arg name="force_sensor" default="False"/>
     <arg name="grabber" default="False"/>
 
-    <!-- Setup iiwa -->
     <group ns="/$(arg robot_name)">
+
+        <!-- Setup iiwa -->
         <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
             <arg name="robot_name" value="$(arg robot_name)"/>
             <arg name="model" value="$(arg iiwa_model)"/>

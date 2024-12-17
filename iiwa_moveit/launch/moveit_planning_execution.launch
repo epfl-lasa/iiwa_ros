@@ -37,8 +37,15 @@
     <!-- The is gonna have its nodes/topics under a namespace with the same name. -->
     <arg name="robot_name" default="iiwa"/>
     <!-- Model of the iiwa to use : iiwa7, iiwa14 -->
-    <arg name="model" default="iiwa14"/>
+    <arg name="model" default="iiwa7"/>
     <arg name="rviz" default="true" />
+    <!-- The is gonna have its nodes/topics under a namespace with the same name. -->
+    <arg name="robot_name" default="iiwa1"/>
+
+    <remap from="/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory"
+           to="/$(arg robot_name)/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" />
+    <remap from="robot_description" to="/$(arg robot_name)/robot_description" />
+    <remap from="/get_planning_scene" to="/$(arg robot_name)/get_planning_scene" />
 
     <remap from="/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory"
            to="/$(arg robot_name)/$(arg hardware_interface)_trajectory_controller/follow_joint_trajectory" />
@@ -62,7 +69,7 @@
         <!-- Load controllers accordingly to parameters -->
         <include file="$(find iiwa_control)/launch/iiwa_control.launch">
             <arg name="hardware_interface" value="$(arg hardware_interface)" />
-            <arg name="controllers" value="joint_state_controller $(arg hardware_interface)_trajectory_controller" />
+            <arg name="controllers" value="joint_state_controller $(arg hardware_interface)_trajectory_controller"/>
             <arg name="robot_name" value="$(arg robot_name)" />
             <arg name="model" value="$(arg model)" />
         </include>
@@ -73,7 +80,7 @@
         <include file="$(find iiwa_moveit)/launch/move_group.launch">
             <arg name="publish_monitored_planning_scene" value="true" />
             <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-            <arg name="robot_name" value="$(arg robot_name)"/>
+            <arg name="robot_name" value="$(arg robot_name)" />
             <arg name="model" value="$(arg model)" />
         </include>
 

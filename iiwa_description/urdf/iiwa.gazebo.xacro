@@ -95,6 +95,7 @@
       <mu2>0.2</mu2>
     </gazebo>
     
+
     <gazebo reference="${robot_name}_link_ee">
       <mu1>0.2</mu1>
       <mu2>0.2</mu2>

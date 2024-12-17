@@ -38,9 +38,9 @@
     <!-- hardware_interface to use : PositionJointInterface, EffortJointInterface, VelocityJointInterface. -->
     <arg name="hardware_interface" default="PositionJointInterface"/>
     <!-- name of the iiwa to use, useful in case of multiple robots. Every robot is gonna have its nodees/topics under a namespace with the same name. -->
-    <arg name="robot_name" default="iiwa"/>
+    <arg name="robot_name" default="iiwa1"/>
     <!-- Model of the iiwa to use : iiwa7, iiwa14 -->
-    <arg name="model" default="iiwa14"/>
+    <arg name="model" default="iiwa7"/>
 
     <!-- By default, we are not in debug mode -->
     <arg name="debug" default="false" />
@@ -61,8 +61,8 @@
             <arg name="publish_monitored_planning_scene" value="false" />
             <arg name="fake_execution" value="false"/>
             <arg name="hardware_interface" value="$(arg hardware_interface)"/>
-            <arg name="robot_name" value="$(arg robot_name)"/>
             <arg name="model" value="$(arg model)" />
+            <arg name="robot_name" value="$(arg robot_name)"/>
         </include>
 
         <!-- Run Rviz and load the default config to see the state of the move_group node -->

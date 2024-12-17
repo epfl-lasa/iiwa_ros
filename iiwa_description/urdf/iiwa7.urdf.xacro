@@ -36,7 +36,7 @@
   <xacro:include filename="$(find force_sensor)/urdf/grabber.xacro"/>
 
   <xacro:arg name="hardware_interface" default="PositionJointInterface"/>
-  <xacro:arg name="robot_name" default="iiwa"/>
+  <xacro:arg name="robot_name" default="iiwa1"/>
   <xacro:arg name="force_sensor" default="False"/>
   <xacro:arg name="grabber" default="False"/>
   <xacro:arg name="origin_xyz" default="0 0 0"/>

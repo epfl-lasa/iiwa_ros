@@ -402,7 +402,7 @@
       </inertial>
     </link>
 
-    <xacro:if value="${force_sensor == True}"> 
+    <xacro:if value="${force_sensor == True}">
       <xacro:force_torque_sensor robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" topic_name="${robot_name}_FTS_topic" size_parent_link="0 0 0.045">
       </xacro:force_torque_sensor>
       <xacro:if value="${grabber == True}">
@@ -418,7 +418,7 @@
     </xacro:if>
 
     <!--Extensions -->
-    <xacro:iiwa_gazebo robot_name="${robot_name}" />
+    <xacro:iiwa_gazebo robot_name="${robot_name}"/>
     <xacro:iiwa_transmission hardware_interface="${hardware_interface}"/>
 
   </xacro:macro>

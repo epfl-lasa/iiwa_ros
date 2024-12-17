@@ -38,16 +38,16 @@
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
 
-    <arg name="robot_name_1" default="iiwa2"/>
+    <arg name="robot_name_1" default="iiwa1"/>
     <!-- Select the model of the iiwa -->
-    <arg name="iiwa_model_1" default="14"/>
+    <arg name="iiwa_model_1" default="7"/>
 
     <!-- Select the position of the robot -->
     <arg name="position_1" default=""/>
 
     <!-- Select the booleans grabber and force sensor (True or False) if we want them mounted on the robot -->
-    <arg name="force_sensor_1" default="True"/>
-    <arg name="grabber_1" default="True"/>
+    <arg name="force_sensor_1" default="False"/>
+    <arg name="grabber_1" default="False"/>
 
     <include file="$(find iiwa_gazebo)/launch/iiwa_spawner.launch">
         <arg name="robot_name" value="$(arg robot_name_1)"/>
@@ -57,7 +57,6 @@
         <arg name="force_sensor" value="$(arg force_sensor_1)" />
         <arg name="grabber" value="$(arg grabber_1)"/>
     </include>
-
 
     <!-- Loads the Gazebo world -->
     <include unless="$(arg gzclient)" file="$(find gazebo_ros)/launch/empty_world.launch">
