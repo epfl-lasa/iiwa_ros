@@ -85,6 +85,7 @@ if [ "${MODE}" != "connect" ]; then
 
     # Other
     FWD_ARGS+=("--privileged")
+    FWD_ARGS+=(--volume="${PWD}:/home/ros/ros_ws/src/iiwa_ros:rw")
 fi
 
 # Trick aica-docker into making a server on a host network container
