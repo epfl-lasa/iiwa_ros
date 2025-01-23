@@ -81,7 +81,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://force_sensor/meshes/visual/soft_pad_silicon.STL" scale="0.001 0.001 0.001"/>
+          <mesh filename="package://force_sensor/meshes/collision/soft_pad_silicon.STL" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="White"/>
       </visual>
