@@ -405,17 +405,26 @@
     <xacro:if value="${force_sensor == True}">
       <xacro:force_torque_sensor robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" topic_name="${robot_name}_FTS_topic" size_parent_link="0 0 0.045">
       </xacro:force_torque_sensor>
-      <xacro:if value="${grabber == True}">
-        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
-        </xacro:grabber>
+      <xacro:if value="${grabber == 'plasticPad'}">
+        <xacro:plastic_pad robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
+        </xacro:plastic_pad>
+      </xacro:if>
+      <xacro:if value="${grabber == 'softPad'}">
+        <xacro:soft_pad_silicon robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
+        </xacro:soft_pad_silicon>
       </xacro:if>
     </xacro:if>
     <xacro:if value="${force_sensor == False}"> 
-      <xacro:if value="${grabber == True}">
-        <xacro:grabber robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" size_parent_link="0 0 0.045">
-        </xacro:grabber>
+      <xacro:if value="${grabber == 'plasticPad'}">
+        <xacro:plastic_pad robot_name="${robot_name}" parent_link_name="${robot_name}_link_7" size_parent_link="0 0 0.045">
+        </xacro:plastic_pad>
+      <xacro:if value="${grabber == 'softPad'}">
+        <xacro:soft_pad_silicon robot_name="${robot_name}" parent_link_name="${robot_name}_link_FTS" size_parent_link="0 0 0.0212">
+        </xacro:soft_pad_silicon>
+      </xacro:if>
       </xacro:if>
     </xacro:if>
+
 
     <!--Extensions -->
     <xacro:iiwa_gazebo robot_name="${robot_name}"/>

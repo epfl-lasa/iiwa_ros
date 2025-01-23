@@ -30,6 +30,7 @@
     <arg name="headless" default="false"/>
     <arg name="debug" default="false"/>
     <arg name="world_name" default="$(find iiwa_gazebo)/world/iiwa.world"/> 
+    <arg name="launch_gazebo" default="true" />
 
     <!-- Select the controller -->
     <arg name="controller" default="TorqueController"/>
@@ -48,10 +49,9 @@
 
     <!-- Select the booleans grabber and force sensor (True or False) if we want them mounted on the robot -->
     <arg name="force_sensor_1" default="False"/>
-    <arg name="grabber_1" default="False"/>
+    <arg name="grabber_1" default="plasticPad"/> <!-- Options: plasticPad , softPad, False -->
     <arg name="force_sensor_2" default="False"/>
-    <arg name="grabber_2" default="False"/>
-
+    <arg name="grabber_2" default="plasticPad"/> <!-- Options: plasticPad , softPad, False -->
 
     <include file="$(find iiwa_gazebo)/launch/iiwa_spawner.launch">
         <arg name="robot_name" value="$(arg robot_name_1)"/>
@@ -72,7 +72,7 @@
     </include>
 
     <!-- Loads the Gazebo world -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <include file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg launch_gazebo)">
         <arg name="world_name" value="$(arg world_name)"/> 
         <arg name="debug" value="$(arg debug)" />
         <arg name="gui" value="$(arg gui)" />

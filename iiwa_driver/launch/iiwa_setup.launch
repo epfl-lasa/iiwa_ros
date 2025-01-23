@@ -35,7 +35,7 @@
 
     <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
     <arg name="force_sensor" default="False"/>
-    <arg name="grabber" default="False"/>
+    <arg name="grabber" default="plasticPad"/> <!-- Options: plasticPad , softPad, False -->
 
     <!-- Select the hardware interface -->
     <arg if="$(eval controller == 'TorqueController')" name="hardware_interface" value="EffortJointInterface"/>
