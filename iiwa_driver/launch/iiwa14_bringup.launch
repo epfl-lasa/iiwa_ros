@@ -33,7 +33,7 @@
   <arg name="controller" default="TorqueController"/>
 
   <include file="$(find iiwa_driver)/launch/iiwa_bringup.launch">
-    <arg name="robot_name" value="$(arg robot_name_2)"/>
+    <arg name="robot_name" value="$(arg robot_name)"/>
     <arg name="model" value="$(arg model_2)"/>
     <arg name="controller" value="$(arg controller)"/>
   </include>

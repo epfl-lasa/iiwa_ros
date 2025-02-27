@@ -34,7 +34,7 @@
     <arg name="controller" default="TorqueController"/>
 
     <!-- Select the booleans grabber and force sensor if we want them mounted on the robot -->
-    <arg name="force_sensor" default="False"/>
+    <arg name="force_sensor" default="True"/>
     <arg name="grabber" default="plasticPad"/> <!-- Options: plasticPad , softPad, False -->
 
     <!-- Select the hardware interface -->

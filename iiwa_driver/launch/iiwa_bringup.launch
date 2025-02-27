@@ -27,18 +27,23 @@
 |-->
 <launch>
   <!-- Select the robot -->
-  <arg name="robot_name" default="iiwa"/>
+  <arg name="robot_name" default="iiwa14"/>
   <arg name="model" default="14" />
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
+<arg name="force_sensor" default="True"/>
+<arg name="grabber" default="False"/> <!-- Options: plasticPad , softPad, False -->
   
   <group ns="/$(arg robot_name)">
+
 
         <!-- Setup iiwa -->
         <include file="$(find iiwa_driver)/launch/iiwa_setup.launch">
             <arg name="robot_name" value="$(arg robot_name)"/>
             <arg name="model" value="$(arg model)"/>
+            <arg name="force_sensor" value="$(arg force_sensor)"/>
+            <arg name="grabber" value="$(arg grabber)"/>
             <!-- <arg name="namespace" value="/iiwa1"/> -->
             <arg name="controller" value="$(arg controller)"/> <!--TorqueController-->
             <!-- <arg name="origin_xyz" value="0.5 -0.35 0.4"/> -->
@@ -66,8 +71,4 @@
         </node>
     </group>
 
-<<<<<<< HEAD
-=======
-    </group>
->>>>>>> ca0a7b1e1921204cf6da7e96602ddfc75536ab76
 </launch>

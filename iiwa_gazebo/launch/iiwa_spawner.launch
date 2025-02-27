@@ -48,7 +48,7 @@
         <rosparam file="$(find iiwa_control)/config/iiwa_control.yaml" command="load" subst_value="True"/>
 
         <!-- load the controllers -->
-        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="$(arg controller) joint_state_controller"/>
+        <node name="iiwa_controller" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="$(arg controller) joint_state_controller" respawn="true" />
 
         <!-- Publish the end effector state -->
         <!-- <node name="iiwa_eef_node" pkg="iiwa_tools" type="iiwa_eef_node" output="screen"/> -->

@@ -1,6 +1,6 @@
 fri:
   port: 30200
-  robot_ip: 192.170.10.2
+  robot_ip: 192.170.10.4
   robot_description: /$(arg robot_name)/robot_description
 
 hardware_interface:

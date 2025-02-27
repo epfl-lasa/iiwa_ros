@@ -61,7 +61,7 @@
     </include>
 
     <!-- Loads the Gazebo world -->
-    <include unless="$(arg gzclient)" file="$(find gazebo_ros)/launch/empty_world.launch" if="$(arg launch_gazebo)">
+    <include file="$(find gazebo_ros)/launch/empty_world.launch">
         <arg name="world_name" value="$(arg world_name)"/>
         <arg name="debug" value="$(arg debug)" />
         <arg name="gui" value="$(arg gui)" />
