@@ -25,6 +25,9 @@ USER ${USER}
 RUN git config --global user.name "${GIT_NAME}"
 RUN git config --global user.email "${GIT_EMAIL}"
 
+# Dangerous practices but fixes the error regarding this key when running "apt update"
+RUN sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys F42ED6FBAB17C654
+
 # Setup python version for noetic
 RUN sudo apt update
 RUN if [ "${ROS_DISTRO}" == "noetic" ] ; \
