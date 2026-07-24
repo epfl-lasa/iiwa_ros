@@ -34,9 +34,9 @@ pkg_search_module(Eigen3 REQUIRED eigen3)
 find_package(Boost 1.49 REQUIRED)
 
 pkg_check_modules(tinyxml2 REQUIRED tinyxml2)
-pkg_check_modules(SpaceVecAlg REQUIRED SpaceVecAlg)
-pkg_check_modules(RBDyn REQUIRED RBDyn)
-pkg_check_modules(mc_rbdyn_urdf REQUIRED mc_rbdyn_urdf)
+find_package(SpaceVecAlg REQUIRED)
+find_package(RBDyn REQUIRED)
+find_package(mc_rbdyn_urdf REQUIRED)
 
 # Find catkin components
 find_package(catkin REQUIRED COMPONENTS
@@ -71,9 +71,9 @@ catkin_package(
 )
 
 add_library(iiwa_tools SHARED src/iiwa_tools.cpp)
-target_compile_options(iiwa_tools PUBLIC -std=c++11)
-target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES})
+target_compile_options(iiwa_tools PUBLIC -std=c++17)
+target_include_directories(iiwa_tools PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS})
+target_link_libraries(iiwa_tools PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} SpaceVecAlg::SpaceVecAlg RBDyn::RBDyn mc_rbdyn_urdf::mc_rbdyn_urdf)
 
 add_executable(iiwa_service src/iiwa_service.cpp src/iiwa_service_node.cpp)
 
@@ -94,9 +94,9 @@ if(ENABLE_SIMD)
   endif()
 endif()
 
-target_compile_options(iiwa_service PUBLIC -std=c++11)
-target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS} ${SpaceVecAlg_INCLUDE_DIRS} ${RBDyn_INCLUDE_DIRS} ${mc_rbdyn_urdf_INCLUDE_DIRS})
-target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} ${SpaceVecAlg_LIBRARIES} ${RBDyn_LIBRARIES} ${mc_rbdyn_urdf_LIBRARIES} iiwa_tools)
+target_compile_options(iiwa_service PUBLIC -std=c++17)
+target_include_directories(iiwa_service PUBLIC include ${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${tinyxml2_INCLUDE_DIRS})
+target_link_libraries(iiwa_service PUBLIC ${catkin_LIBRARIES} ${Boost_LIBRARIES} ${tinyxml2_LIBRARIES} SpaceVecAlg::SpaceVecAlg RBDyn::RBDyn mc_rbdyn_urdf::mc_rbdyn_urdf iiwa_tools)
 
 add_dependencies(iiwa_service iiwa_tools_generate_messages_cpp)
 
