@@ -28,6 +28,7 @@
   <!-- Select the robot -->
   <arg name="robot_name" default="iiwa"/>
   <arg name="model" default="14" />
+  <arg name="config_file" default="iiwa.yaml"/>
 
   <!-- Select the controller -->
   <arg name="controller" default="TorqueController"/>
@@ -43,7 +44,7 @@
 
         <!-- Spawn iiwa FRI driver -->
         <node pkg="iiwa_driver" type="iiwa_driver" name="iiwa_driver" respawn="false" output="screen">
-          <rosparam file="$(find iiwa_driver)/config/iiwa.yaml" command="load" subst_value="True"/>
+          <rosparam file="$(find iiwa_driver)/config/$(arg config_file)" command="load" subst_value="True"/>
         </node>
         
         <!-- Load joint controller configurations from YAML file to parameter server -->
